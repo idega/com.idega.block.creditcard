@@ -78,15 +78,14 @@
 	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
 	 </properties>
     </dependency>
+    <!-- commons-logging already included in the core bundle (because it is also used by com.idega.faces) -->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
       <type>jar</type>
       <url>http://commons.apache.org/</url>
-	  <properties>
-	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
-	 </properties>
+	  <properties />
     </dependency>
     <dependency>
       <groupId>tpos</groupId>
