@@ -1,0 +1,108 @@
+<project>
+   <extend>../com.idega.core.bundle/block-dependencies.xml</extend>
+    <pomVersion>3</pomVersion>
+    <name>idegaWeb Creditcard Block</name>
+    <artifactId>com.idega.block.creditcard</artifactId>
+    <currentVersion>1.0-SNAPSHOT</currentVersion>
+    <versions/>
+    <branches/>
+    <mailingLists>
+        <mailingList>
+            <name>${pom.name} Dev List</name>
+        </mailingList>
+        <mailingList>
+            <name>${pom.name} User List</name>
+        </mailingList>
+    </mailingLists>
+    <developers>
+        <developer>
+            <name>Tryggvi Larusson</name>
+            <id>tryggvil</id>
+            <email>tryggvi@idega.is</email>
+            <organization>idega software</organization>
+            <roles/>
+        </developer>
+        <developer>
+            <name>Pall Helgason</name>
+            <id>palli</id>
+            <email>palli@idega.is</email>
+            <organization>idega software</organization>
+            <roles/>
+        </developer>
+        <developer>
+            <name>Eirikur Sveinn Hrafnsson</name>
+            <id>eiki</id>
+            <email>eiki@idega.is</email>
+            <organization>idega software</organization>
+            <roles/>
+        </developer>
+        <developer>
+            <name>Thorhallur Helgason</name>
+            <id>laddi</id>
+            <email>laddi@idega.is</email>
+            <organization>idega software</organization>
+            <roles/>
+        </developer>
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>2.0</version>
+            <type>jar</type>
+            <url>http://commons.apache.org/</url>
+        </dependency>
+       <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging-api</artifactId>
+            <type>jar</type>
+            <version>1.0.4</version>
+            <url>http://commons.apache.org/</url>
+        </dependency>
+       <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0.4</version>
+            <type>jar</type>
+            <url>http://commons.apache.org/</url>
+        </dependency>
+		<dependency>
+            <groupId>tpos</groupId>
+            <artifactId>tpos</artifactId>
+            <version>j300</version>
+            <type>jar</type>
+            <url>http://www.median.is/</url>
+        </dependency>
+       <dependency>
+            <groupId>bundles</groupId>
+            <artifactId>com.idega.core</artifactId>
+            <version>1.9</version>
+            <type>jar</type>
+            <url>http://www.idega.com/</url>
+            <properties>
+                <eclipse.dependency>true</eclipse.dependency>
+            </properties>
+        </dependency>
+	    <dependency>
+     		<groupId>bundles</groupId>
+      		<artifactId>com.idega.block.trade</artifactId>
+      		<version>1.1</version>
+      		<!--<version>SNAPSHOT</version>-->
+      		<type>jar</type>
+      		<url>http://www.idega.com/</url>
+      		<properties>
+        	<eclipse.dependency>true</eclipse.dependency>
+      		</properties>
+    	</dependency>
+    </dependencies>
+      <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+        </unitTest>
+    </build>
+    <properties/>
+</project>
