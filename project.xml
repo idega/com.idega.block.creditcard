@@ -12,6 +12,11 @@
       <name>1.1</name>
       <tag>CREDITCARD_1_1</tag>
     </version>
+    <version>
+      <id>1.2</id>
+      <name>1.2</name>
+      <tag>CREDIT_CARD_1_2</tag>
+    </version>
   </versions>
   <branches/>
   <mailingLists>
@@ -86,7 +91,7 @@
       <artifactId>com.idega.core</artifactId>
       <version>1.9</version>
       <!--<version>SNAPSHOT</version>-->
-      
+
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
