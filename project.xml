@@ -64,6 +64,9 @@
       <version>2.0</version>
       <type>jar</type>
       <url>http://commons.apache.org/</url>
+	  <properties>
+	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
+	 </properties>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -71,6 +74,9 @@
       <type>jar</type>
       <version>1.0.4</version>
       <url>http://commons.apache.org/</url>
+	  <properties>
+	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
+	 </properties>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -78,6 +84,9 @@
       <version>1.0.4</version>
       <type>jar</type>
       <url>http://commons.apache.org/</url>
+	  <properties>
+	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
+	 </properties>
     </dependency>
     <dependency>
       <groupId>tpos</groupId>
@@ -85,6 +94,9 @@
       <version>j300</version>
       <type>jar</type>
       <url>http://www.median.is/</url>
+	  <properties>
+	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
+	 </properties>
     </dependency>
     <dependency>
       <groupId>bundles</groupId>
