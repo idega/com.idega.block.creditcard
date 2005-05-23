@@ -1,0 +1,14 @@
+creditcard.close=Close
+creditcard.no=No
+creditcard.save=Save
+creditcard.yes=Yes
+travel.amount=Amount
+travel.credidcard_number=Creditcard number
+travel.default=Default
+travel.is_information_correct=Is the following information correct ?
+travel.merchant=Merchant
+travel.month=Month
+travel.organization_id=Organization id
+travel.phone=Phone
+travel.refunds=Refunds
+travel.year=Year
