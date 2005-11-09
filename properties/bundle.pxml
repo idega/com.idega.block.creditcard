@@ -6,6 +6,32 @@
       <type>java.lang.String</type>
       <value>com.idega.block.creditcard</value>
     </key>
+    <key>
+      <name>iw_components</name>
+      <value>
+        <map />
+      </value>
+      <type>map</type>
+    </key>
+    <key>
+      <name>kortathjonustan_host_name</name>
+      <type>java.lang.String</type>
+      <value>par.kortathjonustan.is</value>
+    </key>
+    <key>
+      <name>kortathjonustan_host_port</name>
+      <type>java.lang.String</type>
+      <value>443</value>
+    </key>
+    <key>
+      <name>kortathjonustan_keystore</name>
+      <type>java.lang.String</type>
+      <value>resources/demoFolder/korta.jks</value>
+    </key>
+    <key>
+      <name>kortathjonustan_keystore_pass</name>
+      <type>java.lang.String</type>
+      <value>5i5UhpGk</value>
+    </key>
   </map>
 </pxml>
-
