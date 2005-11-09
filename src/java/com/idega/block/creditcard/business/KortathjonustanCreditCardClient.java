@@ -739,7 +739,11 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 
 		SSLClient client;
 		try {
-			client = new SSLClient(HOST_NAME, HOST_PORT, strKeystore, strKeystorePass, USER, PASSWORD);
+			String tmp = strKeystore;
+			if (tmp.startsWith("/")) { // Backwards compatability when this looked like this /home/idegaweb/... (marathon.is)
+				tmp = bundle.getBundleBaseRealPath()+"/"+strKeystore;
+			}
+			client = new SSLClient(HOST_NAME, HOST_PORT, tmp, strKeystorePass, USER, PASSWORD);
 		}
 		catch (IOException e) {
 			KortathjonustanAuthorizationException cce = new KortathjonustanAuthorizationException();
