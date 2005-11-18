@@ -14,6 +14,46 @@
       <type>map</type>
     </key>
     <key>
+      <name>properties_file</name>
+      <type>java.lang.String</type>
+      <value>client.properties</value>
+    </key>
+    <key>
+      <name>tpos_userid</name>
+      <type>java.lang.String</type>
+      <value>IDEGA</value>
+    </key>
+    <key>
+      <name>tpos_passwd</name>
+      <type>java.lang.String</type>
+      <value>1D3GAFL</value>
+    </key>
+    <key>
+      <name>tpos_merchantid</name>
+      <type>java.lang.String</type>
+      <value>IDF</value>
+    </key>
+    <key>                                                                
+      <name>tpos_locationid</name>
+      <type>java.lang.String</type>
+      <value>IDEGA</value>
+    </key>
+    <key>
+      <name>tpos_posid</name>
+      <type>java.lang.String</type>
+      <value>IDF001001</value>
+    </key>
+    <key>
+      <name>tpos_keyreceivepasswd</name>
+      <type>java.lang.String</type>
+      <value>7MTF67MD</value>
+    </key>
+    <key>
+      <name>tpos_ipset</name>
+      <type>java.lang.String</type>
+      <value>1</value>
+    </key>
+    <key>
       <name>kortathjonustan_host_name</name>
       <type>java.lang.String</type>
       <value>par.kortathjonustan.is</value>
