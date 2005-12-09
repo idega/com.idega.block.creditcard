@@ -90,9 +90,29 @@
     <dependency>
       <groupId>tpos</groupId>
       <artifactId>tpos</artifactId>
-      <version>j300</version>
+      <version>j300t55fix</version>
       <type>jar</type>
       <url>http://www.median.is/</url>
+	  <properties>
+	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
+	 </properties>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xerces</artifactId>
+      <version>3.0.1</version>
+      <type>jar</type>
+      <url>http://xml.apache.org/</url>
+	  <properties>
+	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
+	 </properties>
+    </dependency>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>xalan</artifactId>
+      <version>1.0</version>
+      <type>jar</type>
+      <url>http://xml.apache.org/</url>
 	  <properties>
 	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
 	 </properties>
