@@ -135,7 +135,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 	}
 	
 	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, IWTimestamp stamp) {
-		CreditCardInformation ccInfo = getCreditCardInformations(supplierManager, stamp);
+		CreditCardInformation ccInfo = getCreditCardInformation(supplierManager, stamp);
 		return getCreditCardMerchant(ccInfo);
 	}
 	
@@ -177,7 +177,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			
 			// Checking for merchants configured to this supplier's supplierManager
 			if (ccInfo == null) {
-				ccInfo = getCreditCardInformations(supplier.getSupplierManager(), stamp);
+				ccInfo = getCreditCardInformation(supplier.getSupplierManager(), stamp);
 			}
 			
 			return ccInfo;
@@ -196,7 +196,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 	 * @throws FinderException
 	 * @throws IDOLookupException
 	 */
-	private CreditCardInformation getCreditCardInformations(Group supplierManager, IWTimestamp stamp) {
+	public CreditCardInformation getCreditCardInformation(Group supplierManager, IWTimestamp stamp) {
 		Timestamp toCheck = null;
 		if (stamp != null) {
 			toCheck = stamp.getTimestamp();
@@ -444,7 +444,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 	}
 	
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Group supplierManager, String authorizationCode, IWTimestamp stamp) {
-		CreditCardInformation info = getCreditCardInformations(supplierManager, stamp);
+		CreditCardInformation info = getCreditCardInformation(supplierManager, stamp);
 		return getAuthorizationEntry(info, authorizationCode, stamp);
 	}	
 	
