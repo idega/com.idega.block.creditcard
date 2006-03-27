@@ -1,10 +1,9 @@
 package com.idega.block.creditcard.presentation;
 
-import java.sql.SQLException;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.util.List;
 
-import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.trade.stockroom.data.Supplier;
 import com.idega.core.contact.data.Phone;
@@ -31,7 +30,6 @@ public class Receipt extends PresentationObjectContainer{
 
   private IWResourceBundle iwrb;
   private IWBundle bundle;
-  private CreditCardClient _client;
   private CreditCardAuthorizationEntry _entries;
   private Supplier _supplier;
 
@@ -40,7 +38,6 @@ public class Receipt extends PresentationObjectContainer{
   public Receipt(CreditCardAuthorizationEntry entry, Supplier supplier) {
   	_entries = entry;
   	_supplier = supplier;
-  	_client = null;
   }
 
   public void main(IWContext iwc) {

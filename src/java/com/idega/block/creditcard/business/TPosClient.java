@@ -1,5 +1,5 @@
 /*
- *  $Id: TPosClient.java,v 1.13 2005/12/09 11:11:31 gimmi Exp $
+ *  $Id: TPosClient.java,v 1.14 2006/03/27 11:29:10 gimmi Exp $
  *
  *  Copyright (C) 2002 Idega hf. All Rights Reserved.
  *
@@ -12,16 +12,13 @@ package com.idega.block.creditcard.business;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Vector;
+
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.data.TPosAuthorisationEntriesBean;
 import com.idega.block.creditcard.data.TPosAuthorisationEntriesBeanHome;
-import com.idega.business.IBOLookup;
-import com.idega.business.IBOLookupException;
-import com.idega.business.IBORuntimeException;
 import com.idega.data.IDOLookup;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
-import com.idega.util.IWTimestamp;
 import com.tpos.client.TPOS3Client;
 
 /**
@@ -41,8 +38,6 @@ public class TPosClient implements CreditCardClient{
   private final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.creditcard";
   private TPOS3Client _client = null;
   private IWBundle _iwb = null;
-  private IWApplicationContext _iwc = null;
-  //private IWResourceBundle _iwrb = null;
   
   private String _userId = null;
   private String _passwd = null;
@@ -70,7 +65,6 @@ public class TPosClient implements CreditCardClient{
   }
 
   private void init(IWApplicationContext iwc) throws Exception{
-  		_iwc = iwc;
     _iwb = iwc.getIWMainApplication().getBundle(IW_BUNDLE_IDENTIFIER);
     //if (_iwb != null) {
     //  _iwrb = _iwb.getResourceBundle(iwc);
@@ -548,147 +542,147 @@ public class TPosClient implements CreditCardClient{
   	return ("-1");
   	}
 
-  /**
-   * Gets the amount attribute of the TPosClient object
-   *
-   * @return   The amount value
-   */
-  private String getAmount() {
-    return Integer.toString(Integer.parseInt(_client.getProperty(TPOS3Client.PN_AMOUNT)) / amountMultiplier);
-  }
+//  /**
+//   * Gets the amount attribute of the TPosClient object
+//   *
+//   * @return   The amount value
+//   */
+//  private String getAmount() {
+//    return Integer.toString(Integer.parseInt(_client.getProperty(TPOS3Client.PN_AMOUNT)) / amountMultiplier);
+//  }
+//
+//  /**
+//   * Gets the cardBrandName attribute of the TPosClient object
+//   *
+//   * @return   The cardBrandName value
+//   */
+//  private String getCardBrandName() {
+//    return _client.getProperty(TPOS3Client.PN_CARDBRANDNAME);
+//  }
+//
+//  /**
+//   * Gets the cardCharacter attribute of the TPosClient object
+//   *
+//   * @return   The cardCharacter value
+//   */
+//  private String getCardCharacter() {
+//    return _client.getProperty(TPOS3Client.PN_CARDCHARACTER);
+//  }
+//
+//  /**
+//   * Gets the authorisationCode attribute of the TPosClient object
+//   *
+//   * @return   The authorisationCode value
+//   */
+//  private String getAuthorisationCode() {
+//    return _client.getProperty(TPOS3Client.PN_AUTHORISATIONCODE);
+//  }
+//
+//  /**
+//   * Gets the autorIdentifyRSP attribute of the TPosClient object
+//   *
+//   * @return   The autorIdentifyRSP value
+//   */
+//  private String getAutorIdentifyRSP() {
+//    return _client.getProperty(TPOS3Client.PN_AUTHORIDENTIFYRSP);
+//  }
+//
+//  /**
+//   * Gets the cardTypeName attribute of the TPosClient object
+//   *
+//   * @return   The cardTypeName value
+//   */
+//  private String getCardTypeName() {
+//    return _client.getProperty(TPOS3Client.PN_CARDTYPENAME);
+//  }
+//
+//  /**
+//   * Gets the currency attribute of the TPosClient object
+//   *
+//   * @return   The currency value
+//   */
+//  private String getCurrency() {
+//    return _client.getProperty(TPOS3Client.PN_CURRENCY);
+//  }
 
-  /**
-   * Gets the cardBrandName attribute of the TPosClient object
-   *
-   * @return   The cardBrandName value
-   */
-  private String getCardBrandName() {
-    return _client.getProperty(TPOS3Client.PN_CARDBRANDNAME);
-  }
+//  /**
+//   * Gets the date attribute of the TPosClient object
+//   *
+//   * @return   The date value
+//   */
+//  private String getDate() {
+//    return _client.getProperty(TPOS3Client.PN_DATE);
+//  }
+//
+//  /**
+//   * Gets the time attribute of the TPosClient object
+//   *
+//   * @return   The time value
+//   */
+//  private String getTime() {
+//    return _client.getProperty(TPOS3Client.PN_TIME);
+//  }
 
-  /**
-   * Gets the cardCharacter attribute of the TPosClient object
-   *
-   * @return   The cardCharacter value
-   */
-  private String getCardCharacter() {
-    return _client.getProperty(TPOS3Client.PN_CARDCHARACTER);
-  }
+//  /**
+//   * Gets the expire attribute of the TPosClient object
+//   *
+//   * @return   The expire value
+//   */
+//  private String getExpire() {
+//    return _client.getProperty(TPOS3Client.PN_EXPIRE);
+//  }
 
-  /**
-   * Gets the authorisationCode attribute of the TPosClient object
-   *
-   * @return   The authorisationCode value
-   */
-  private String getAuthorisationCode() {
-    return _client.getProperty(TPOS3Client.PN_AUTHORISATIONCODE);
-  }
+//  /**
+//   * Gets the pan attribute of the TPosClient object
+//   *
+//   * @return   The pan value
+//   */
+//  private String getPan() {
+//    return _client.getProperty(TPOS3Client.PN_PAN);
+//  }
 
-  /**
-   * Gets the autorIdentifyRSP attribute of the TPosClient object
-   *
-   * @return   The autorIdentifyRSP value
-   */
-  private String getAutorIdentifyRSP() {
-    return _client.getProperty(TPOS3Client.PN_AUTHORIDENTIFYRSP);
-  }
-
-  /**
-   * Gets the cardTypeName attribute of the TPosClient object
-   *
-   * @return   The cardTypeName value
-   */
-  private String getCardTypeName() {
-    return _client.getProperty(TPOS3Client.PN_CARDTYPENAME);
-  }
-
-  /**
-   * Gets the currency attribute of the TPosClient object
-   *
-   * @return   The currency value
-   */
-  private String getCurrency() {
-    return _client.getProperty(TPOS3Client.PN_CURRENCY);
-  }
-
-  /**
-   * Gets the date attribute of the TPosClient object
-   *
-   * @return   The date value
-   */
-  private String getDate() {
-    return _client.getProperty(TPOS3Client.PN_DATE);
-  }
-
-  /**
-   * Gets the time attribute of the TPosClient object
-   *
-   * @return   The time value
-   */
-  private String getTime() {
-    return _client.getProperty(TPOS3Client.PN_TIME);
-  }
-
-  /**
-   * Gets the expire attribute of the TPosClient object
-   *
-   * @return   The expire value
-   */
-  private String getExpire() {
-    return _client.getProperty(TPOS3Client.PN_EXPIRE);
-  }
-
-  /**
-   * Gets the pan attribute of the TPosClient object
-   *
-   * @return   The pan value
-   */
-  private String getPan() {
-    return _client.getProperty(TPOS3Client.PN_PAN);
-  }
-
-  /**
-   * Gets the cCNumber attribute of the TPosClient object
-   *
-   * @return   The cCNumber value
-   */
-  private String getCCNumber() {
-    return getPan();
-  }
-
-  /**
-   * Created from getDate() and getTime()
-   *
-   * @return   The IWTimestamp value
-   */
-  private IWTimestamp getIdegaTimestamp() {
-    IWTimestamp stamp = new IWTimestamp();
-    try {
-      String date = getDate();
-      String time = getTime();
-
-      stamp.setYear(Integer.parseInt(date.substring(0, 4)));
-      stamp.setMonth(Integer.parseInt(date.substring(4, 6)));
-      stamp.setDay(Integer.parseInt(date.substring(6, 8)));
-      stamp.setHour(Integer.parseInt(time.substring(0, 2)));
-      stamp.setMinute(Integer.parseInt(time.substring(2, 4)));
-      stamp.setSecond(Integer.parseInt(time.substring(4, 6)));
-    }
-    catch (Exception e) {
-      stamp = IWTimestamp.RightNow();
-    }
-
-    return stamp;
-  }
-
-  private CreditCardBusiness getCreditCardBusiness(IWApplicationContext iwac) {
-		try {
-		return (CreditCardBusiness) IBOLookup.getServiceInstance(iwac, CreditCardBusiness.class);
-	} catch (IBOLookupException e) {
-		throw  new IBORuntimeException(e);
-	}
-
-  }
+//  /**
+//   * Gets the cCNumber attribute of the TPosClient object
+//   *
+//   * @return   The cCNumber value
+//   */
+//  private String getCCNumber() {
+//    return getPan();
+//  }
+//
+//  /**
+//   * Created from getDate() and getTime()
+//   *
+//   * @return   The IWTimestamp value
+//   */
+//  private IWTimestamp getIdegaTimestamp() {
+//    IWTimestamp stamp = new IWTimestamp();
+//    try {
+//      String date = getDate();
+//      String time = getTime();
+//
+//      stamp.setYear(Integer.parseInt(date.substring(0, 4)));
+//      stamp.setMonth(Integer.parseInt(date.substring(4, 6)));
+//      stamp.setDay(Integer.parseInt(date.substring(6, 8)));
+//      stamp.setHour(Integer.parseInt(time.substring(0, 2)));
+//      stamp.setMinute(Integer.parseInt(time.substring(2, 4)));
+//      stamp.setSecond(Integer.parseInt(time.substring(4, 6)));
+//    }
+//    catch (Exception e) {
+//      stamp = IWTimestamp.RightNow();
+//    }
+//
+//    return stamp;
+//  }
+//
+//  private CreditCardBusiness getCreditCardBusiness(IWApplicationContext iwac) {
+//		try {
+//		return (CreditCardBusiness) IBOLookup.getServiceInstance(iwac, CreditCardBusiness.class);
+//	} catch (IBOLookupException e) {
+//		throw  new IBORuntimeException(e);
+//	}
+//
+//  }
 
 	public Collection getValidCardTypes() {
 		Vector tmp = new Vector();

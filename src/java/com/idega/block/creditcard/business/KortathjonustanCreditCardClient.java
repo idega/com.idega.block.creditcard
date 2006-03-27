@@ -18,7 +18,9 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.ejb.CreateException;
+
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesHome;
@@ -42,10 +44,10 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	private String PROPERTY_PASSWORD = "pwd";
 	private String PROPERTY_SITE = "site";
 
-	private String PROPERTY_MERCHANT_LANGUAGE = "mlang"; // valid = en, is (default = en)
-	private String PROPERTY_CLIENT_LANGUAGE = "clang"; // valid = en, is (default = en)
-
-	private String PROPERTY_CLIENT_IP = "cip";
+//	private String PROPERTY_MERCHANT_LANGUAGE = "mlang"; // valid = en, is (default = en)
+//	private String PROPERTY_CLIENT_LANGUAGE = "clang"; // valid = en, is (default = en)
+//
+//	private String PROPERTY_CLIENT_IP = "cip";
 
 	private String PROPERTY_CARDHOLDER_NAME = "d2name";
 	private String PROPERTY_CC_NUMBER = "d2";
@@ -68,14 +70,14 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	private String PROPERTY_APPROVAL_CODE_ECHO = "o38"; // Echo from d38
 	private String PROPERTY_ACTION_CODE_ECHO = "o39"; // Echo from d39
 
-	private String PROPERTY_SHIPPING_ADDRESS = "d2saddr";
-	private String PROPERTY_SHIPPING_CITY = "d2scity";
-	private String PROPERTY_SHIPPING_ZIP = "d2szip";
-	private String PROPERTY_SHIPPING_COUNTRY = "d2sctr";
+//	private String PROPERTY_SHIPPING_ADDRESS = "d2saddr";
+//	private String PROPERTY_SHIPPING_CITY = "d2scity";
+//	private String PROPERTY_SHIPPING_ZIP = "d2szip";
+//	private String PROPERTY_SHIPPING_COUNTRY = "d2sctr";
 	private String PROPERTY_CARD_BRAND_NAME = "d2brand";
 	private String PROPERTY_TOTAL_RESPONSE = "totalResponse";
 
-	private String PROPERTY_SETTLEMENT_REFERENCE_NUMBER = "d37";
+//	private String PROPERTY_SETTLEMENT_REFERENCE_NUMBER = "d37";
 	private String PROPERTY_ACTION_CODE_TEXT = "d39text";
 	private String PROPERTY_ERROR_CODE = "error";
 	private String PROPERTY_ERROR_TEXT = "errortext";
@@ -85,9 +87,9 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	private static String REQUEST_TYPE_REVERSAL = "/rpc/RequestReversal";
 
 	private static String CODE_AUTHORIZATOIN_APPROVED = "000";
-	private static String CODE_AUTHORIZATOIN_DECLINED = "100";
-	private static String CODE_SYSTEM_FAILURE_RETRY = "946";
-	private static String CODE_SYSTEM_FAILURE_ERROR = "909";
+//	private static String CODE_AUTHORIZATOIN_DECLINED = "100";
+//	private static String CODE_SYSTEM_FAILURE_RETRY = "946";
+//	private static String CODE_SYSTEM_FAILURE_ERROR = "909";
 
 	private String SITE = null;//"22";
 	private String USER = null;//"idega";
@@ -111,10 +113,10 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 																												 // (Math.random() *
 																												 // 43200));
 
-	private Hashtable returnedProperties = null;
-	// Test indicator
-	private boolean bTestServer = false;
-	private CreditCardTransaction cct = null;
+//	private Hashtable returnedProperties = null;
+//	// Test indicator
+//	private boolean bTestServer = false;
+//	private CreditCardTransaction cct = null;
 	private CreditCardMerchant ccMerchant = null;
 	private IWBundle bundle = null;
 
@@ -830,10 +832,10 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		}
 	}
 
-	private String encodeBase64(String _strData) {
-		Base64 oB64 = new Base64();
-		return oB64.encode(_strData.getBytes());
-	}
+//	private String encodeBase64(String _strData) {
+//		Base64 oB64 = new Base64();
+//		return oB64.encode(_strData.getBytes());
+//	}
 
 	public Collection getValidCardTypes() {
 		Vector tmp = new Vector();
