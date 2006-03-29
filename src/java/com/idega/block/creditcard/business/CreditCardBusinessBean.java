@@ -4,9 +4,11 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
+
 import javax.ejb.CreateException;
 import javax.ejb.FinderException;
 import javax.transaction.TransactionManager;
+
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
@@ -27,6 +29,8 @@ import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
 import com.idega.idegaweb.IWBundle;
+import com.idega.idegaweb.IWResourceBundle;
+import com.idega.presentation.ui.DropdownMenu;
 import com.idega.transaction.IdegaTransactionManager;
 import com.idega.user.data.Group;
 import com.idega.util.Encrypter;
@@ -64,6 +68,22 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			  
 			  return coll;
 		  } 
+	  }
+	  return null;
+  }
+  
+  public DropdownMenu getCreditCardTypes(CreditCardClient client, IWResourceBundle iwrb, String dropdownName) {
+	  Collection types = client.getValidCardTypes();
+	  if (types != null && !types.isEmpty()) {
+		  DropdownMenu menu = new DropdownMenu(dropdownName);
+		  Iterator iter = types.iterator();
+		  String type;
+		  menu.addMenuElement("-1", iwrb.getLocalizedString("select_one", "Select one:"));
+		  while (iter.hasNext()) {
+			  type = (String) iter.next();
+			  menu.addMenuElement(type, iwrb.getLocalizedString("card_type."+type, type));
+		  }
+		  return menu;
 	  }
 	  return null;
   }

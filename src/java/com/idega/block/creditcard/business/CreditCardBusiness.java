@@ -1,5 +1,5 @@
 /*
- * $Id: CreditCardBusiness.java,v 1.8 2006/02/13 13:21:51 gimmi Exp $
+ * $Id: CreditCardBusiness.java,v 1.9 2006/03/29 11:58:44 gimmi Exp $
  * Created on Feb 13, 2006
  *
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
@@ -19,6 +19,8 @@ import com.idega.block.trade.stockroom.data.Supplier;
 import com.idega.business.IBOService;
 import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
+import com.idega.idegaweb.IWResourceBundle;
+import com.idega.presentation.ui.DropdownMenu;
 import com.idega.user.data.Group;
 import com.idega.util.IWTimestamp;
 
@@ -27,10 +29,10 @@ import com.idega.util.IWTimestamp;
  * <p>
  * TODO gimmi Describe Type CreditCardBusiness
  * </p>
- *  Last modified: $Date: 2006/02/13 13:21:51 $ by $Author: gimmi $
+ *  Last modified: $Date: 2006/03/29 11:58:44 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gimmi@idega.com">gimmi</a>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public interface CreditCardBusiness extends IBOService {
 
@@ -176,4 +178,7 @@ public interface CreditCardBusiness extends IBOService {
 	 */
 	public Collection getAllRefunds(IWTimestamp from, IWTimestamp to, int clientType) throws IDOLookupException,
 			FinderException, java.rmi.RemoteException;
+	
+	public DropdownMenu getCreditCardTypes(CreditCardClient client, IWResourceBundle iwrb, String dropdownName);
+
 }

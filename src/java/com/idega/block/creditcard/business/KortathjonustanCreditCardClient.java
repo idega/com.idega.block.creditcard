@@ -841,8 +841,8 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		Vector tmp = new Vector();
 		tmp.add(CreditCardBusiness.CARD_TYPE_VISA);
 		tmp.add(CreditCardBusiness.CARD_TYPE_MASTERCARD);
-		tmp.add(CreditCardBusiness.CARD_TYPE_ELECTRON);
-		tmp.add(CreditCardBusiness.CARD_TYPE_DINERS);
+//		tmp.add(CreditCardBusiness.CARD_TYPE_ELECTRON);
+//		tmp.add(CreditCardBusiness.CARD_TYPE_DINERS);
 		tmp.add(CreditCardBusiness.CARD_TYPE_JCB);
 		//tmp.add(CreditCardBusiness.CARD_TYPE_DANKORT); // Virkar v�st bara � .dk
 		return tmp;
