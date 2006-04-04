@@ -1,5 +1,5 @@
 /*
- *  $Id: TPosClient.java,v 1.14 2006/03/27 11:29:10 gimmi Exp $
+ *  $Id: TPosClient.java,v 1.15 2006/04/04 15:14:23 gimmi Exp $
  *
  *  Copyright (C) 2002 Idega hf. All Rights Reserved.
  *
@@ -688,7 +688,7 @@ public class TPosClient implements CreditCardClient{
 		Vector tmp = new Vector();
 		tmp.add(CreditCardBusiness.CARD_TYPE_VISA);
 		tmp.add(CreditCardBusiness.CARD_TYPE_MASTERCARD);
-		tmp.add(CreditCardBusiness.CARD_TYPE_AMERICAN_EXPRESS);
+//		tmp.add(CreditCardBusiness.CARD_TYPE_AMERICAN_EXPRESS);
 		return tmp;
 	}
 
