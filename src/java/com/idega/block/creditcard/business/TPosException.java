@@ -1,5 +1,5 @@
 /*
- * $Id: TPosException.java,v 1.1 2004/04/22 21:40:27 gimmi Exp $
+ * $Id: TPosException.java,v 1.2 2006/06/20 11:01:19 gimmi Exp $
  *
  * Copyright (C) 2002 Idega hf. All Rights Reserved.
  *
@@ -79,16 +79,13 @@ public class TPosException extends CreditCardAuthorizationException {
 			case 69:
 			case 75:
 				return (iwrb.getLocalizedString("travel.creditcard_autorization_failed","Authorization failed"));
-			/*case 69:
-				display.setText(e.getErrorMessage());
-				break;*/
 			case 20:
 			case 31:
 				return (iwrb.getLocalizedString("travel.transaction_not_permitted","Transaction not permitted"));
 			case 99999:
 				return (iwrb.getLocalizedString("travel.booking_was_not_confirmed_try_again_later","Booking was not confirmed. Please try again later"));
 			default:
-				return (iwrb.getLocalizedString("travel.cannot_connect","Cannot communicate with server"));
+				return (iwrb.getLocalizedString("travel.error_communicating","Error communicating with Central Payment Server"));
 		}
 
 
