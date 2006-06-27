@@ -17,6 +17,11 @@
       <name>1.2</name>
       <tag>CREDIT_CARD_1_2</tag>
     </version>
+    <version>
+      <id>3.1.0</id>
+      <name>3.1.0</name>
+      <tag>CREDITCARD_3_1_0</tag>
+    </version>
   </versions>
   <branches/>
   <mailingLists>
@@ -64,9 +69,9 @@
       <version>2.0</version>
       <type>jar</type>
       <url>http://commons.apache.org/</url>
-	  <properties>
-	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
-	 </properties>
+      <properties>
+        <idegaweb.bundle.include>true</idegaweb.bundle.include>
+      </properties>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -74,18 +79,19 @@
       <type>jar</type>
       <version>1.0.4</version>
       <url>http://commons.apache.org/</url>
-	  <properties>
-	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
-	 </properties>
+      <properties>
+        <idegaweb.bundle.include>true</idegaweb.bundle.include>
+      </properties>
     </dependency>
     <!-- commons-logging already included in the core bundle (because it is also used by com.idega.faces) -->
+
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
       <type>jar</type>
       <url>http://commons.apache.org/</url>
-	  <properties />
+      <properties/>
     </dependency>
     <dependency>
       <groupId>tpos</groupId>
@@ -93,9 +99,9 @@
       <version>j300t55fix</version>
       <type>jar</type>
       <url>http://www.median.is/</url>
-	  <properties>
-	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
-	 </properties>
+      <properties>
+        <idegaweb.bundle.include>true</idegaweb.bundle.include>
+      </properties>
     </dependency>
     <dependency>
       <groupId>xerces</groupId>
@@ -103,9 +109,9 @@
       <version>3.0.1</version>
       <type>jar</type>
       <url>http://xml.apache.org/</url>
-	  <properties>
-	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
-	 </properties>
+      <properties>
+        <idegaweb.bundle.include>true</idegaweb.bundle.include>
+      </properties>
     </dependency>
     <dependency>
       <groupId>xalan</groupId>
@@ -113,9 +119,9 @@
       <version>1.0</version>
       <type>jar</type>
       <url>http://xml.apache.org/</url>
-	  <properties>
-	 <idegaweb.bundle.include>true</idegaweb.bundle.include>
-	 </properties>
+      <properties>
+        <idegaweb.bundle.include>true</idegaweb.bundle.include>
+      </properties>
     </dependency>
     <dependency>
       <groupId>bundles</groupId>
@@ -128,7 +134,6 @@
       <groupId>bundles</groupId>
       <artifactId>com.idega.block.trade</artifactId>
       <version>3.1.0</version>
-
       <type>jar</type>
       <url>http://www.idega.com/</url>
       <properties>
