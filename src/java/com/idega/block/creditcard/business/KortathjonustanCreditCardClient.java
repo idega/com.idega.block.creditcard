@@ -467,6 +467,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 				iAmount = Integer.parseInt(captureProperties.get(this.PROPERTY_AMOUNT).toString());
 				if (iAmountToRefund > iAmount) {
 					CreditCardAuthorizationException e = new CreditCardAuthorizationException("Amount to refund can not be higher that the original amount");
+					e.setDisplayError("Amount to refund can not be higher that the original amount");
 					throw e;
 				}
 			}
