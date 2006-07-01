@@ -5,6 +5,12 @@
   </properties>
   <body>
   
+	<release version="3.1.1" date="2006-07-01">
+		<action dev="gimmi" type="update">
+			Trade updated to 3.1.1
+		</action>     
+	</release>
+
       <release version="3.1.0" date="2006-06-27">
 		  <action dev="gimmi" type="update">
 			Released module built on ePlatform 3.1
