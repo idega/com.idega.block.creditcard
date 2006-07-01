@@ -228,10 +228,8 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		try {
 			Collection coll;
 			coll = getCreditCardInformations(supplierManager);
-			if (ccInfo == null) {
-				Iterator iter = coll.iterator();
-				ccInfo = getCreditCardInformationInUse(iter, toCheck);
-			}
+			Iterator iter = coll.iterator();
+			ccInfo = getCreditCardInformationInUse(iter, toCheck);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
