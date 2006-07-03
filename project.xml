@@ -5,7 +5,7 @@
   <pomVersion>3</pomVersion>
   <name>idegaWeb Creditcard Block</name>
   <artifactId>com.idega.block.creditcard</artifactId>
-  <currentVersion>3.1.1</currentVersion>
+  <currentVersion>3.1.2</currentVersion>
   <versions>
     <version>
       <id>1.1</id>
@@ -131,7 +131,7 @@
     <dependency>
       <groupId>bundles</groupId>
       <artifactId>com.idega.core</artifactId>
-      <version>3.1.0</version>
+      <version>3.1.2</version>
       <type>jar</type>
       <url>http://www.idega.com/</url>
     </dependency>
