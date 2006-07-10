@@ -273,7 +273,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 			IWTimestamp stamp = IWTimestamp.RightNow();
 			this.strName = nameOnCard;
 			this.strCCNumber = cardnumber;
-			this.strCCExpire = monthExpires + yearExpires;
+			this.strCCExpire = yearExpires + monthExpires;
 			this.strCCVerify = ccVerifyNumber;
 			setCurrencyAndAmount(currency, amount);
 			this.strCurrentDate = getDateString(stamp);
