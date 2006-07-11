@@ -211,6 +211,16 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 				this.strCurrencyExponent = "2";
 				amountMultiplier = (int) Math.pow(10, Double.parseDouble(this.strCurrencyExponent));
 			}
+			else if (currency.equalsIgnoreCase("SEK")) {
+				this.strCurrencyCode = "752";
+				this.strCurrencyExponent = "2";
+				amountMultiplier = (int) Math.pow(10, Double.parseDouble(this.strCurrencyExponent));
+			}
+			else if (currency.equalsIgnoreCase("NOK")) {
+				this.strCurrencyCode = "578";
+				this.strCurrencyExponent = "2";
+				amountMultiplier = (int) Math.pow(10, Double.parseDouble(this.strCurrencyExponent));
+			}
 			else if (currency.equalsIgnoreCase("GBP")) {
 				this.strCurrencyCode = "826";
 				this.strCurrencyExponent = "2";
