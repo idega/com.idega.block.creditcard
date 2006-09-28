@@ -875,4 +875,8 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		return true;
 	} 
 
+	public String getExpireDateString(String month, String year) {
+		return year+month;
+	}
+
 }

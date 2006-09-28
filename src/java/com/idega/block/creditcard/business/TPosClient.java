@@ -1,5 +1,5 @@
 /*
- * $Id: TPosClient.java,v 1.16 2006/04/12 14:29:50 laddi Exp $
+ * $Id: TPosClient.java,v 1.17 2006/09/28 11:25:50 gimmi Exp $
  * 
  * Copyright (C) 2002 Idega hf. All Rights Reserved.
  * 
@@ -742,5 +742,9 @@ public class TPosClient implements CreditCardClient {
 	 */
 	public boolean supportsDelayedTransactions() {
 		return true;
+	}
+
+	public String getExpireDateString(String month, String year) {
+		return month+year;
 	}
 }

@@ -12,6 +12,15 @@ import com.idega.block.creditcard.data.CreditCardMerchant;
  */
 public interface CreditCardClient {
 
+	
+	/**
+	 * Returns the datestring as it is used by the client.
+	 * @param month Expire month, formatted like this 08
+	 * @param year Expire year, formatted like this 09
+	 * @return
+	 */
+	public String getExpireDateString(String month, String year);	
+
 	/**
 	 * Returns a collection of valid card types.
 	 * The collection contains String declared in CreditCardBusiness.
