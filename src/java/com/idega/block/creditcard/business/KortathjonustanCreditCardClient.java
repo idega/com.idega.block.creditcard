@@ -193,6 +193,10 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 			return "DDK";
 		} else if (currencyCode.equals("978")) {
 			return "EUR";
+		} else if (currencyCode.equals("752")) {
+			return "SEK";
+		} else if (currencyCode.equals("578")) {
+			return "NOK";
 		}
 		return currencyCode;
 	}
