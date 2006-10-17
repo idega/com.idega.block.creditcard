@@ -4,6 +4,12 @@
     <author email="gimmi@idega.com">Grimur Jonsson</author>
   </properties>
   <body>
+	<release version="3.1.7" date="2006-10-17">
+		<action dev="gimmi" type="fix">
+			Fix a select query for KortathjonustanAuthEntries lookup
+		</action>     
+	</release>
+	
 	<release version="3.1.6" date="2006-10-05">
 		<action dev="gimmi" type="fix">
 			new currency abbreviations

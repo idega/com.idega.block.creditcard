@@ -208,11 +208,11 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		to.addDays(1);
 
 		Table table = new Table(this);
-		Column date = new Column(COLUMN_DATE);
-		Column code = new Column(COLUMN_TRANSACTION_TYPE);
+		Column date = new Column(table, COLUMN_DATE);
+		Column code = new Column(table, COLUMN_TRANSACTION_TYPE);
 		
 		SelectQuery query = new SelectQuery(table);
-		query.addColumn(new WildCardColumn(table));
+		query.addColumn(new Column(table, getIDColumnName()));
 		query.addCriteria(new MatchCriteria(code, MatchCriteria.EQUALS, KortathjonustanAuthorisationEntries.AUTHORIZATION_TYPE_REFUND));
 		query.addCriteria(new MatchCriteria(date, MatchCriteria.GREATEREQUAL, from.getDate().toString()));
 		query.addCriteria(new MatchCriteria(date, MatchCriteria.LESSEQUAL, to.getDate().toString()));
