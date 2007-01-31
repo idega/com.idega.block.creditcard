@@ -1,4 +1,6 @@
 cc.cannot_connect=Cannot communicate with server
+cc.declined=Declined
+cc.system_failure_retry=System failure - Retry
 creditcard.close=Close
 creditcard.no=No
 creditcard.save=Save
