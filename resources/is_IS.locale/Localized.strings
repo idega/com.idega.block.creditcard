@@ -1,6 +1,11 @@
 cc.cannot_connect=N\u00E1\u00F0i ekki samband vi\u00F0 grei\u00F0slug\u00E1tt
-cc.declined=Heimild hafna\u00F0
-cc.system_failure_retry=Kerfisvilla - Reyni aftur
+cc.declined=Korti hafna\u00F0
+cc.system_failure_error=Kerfisvilla kom upp er reynt var a\u00F0 f\u00E1 heimild fyrir kort
+cc.system_failure_retry=Kerfisvilla kom upp - Reyni aftur
+creditcard.close=Loka
+creditcard.no=Nei
+creditcard.save=Vista
+creditcard.yes=J\u00E1
 tpos0000=A\u00F0ger\u00F0 t\u00F3kst
 tpos0001=Posi finnst ekki \u00E1 skr\u00E1
 tpos0002=Notandi m\u00E1 ekki nota \u00FEennan posa
