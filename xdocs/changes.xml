@@ -4,6 +4,11 @@
     <author email="gimmi@idega.com">Grimur Jonsson</author>
   </properties>
   <body>
+	<release version="3.1.8" date="2007-03-09">
+		<action dev="sigtryggur" type="update">
+			Added some localizable strings and translations
+		</action>     
+	</release>
 	<release version="3.1.7" date="2006-10-17">
 		<action dev="gimmi" type="fix">
 			Fix a select query for KortathjonustanAuthEntries lookup
