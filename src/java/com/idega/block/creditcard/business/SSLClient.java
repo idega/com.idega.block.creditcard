@@ -13,9 +13,11 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 
@@ -109,6 +111,14 @@ public class SSLClient {
 
 		public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort) throws IOException, UnknownHostException {
 			SSLSocket socket = (SSLSocket) this.m_oSSLCtx.getSocketFactory().createSocket(host, port, clientHost, clientPort);
+			// Do the SSL handshake
+			socket.startHandshake();
+			// Return a connected socket
+			return socket;
+		}
+
+		public Socket createSocket(String arg0, int arg1, InetAddress arg2,	int arg3, HttpConnectionParams arg4) throws IOException, UnknownHostException, ConnectTimeoutException {
+			SSLSocket socket = (SSLSocket) this.m_oSSLCtx.getSocketFactory().createSocket(arg0, arg1, arg2, arg3);
 			// Do the SSL handshake
 			socket.startHandshake();
 			// Return a connected socket
