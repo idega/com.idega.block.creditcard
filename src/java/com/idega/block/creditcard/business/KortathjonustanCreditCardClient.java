@@ -589,11 +589,12 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		return strPostData.toString();
 	}
 	
-	public void finishTransaction(String properties) throws KortathjonustanAuthorizationException {
+	public String finishTransaction(String properties) throws KortathjonustanAuthorizationException {
 		Hashtable returnedCaptureProperties = finishTransaction(parseResponse(properties));
 		try {
 			//String tmpCardNum = CreditCardBusinessBean.encodeCreditCardNumber(cardnumber);
 			this.storeAuthorizationEntry(null, null, returnedCaptureProperties, KortathjonustanAuthorisationEntries.AUTHORIZATION_TYPE_DELAYED_TRANSACTION);
+			return returnedCaptureProperties.get(this.PROPERTY_APPROVAL_CODE).toString();
 		}
 		catch (Exception e) {
 			System.err.println("Unable to save entry to database");

@@ -1,5 +1,5 @@
 /*
- * $Id: TPosClient.java,v 1.17 2006/09/28 11:25:50 gimmi Exp $
+ * $Id: TPosClient.java,v 1.18 2007/04/28 17:02:53 gimmi Exp $
  * 
  * Copyright (C) 2002 Idega hf. All Rights Reserved.
  * 
@@ -279,7 +279,7 @@ public class TPosClient implements CreditCardClient {
 		return doAuth(cardnumber, monthExpires, yearExpires, amount, currency, "3", parentDataPK, null);
 	}
 
-	public void finishTransaction(String properties) throws CreditCardAuthorizationException {
+	public String finishTransaction(String properties) throws CreditCardAuthorizationException {
 		HashMap map = parseProperties(properties);
 
 		String cardnumber = (String) map.get(TPOS3Client.PN_PAN);
@@ -290,7 +290,7 @@ public class TPosClient implements CreditCardClient {
 		String yearExpires = expires.substring(2, 4);
 		String authIDRsp = (String) map.get(TPOS3Client.PN_AUTHORIDENTIFYRSP);
 
-		doAuth(cardnumber, monthExpires, yearExpires, Double.parseDouble(amount) / this.amountMultiplier, currency, "1", null, authIDRsp);
+		return doAuth(cardnumber, monthExpires, yearExpires, Double.parseDouble(amount) / this.amountMultiplier, currency, "1", null, authIDRsp);
 	}
 
 	private HashMap parseProperties(String response) {
