@@ -39,85 +39,92 @@ import com.idega.util.IWTimestamp;
 /**
  * @author gimmi
  */
-public class CreditCardBusinessBean extends IBOServiceBean implements CreditCardBusiness{
-	
-  public final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.creditcard";
-  
-  private final static String PROPERTY_KORTATHJONUSTAN_HOST_NAME = "kortathjonustan_host_name";
-  private final static String PROPERTY_KORTATHJONUSTAN_HOST_PORT = "kortathjonustan_host_port";
-  private final static String PROPERTY_KORTATHJONUSTAN_KEYSTORE = "kortathjonustan_keystore";
-  private final static String PROPERTY_KORTATHJONUSTAN_KEYSTORE_PASS = "kortathjonustan_keystore_pass";
-  
-  public final static int CLIENT_TYPE_TPOS = 1;
-  public final static int CLIENT_TYPE_KORTATHJONUSTAN = 2;
+public class CreditCardBusinessBean extends IBOServiceBean implements CreditCardBusiness {
 
-  public String getBundleIdentifier() {
-  		return IW_BUNDLE_IDENTIFIER;
-  }
-  
-  public Collection getAuthorizationEntries(int clientType, String merchantID, IWTimestamp from, IWTimestamp to) throws IDOLookupException, FinderException {
-	  if (clientType > 0) {
-		  if (clientType == CLIENT_TYPE_KORTATHJONUSTAN) {
-			  KortathjonustanAuthorisationEntriesHome home = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntries.class);
-			  Collection coll =  home.findByDates(from, to);
-			  
-			  return coll;
-		  } else if (clientType == CLIENT_TYPE_TPOS) {
-			  TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);
-			  Collection coll =  home.findByDates(from, to);
-			  
-			  return coll;
-		  } 
-	  }
-	  return null;
-  }
-  
-  public DropdownMenu getCreditCardTypes(CreditCardClient client, IWResourceBundle iwrb, String dropdownName) {
-	  Collection types = client.getValidCardTypes();
-	  if (types != null && !types.isEmpty()) {
-		  DropdownMenu menu = new DropdownMenu(dropdownName);
-		  Iterator iter = types.iterator();
-		  String type;
-		  menu.addMenuElement("-1", iwrb.getLocalizedString("select_one", "Select one:"));
-		  while (iter.hasNext()) {
-			  type = (String) iter.next();
-			  menu.addMenuElement(type, iwrb.getLocalizedString("card_type."+type, type));
-		  }
-		  return menu;
-	  }
-	  return null;
-  }
-  
-  public Collection getCreditCardTypeImages(CreditCardClient client) {
-  		Collection types = client.getValidCardTypes();
-  		Vector images = new Vector();
-  		if (types != null  && !types.isEmpty()) {
-  			Iterator iter = types.iterator();
-  			IWBundle bundle = this.getBundle();
-  			String type;
-  			while (iter.hasNext()) {
-  				type = (String) iter.next();
-  				if (CreditCardBusiness.CARD_TYPE_DANKORT.equals(type)) {
-  					images.add(bundle.getImage("logos/dankort.gif"));
-  				} else if (CreditCardBusiness.CARD_TYPE_DINERS.equals(type)) {
-  					images.add(bundle.getImage("logos/diners.gif"));
-  				} else if (CreditCardBusiness.CARD_TYPE_ELECTRON.equals(type)) {
-  					images.add(bundle.getImage("logos/electron.gif"));
-  				} else if (CreditCardBusiness.CARD_TYPE_JCB.equals(type)) {
-  					images.add(bundle.getImage("logos/jcb.gif"));
-  				} else if (CreditCardBusiness.CARD_TYPE_MASTERCARD.equals(type)) {
-  					images.add(bundle.getImage("logos/mastercard.gif"));
-  				} else if (CreditCardBusiness.CARD_TYPE_VISA.equals(type)) {
-  					images.add(bundle.getImage("logos/visa.gif"));
-  				} else if (CreditCardBusiness.CARD_TYPE_AMERICAN_EXPRESS.equals(type)) {
-  					images.add(bundle.getImage("logos/ae.gif"));
-  				}
-  			}
-  		}
-  		
-  		return images;
-  }
-  
+	public final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.creditcard";
+
+	private final static String PROPERTY_KORTATHJONUSTAN_HOST_NAME = "kortathjonustan_host_name";
+	private final static String PROPERTY_KORTATHJONUSTAN_HOST_PORT = "kortathjonustan_host_port";
+	private final static String PROPERTY_KORTATHJONUSTAN_KEYSTORE = "kortathjonustan_keystore";
+	private final static String PROPERTY_KORTATHJONUSTAN_KEYSTORE_PASS = "kortathjonustan_keystore_pass";
+
+	public final static int CLIENT_TYPE_TPOS = 1;
+	public final static int CLIENT_TYPE_KORTATHJONUSTAN = 2;
+
+	public String getBundleIdentifier() {
+		return IW_BUNDLE_IDENTIFIER;
+	}
+
+	public Collection getAuthorizationEntries(int clientType, String merchantID, IWTimestamp from, IWTimestamp to) throws IDOLookupException, FinderException {
+		if (clientType > 0) {
+			if (clientType == CLIENT_TYPE_KORTATHJONUSTAN) {
+				KortathjonustanAuthorisationEntriesHome home = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntries.class);
+				Collection coll = home.findByDates(from, to);
+
+				return coll;
+			}
+			else if (clientType == CLIENT_TYPE_TPOS) {
+				TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);
+				Collection coll = home.findByDates(from, to);
+
+				return coll;
+			}
+		}
+		return null;
+	}
+
+	public DropdownMenu getCreditCardTypes(CreditCardClient client, IWResourceBundle iwrb, String dropdownName) {
+		Collection types = client.getValidCardTypes();
+		if (types != null && !types.isEmpty()) {
+			DropdownMenu menu = new DropdownMenu(dropdownName);
+			Iterator iter = types.iterator();
+			String type;
+			menu.addMenuElement("-1", iwrb.getLocalizedString("select_one", "Select one:"));
+			while (iter.hasNext()) {
+				type = (String) iter.next();
+				menu.addMenuElement(type, iwrb.getLocalizedString("card_type." + type, type));
+			}
+			return menu;
+		}
+		return null;
+	}
+
+	public Collection getCreditCardTypeImages(CreditCardClient client) {
+		Collection types = client.getValidCardTypes();
+		Vector images = new Vector();
+		if (types != null && !types.isEmpty()) {
+			Iterator iter = types.iterator();
+			IWBundle bundle = this.getBundle();
+			String type;
+			while (iter.hasNext()) {
+				type = (String) iter.next();
+				if (CreditCardBusiness.CARD_TYPE_DANKORT.equals(type)) {
+					images.add(bundle.getImage("logos/dankort.gif"));
+				}
+				else if (CreditCardBusiness.CARD_TYPE_DINERS.equals(type)) {
+					images.add(bundle.getImage("logos/diners.gif"));
+				}
+				else if (CreditCardBusiness.CARD_TYPE_ELECTRON.equals(type)) {
+					images.add(bundle.getImage("logos/electron.gif"));
+				}
+				else if (CreditCardBusiness.CARD_TYPE_JCB.equals(type)) {
+					images.add(bundle.getImage("logos/jcb.gif"));
+				}
+				else if (CreditCardBusiness.CARD_TYPE_MASTERCARD.equals(type)) {
+					images.add(bundle.getImage("logos/mastercard.gif"));
+				}
+				else if (CreditCardBusiness.CARD_TYPE_VISA.equals(type)) {
+					images.add(bundle.getImage("logos/visa.gif"));
+				}
+				else if (CreditCardBusiness.CARD_TYPE_AMERICAN_EXPRESS.equals(type)) {
+					images.add(bundle.getImage("logos/ae.gif"));
+				}
+			}
+		}
+
+		return images;
+	}
+
 	public CreditCardClient getCreditCardClient(Supplier supplier, IWTimestamp stamp) throws Exception {
 
 		CreditCardMerchant merchant = getCreditCardMerchant(supplier, stamp);
@@ -125,40 +132,46 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 
 		return client;
 	}
-	
+
 	public CreditCardClient getCreditCardClient(Group supplierManager, IWTimestamp stamp) throws Exception {
 		CreditCardMerchant m = getCreditCardMerchant(supplierManager, stamp);
 		return getCreditCardClient(m);
 	}
-	
+
 	public CreditCardClient getCreditCardClient(CreditCardMerchant merchant) throws Exception {
 		if (merchant != null && merchant.getType() != null) {
 			if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(merchant.getType())) {
 				return new TPosClient(getIWApplicationContext(), merchant);
-			} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(merchant.getType())) {
+			}
+			else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(merchant.getType())) {
 				String hostName = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_HOST_NAME);
-				String hostPort =  getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_HOST_PORT);
+				String hostPort = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_HOST_PORT);
 				String keystore = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_KEYSTORE);
-				String keystorePass =  getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_KEYSTORE_PASS);
-				
+				String keystorePass = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_KEYSTORE_PASS);
+
 				return new KortathjonustanCreditCardClient(getIWApplicationContext(), hostName, Integer.parseInt(hostPort), keystore, keystorePass, merchant);
 			}
 		}
-		
+
 		// Default client
-		return  new TPosClient(getIWApplicationContext());
+		return new TPosClient(getIWApplicationContext());
+	}
+
+	public CreditCardMerchant getCreditCardMerchant(String merchantPK, String merchantType) {
+		CreditCardInformation ccInfo = getCreditCardInformation(merchantPK, merchantType);
+		return getCreditCardMerchant(ccInfo);
 	}
 
 	public CreditCardMerchant getCreditCardMerchant(Supplier supplier, IWTimestamp stamp) {
 		CreditCardInformation ccInfo = getCreditCardInformation(supplier, stamp);
 		return getCreditCardMerchant(ccInfo);
 	}
-	
+
 	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, IWTimestamp stamp) {
 		CreditCardInformation ccInfo = getCreditCardInformation(supplierManager, stamp);
 		return getCreditCardMerchant(ccInfo);
 	}
-	
+
 	private CreditCardMerchant getCreditCardMerchant(CreditCardInformation ccInfo) {
 		if (ccInfo != null) {
 			try {
@@ -166,43 +179,62 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 				if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
 					TPosMerchantHome tposHome = (TPosMerchantHome) IDOLookup.getHome(TPosMerchant.class, ccInfo.getDatasource());
 					return tposHome.findByPrimaryKey(new Integer(ccInfo.getMerchantPKString()));
-				} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
+				}
+				else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
 					KortathjonustanMerchantHome kortHome = (KortathjonustanMerchantHome) IDOLookup.getHome(KortathjonustanMerchant.class, ccInfo.getDatasource());
 					return kortHome.findByPrimaryKey(new Integer(ccInfo.getMerchantPKString()));
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				e.printStackTrace(System.err);
 			}
 		}
 		return null;
 	}
-	
-	public CreditCardInformation getCreditCardInformation(Supplier supplier,IWTimestamp stamp) {
+
+	public CreditCardInformation getCreditCardInformation(String merchantPK, String merchantType) {
+		try {
+			CreditCardInformationHome ccInfoHome = (CreditCardInformationHome) IDOLookup.getHome(CreditCardInformation.class);
+			return ccInfoHome.findByMerchant(merchantPK, merchantType);
+		}
+		catch (FinderException fe) {
+			fe.printStackTrace();
+		}
+		catch (IDOLookupException ile) {
+			ile.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public CreditCardInformation getCreditCardInformation(Supplier supplier, IWTimestamp stamp) {
 		try {
 			Timestamp toCheck = null;
 			if (stamp != null) {
 				toCheck = stamp.getTimestamp();
-			} else {
+			}
+			else {
 				toCheck = IWTimestamp.getTimestampRightNow();
 			}
 
 			CreditCardInformation ccInfo = null;
-			
+
 			// Checking for merchants configured to this supplier
-			Collection coll = this.getCreditCardInformations(supplier); 
+			Collection coll = this.getCreditCardInformations(supplier);
 			if (coll != null) {
 				Iterator iter = coll.iterator();
 				ccInfo = getCreditCardInformationInUse(iter, toCheck);
 			}
-			
+
 			// Checking for merchants configured to this supplier's supplierManager
 			if (ccInfo == null) {
 				ccInfo = getCreditCardInformation(supplier.getSupplierManager(), stamp);
 			}
-			
+
 			return ccInfo;
-			
-		} catch (Exception e) {
+
+		}
+		catch (Exception e) {
 			e.printStackTrace(System.err);
 		}
 		return null;
@@ -220,7 +252,8 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		Timestamp toCheck = null;
 		if (stamp != null) {
 			toCheck = stamp.getTimestamp();
-		} else {
+		}
+		else {
 			toCheck = IWTimestamp.getTimestampRightNow();
 		}
 
@@ -230,13 +263,14 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			coll = getCreditCardInformations(supplierManager);
 			Iterator iter = coll.iterator();
 			ccInfo = getCreditCardInformationInUse(iter, toCheck);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return ccInfo;
 	}
-	
+
 	private CreditCardInformation getCreditCardInformationInUse(Iterator iter, Timestamp toCheck) {
 		Timestamp starts;
 		Timestamp ends;
@@ -248,12 +282,14 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			if (merchant != null && !merchant.getIsDeleted()) {
 				starts = merchant.getStartDate();
 				ends = merchant.getEndDate();
-				
+
 				if (ends == null) {
 					return info;
-				} else if (starts != null && starts.before(toCheck) && ends.after(toCheck)) {
+				}
+				else if (starts != null && starts.before(toCheck) && ends.after(toCheck)) {
 					return info;
-				} else if (starts == null) {
+				}
+				else if (starts == null) {
 					return info;
 				}
 			}
@@ -266,18 +302,20 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			Collection coll = supplier.getCreditCardInformation();
 			CreditCardMerchant returner = getCreditCardMerchant(PK, coll);
 			return returner;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
-	
+
 	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, Object PK) {
 		try {
 			Collection coll = getCreditCardInformations(supplierManager);
 			CreditCardMerchant returner = getCreditCardMerchant(PK, coll);
 			return returner;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -310,18 +348,20 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
 				TPosMerchantHome tposHome = (TPosMerchantHome) IDOLookup.getHome(TPosMerchant.class);
 				return tposHome.create();
-			} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
+			}
+			else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
 				KortathjonustanMerchantHome kortHome = (KortathjonustanMerchantHome) IDOLookup.getHome(KortathjonustanMerchant.class);
 				return kortHome.create();
 			}
 			return null;
-		} catch (IDOLookupException e) {
+		}
+		catch (IDOLookupException e) {
 			throw new CreateException(e.getMessage());
 		}
 	}
-	
+
 	public void addCreditCardMerchant(Group supplierManager, CreditCardMerchant merchant) throws CreateException {
-		addCreditCardMerchant( (Object) supplierManager, merchant);
+		addCreditCardMerchant((Object) supplierManager, merchant);
 	}
 
 	public void addCreditCardMerchant(Supplier supplier, CreditCardMerchant merchant) throws CreateException {
@@ -339,20 +379,22 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			Collection coll = null;
 			if (isSupplier) {
 				coll = ((Supplier) merchantType).getCreditCardInformation();
-			} else if (isSupplierManager) {
+			}
+			else if (isSupplierManager) {
 				coll = getCreditCardInformations((Group) merchantType);
 			}
-			
+
 			if (coll != null) {
 				Iterator iter = coll.iterator();
 				CreditCardInformation info;
 				CreditCardMerchant tmpMerchant = null;
 				while (iter.hasNext()) {
 					info = (CreditCardInformation) iter.next();
-					
+
 					if (isSupplier) {
-						tmpMerchant = getCreditCardMerchant((Supplier)merchantType, new Integer(info.getMerchantPKString()));
-					} else if (isSupplierManager) {
+						tmpMerchant = getCreditCardMerchant((Supplier) merchantType, new Integer(info.getMerchantPKString()));
+					}
+					else if (isSupplierManager) {
 						tmpMerchant = getCreditCardMerchant((Group) merchantType, new Integer(info.getMerchantPKString()));
 					}
 					if (tmpMerchant != null && !tmpMerchant.getIsDeleted()) {
@@ -360,7 +402,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 					}
 				}
 			}
-			
+
 			// Creating a new one
 			CreditCardInformationHome infoHome = (CreditCardInformationHome) IDOLookup.getHome(CreditCardInformation.class, merchant.getDatasource());
 			CreditCardInformation info = infoHome.create();
@@ -370,157 +412,168 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 				info.setSupplierManager((Group) merchantType);
 			}
 			info.store();
-			
+
 			if (isSupplier) {
 				((Supplier) merchantType).addCreditCardInformation(info);
 			}
 
 			t.commit();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			try {
 				t.rollback();
-			} catch (Exception e1) {
+			}
+			catch (Exception e1) {
 				e1.printStackTrace();
 				throw new CreateException(e.getMessage());
 			}
 			throw new CreateException(e.getMessage());
 		}
 	}
-	
+
 	public Collection getCreditCardInformations(Supplier supplier) throws IDORelationshipException {
 		Collection coll = supplier.getCreditCardInformation();
-	  	if (coll == null || coll.isEmpty()) {
-	  		int TPosID = supplier.getTPosMerchantId();
-	  		if (TPosID > 0) {
-	  			try {
-	  				System.out.println("---- Starting backwards.... -----");
-	  				System.out.println("---- ... TPosID = "+TPosID+" -----");
-	  				TPosMerchantHome tposHome = (TPosMerchantHome) IDOLookup.getHome(TPosMerchant.class, supplier.getDatasource());
+		if (coll == null || coll.isEmpty()) {
+			int TPosID = supplier.getTPosMerchantId();
+			if (TPosID > 0) {
+				try {
+					System.out.println("---- Starting backwards.... -----");
+					System.out.println("---- ... TPosID = " + TPosID + " -----");
+					TPosMerchantHome tposHome = (TPosMerchantHome) IDOLookup.getHome(TPosMerchant.class, supplier.getDatasource());
 					TPosMerchant merchant = tposHome.findByPrimaryKey(new Integer(TPosID));
 					addCreditCardMerchant(supplier, merchant);
 					log("CreditCardBusiness : backwards compatability fix for CreditCard merchant");
 					return getCreditCardInformations(supplier);
-	  			} catch (Exception e) {
-	  				e.printStackTrace(System.err);
-	  			}
-	  		}
-	  	}
-	  	return coll;
+				}
+				catch (Exception e) {
+					e.printStackTrace(System.err);
+				}
+			}
+		}
+		return coll;
 	}
-	
+
 	public Collection getCreditCardInformations(Group supplierManager) throws FinderException, IDOLookupException {
 		CreditCardInformationHome ccInfoHome = (CreditCardInformationHome) IDOLookup.getHome(CreditCardInformation.class, supplierManager.getDatasource());
 		return ccInfoHome.findBySupplierManager(supplierManager);
 	}
-	
+
 	public static String encodeCreditCardNumber(String originalNumber) throws IllegalArgumentException {
 		if (originalNumber != null && originalNumber.length() >= 10) {
 			int length = originalNumber.length();
 			String enc = Encrypter.encryptOneWay(originalNumber.substring(length - 10, length));
-			
-      return hexEncode(enc);
 
-		} 
+			return hexEncode(enc);
+
+		}
 		throw new IllegalArgumentException("Number must be at least 10 characters long");
 	}
-		
+
 	private static String hexEncode(String enc) {
 		try {
-		    String str = "";
-		    char[] pass = enc.toCharArray();
-		    for (int i = 0; i < pass.length; i++) {
-		      String hex = Integer.toHexString(pass[i]);
-		      while (hex.length() < 2) {
-		        String s = "0";
-		        s += hex;
-		        hex = s;
-		      }
-		      str += hex;
-		    }
-		    if(str.equals("") && !enc.equals("")){
-		      str = null;
-		    }
-		    
-		    return str;
-		  }
-		  catch (Exception ex) {
-		  		ex.printStackTrace(System.err);
-		  		return null;
-		  }
+			String str = "";
+			char[] pass = enc.toCharArray();
+			for (int i = 0; i < pass.length; i++) {
+				String hex = Integer.toHexString(pass[i]);
+				while (hex.length() < 2) {
+					String s = "0";
+					s += hex;
+					hex = s;
+				}
+				str += hex;
+			}
+			if (str.equals("") && !enc.equals("")) {
+				str = null;
+			}
+
+			return str;
+		}
+		catch (Exception ex) {
+			ex.printStackTrace(System.err);
+			return null;
+		}
 	}
 
-	public boolean verifyCreditCardNumber(String numberToCheck, CreditCardAuthorizationEntry entry)  throws IllegalArgumentException {
+	public boolean verifyCreditCardNumber(String numberToCheck, CreditCardAuthorizationEntry entry) throws IllegalArgumentException {
 		if (numberToCheck != null && numberToCheck.length() >= 10) {
 			int length = numberToCheck.length();
 			numberToCheck = numberToCheck.substring(length - 10, length);
 
 			String hex = hexEncode(Encrypter.encryptOneWay(numberToCheck));
-			
+
 			return hex.equals(entry.getCardNumber());
-		} 
+		}
 		throw new IllegalArgumentException("Number must be at least 10 characters long");
 	}
-	
+
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Group supplierManager, String authorizationCode, IWTimestamp stamp) {
 		CreditCardInformation info = getCreditCardInformation(supplierManager, stamp);
 		return getAuthorizationEntry(info, authorizationCode, stamp);
-	}	
-	
+	}
+
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Supplier supplier, String authorizationCode, IWTimestamp stamp) {
 		CreditCardInformation info = getCreditCardInformation(supplier, stamp);
-		CreditCardAuthorizationEntry entry =  getAuthorizationEntry(info, authorizationCode, stamp);
+		CreditCardAuthorizationEntry entry = getAuthorizationEntry(info, authorizationCode, stamp);
 		if (entry == null) {
 			entry = getAuthorizationEntry(supplier.getSupplierManager(), authorizationCode, stamp);
 		}
 		return entry;
 	}
-	private CreditCardAuthorizationEntry getAuthorizationEntry(CreditCardInformation info, String authorizationCode, IWTimestamp stamp) {
+
+	public CreditCardAuthorizationEntry getAuthorizationEntry(CreditCardInformation info, String authorizationCode, IWTimestamp stamp) {
 		if (info != null) {
 			try {
-				if ( CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(info.getType()) ){
+				if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(info.getType())) {
 					TPosAuthorisationEntriesBeanHome authEntHome = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class, info.getDatasource());
 					TPosAuthorisationEntriesBean entry = authEntHome.findByAuthorisationIdRsp(authorizationCode, stamp);
 					if (entry != null) {
 						return entry;
 					}
-				} else if ( CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(info.getType()) ) {
+				}
+				else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(info.getType())) {
 					KortathjonustanAuthorisationEntriesHome authEntHome = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntries.class, info.getDatasource());
 					KortathjonustanAuthorisationEntries entry = authEntHome.findByAuthorizationCode(authorizationCode, stamp);
 					if (entry != null) {
 						return entry;
 					}
 				}
-			} catch (IDOFinderException ignore) {
-			} catch (Exception e) {
+			}
+			catch (IDOFinderException ignore) {
+			}
+			catch (Exception e) {
 				e.printStackTrace(System.err);
 			}
-		} else {
+		}
+		else {
 			try {
-//				log("Cannot find creditCardInformation for authEntry in TPOS...authCode = "+authorizationCode);
-				TPosAuthorisationEntriesBeanHome authEntHome = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);//, info.getDatasource());
+				// log("Cannot find creditCardInformation for authEntry in TPOS...authCode = "+authorizationCode);
+				TPosAuthorisationEntriesBeanHome authEntHome = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);// ,
+				// info.getDatasource());
 				TPosAuthorisationEntriesBean entry = authEntHome.findByAuthorisationIdRsp(authorizationCode, stamp);
 				if (entry != null) {
 					return entry;
 				}
-			} catch (IDOFinderException ignore) {
-			} catch (Exception e) {
+			}
+			catch (IDOFinderException ignore) {
+			}
+			catch (Exception e) {
 				e.printStackTrace(System.err);
 			}
 		}
 		return null;
 	}
-	
+
 	public boolean getUseCVC(CreditCardClient client) {
 		return !(client instanceof TPosClient);
 	}
-	
+
 	public boolean getUseCVC(CreditCardMerchant merchant) {
 		if (merchant != null) {
 			return !CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(merchant.getType());
 		}
 		return false;
 	}
-		
+
 	public boolean getUseCVC(Supplier supplier, IWTimestamp stamp) {
 		return getUseCVC(getCreditCardMerchant(supplier, stamp));
 	}
