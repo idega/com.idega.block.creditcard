@@ -1,5 +1,5 @@
 /*
- * $Id: TPosClient.java,v 1.19 2007/05/03 12:37:28 gimmi Exp $
+ * $Id: TPosClient.java,v 1.20 2007/05/03 12:54:40 gimmi Exp $
  * 
  * Copyright (C) 2002 Idega hf. All Rights Reserved.
  * 
@@ -71,7 +71,7 @@ public class TPosClient implements CreditCardClient {
 		// if (this._iwb != null) {
 		// _iwrb = this._iwb.getResourceBundle(iwc);
 		// }
-		String path = iwc.getIWMainApplication().getSettings().getProperty("TPOSCLIENT_PROPERTES_FILE");
+		String path = iwc.getIWMainApplication().getSettings().getProperty("TPOSCLIENT_PROPERTIES_FILE");
 		if (path == null) {
 	 		path = this._iwb.getPropertiesRealPath();
 			if (path == null) {
