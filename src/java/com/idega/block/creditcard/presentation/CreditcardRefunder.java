@@ -30,7 +30,7 @@ import com.idega.util.text.TextSoap;
  * Title: idegaWeb Travel Description: Copyright: Copyright (c) 2001 Company:
  * idega
  * 
- * @author <a href mailto:"gimmi@idega.is">Grímur Jónsson</a>
+ * @author <a href mailto:"gimmi@idega.is">Grimur Jonsson</a>
  * @version 1.0
  */
 
@@ -367,7 +367,7 @@ public class CreditcardRefunder extends Block {
 			 * t = new TPosClient(iwc, getSupplier(supplier).getTPosMerchant()); }
 			 */
 
-			// TODO b¾ta viÝ CVC d—ti
+			// TODO baeta vid CVC doti
 			number = number.replaceAll(" ", "");
 			number = number.replaceAll("-", "");
 
