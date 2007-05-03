@@ -1,5 +1,5 @@
 /*
- * $Id: TPosClient.java,v 1.18 2007/04/28 17:02:53 gimmi Exp $
+ * $Id: TPosClient.java,v 1.19 2007/05/03 12:37:28 gimmi Exp $
  * 
  * Copyright (C) 2002 Idega hf. All Rights Reserved.
  * 
@@ -71,18 +71,22 @@ public class TPosClient implements CreditCardClient {
 		// if (this._iwb != null) {
 		// _iwrb = this._iwb.getResourceBundle(iwc);
 		// }
-
-		String path = this._iwb.getPropertiesRealPath();
+		String path = iwc.getIWMainApplication().getSettings().getProperty("TPOSCLIENT_PROPERTES_FILE");
 		if (path == null) {
-			throw new Exception("Unable to find properties file");
-		}
-
-		String seperator = java.io.File.separator;
-		if (!path.endsWith(seperator)) {
-			path = path + seperator + this._iwb.getProperty("properties_file");
-		}
-		else {
-			path = path + this._iwb.getProperty("properties_file");
+	 		path = this._iwb.getPropertiesRealPath();
+			if (path == null) {
+				throw new Exception("Unable to find properties file");
+			}
+	
+			String seperator = java.io.File.separator;
+			if (!path.endsWith(seperator)) {
+				path = path + seperator + this._iwb.getProperty("properties_file");
+			}
+			else {
+				path = path + this._iwb.getProperty("properties_file");
+			}
+		} else {
+			System.out.println("TposClient : Found path in application");
 		}
 
 		try {
