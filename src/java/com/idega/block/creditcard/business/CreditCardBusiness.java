@@ -1,5 +1,5 @@
 /*
- * $Id: CreditCardBusiness.java,v 1.10 2007/04/30 12:46:43 laddi Exp $ Created on Feb 13, 2006
+ * $Id: CreditCardBusiness.java,v 1.11 2007/06/11 18:11:43 gimmi Exp $ Created on Feb 13, 2006
  * 
  * Copyright (C) 2006 Idega Software hf. All Rights Reserved.
  * 
@@ -26,10 +26,10 @@ import com.idega.util.IWTimestamp;
  * <p>
  * TODO gimmi Describe Type CreditCardBusiness
  * </p>
- * Last modified: $Date: 2007/04/30 12:46:43 $ by $Author: laddi $
+ * Last modified: $Date: 2007/06/11 18:11:43 $ by $Author: gimmi $
  * 
  * @author <a href="mailto:gimmi@idega.com">gimmi</a>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public interface CreditCardBusiness extends IBOService {
 
@@ -178,4 +178,6 @@ public interface CreditCardBusiness extends IBOService {
 
 	public DropdownMenu getCreditCardTypes(CreditCardClient client, IWResourceBundle iwrb, String dropdownName);
 
+	public CreditCardMerchant getCreditCardMerchant(CreditCardInformation ccInfo);
+	
 }

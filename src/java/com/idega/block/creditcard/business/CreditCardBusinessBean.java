@@ -172,7 +172,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return getCreditCardMerchant(ccInfo);
 	}
 
-	private CreditCardMerchant getCreditCardMerchant(CreditCardInformation ccInfo) {
+	public CreditCardMerchant getCreditCardMerchant(CreditCardInformation ccInfo) {
 		if (ccInfo != null) {
 			try {
 				String type = ccInfo.getType();
