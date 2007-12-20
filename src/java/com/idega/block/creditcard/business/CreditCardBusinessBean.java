@@ -152,9 +152,9 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 				return new KortathjonustanCreditCardClient(getIWApplicationContext(), hostName, Integer.parseInt(hostPort), keystore, keystorePass, merchant);
 			}
 		}
-
+		return null;
 		// Default client
-		return new TPosClient(getIWApplicationContext());
+		// return new TPosClient(getIWApplicationContext());
 	}
 
 	public CreditCardMerchant getCreditCardMerchant(String merchantPK, String merchantType) {
