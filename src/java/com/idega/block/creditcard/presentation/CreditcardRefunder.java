@@ -5,6 +5,8 @@ import java.util.Iterator;
 
 import com.idega.block.creditcard.business.CreditCardBusiness;
 import com.idega.block.creditcard.business.CreditCardClient;
+import com.idega.block.creditcard.data.TPosMerchant;
+import com.idega.block.creditcard.data.TPosMerchantHome;
 import com.idega.block.trade.stockroom.data.Supplier;
 import com.idega.block.trade.stockroom.data.SupplierHome;
 import com.idega.business.IBOLookup;
@@ -361,7 +363,17 @@ public class CreditcardRefunder extends Block {
 
 		try {
 			System.out.println("Starting TPOS test : " + IWTimestamp.RightNow().toString());
-			CreditCardClient t = getCreditCardBusiness(iwc).getCreditCardClient(getSupplier(supplier), IWTimestamp.RightNow());
+			CreditCardClient t = null;
+			if (getSupplier(supplier) != null) {
+				t = getCreditCardBusiness(iwc).getCreditCardClient(getSupplier(supplier), IWTimestamp.RightNow());
+			} else {
+				if (supplier.charAt(0) == 'm') {
+					String mID = supplier.substring(1);
+					TPosMerchantHome tmHome = (TPosMerchantHome) IDOLookup.getHome(TPosMerchant.class);
+					TPosMerchant merchant = tmHome.findByPrimaryKey(new Integer(mID));
+					t = getCreditCardBusiness(iwc).getCreditCardClient(merchant);
+				}
+			}
 			/*
 			 * if (getSupplier(supplier) == null) { t = new TPosClient(iwc); } else {
 			 * t = new TPosClient(iwc, getSupplier(supplier).getTPosMerchant()); }
@@ -440,7 +452,7 @@ public class CreditcardRefunder extends Block {
 
 	private DropdownMenu getSupplierDropdown() {
 		DropdownMenu menu = new DropdownMenu(this.parameterSupplier);
-		menu.addMenuElement(-1, this.iwrb.getLocalizedString("travel.default", "Default"));
+//		menu.addMenuElement(-1, this.iwrb.getLocalizedString("travel.default", "Default"));
 		try {
 			SupplierHome sHome = (SupplierHome) IDOLookup.getHome(Supplier.class);
 			Collection coll = sHome.findWithTPosMerchant();
@@ -451,6 +463,11 @@ public class CreditcardRefunder extends Block {
 					supp = (Supplier) iter.next();
 					menu.addMenuElement(supp.getID(), supp.getName());
 				}
+			}
+			
+			String defaultMerchant = getIWApplicationContext().getIWMainApplication().getSettings().getProperty("default_tpos_merchant");
+			if (defaultMerchant != null) {
+				menu.addMenuElement("m"+defaultMerchant, "System Default");
 			}
 		}
 		catch (Exception e) {
