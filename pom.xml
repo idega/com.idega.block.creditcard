@@ -11,7 +11,7 @@
   <groupId>com.idega.block.addon</groupId>
   <name>idegaWeb Creditcard Block</name>
   <artifactId>com.idega.block.creditcard</artifactId>
-  <version>4.0.1</version>
+  <version>4.0.2-SNAPSHOT</version>
   <inceptionYear>2000</inceptionYear>
   <description>The creditcard block</description>
   <scm>
@@ -21,7 +21,6 @@
      -->
     <connection>scm:cvs:ext:civilis@code.idega.com:/idega/cvs:com.idega.block.addon/com.idega.block.creditcard/</connection>
     <developerConnection>scm:cvs:ext:civilis@code.idega.com:/idega/cvs:com.idega.block.addon/com.idega.block.creditcard/</developerConnection>
-    <tag>com_idega_block_addon_super-4_0_1</tag>
   </scm>
 
   <developers>
@@ -43,7 +42,7 @@
     <dependency>
       <groupId>com.idega.block.addon</groupId>
       <artifactId>com.idega.block.trade</artifactId>
-      <version>4.0.1</version>
+      <version>4.0.2-SNAPSHOT</version>
       <type>jar</type>
     </dependency>
     <dependency>
