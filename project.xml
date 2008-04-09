@@ -5,7 +5,7 @@
   <pomVersion>3</pomVersion>
   <name>idegaWeb Creditcard Block</name>
   <artifactId>com.idega.block.creditcard</artifactId>
-  <currentVersion>3.1.14</currentVersion>
+  <currentVersion>3.1.15</currentVersion>
   <versions>
     <version>
       <id>1.1</id>
@@ -91,6 +91,11 @@
       <id>3.1.14</id>
       <name>3.1.14</name>
       <tag>CREDITCARD_3_1_14</tag>
+    </version>
+    <version>
+      <id>3.1.15</id>
+      <name>3.1.15</name>
+      <tag>CREDITCARD_3_1_15</tag>
     </version>
   </versions>
   <branches/>
