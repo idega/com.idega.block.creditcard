@@ -1,5 +1,5 @@
 /*
- *  $Id: TPosAuthorisationEntriesBeanBMPBean.java,v 1.6 2005/06/15 16:36:24 gimmi Exp $
+ *  $Id: TPosAuthorisationEntriesBeanBMPBean.java,v 1.7 2008/04/09 05:01:29 gimmi Exp $
  *
  *  Copyright (C) 2002 Idega hf. All Rights Reserved.
  *
@@ -110,7 +110,7 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
     addAttribute(getCardExpiresColumnName(), "", true, true, java.lang.String.class, 4);
     addAttribute(getLocationNrColumnName(), "", true, true, java.lang.String.class, 10);
     addAttribute(getMerchantNrAuthorisationColumnName(), "", true, true, java.lang.String.class, 10);
-    addAttribute(getMerchantNrOtherServicesColumnName(), "", true, true, java.lang.String.class, 10);
+    addAttribute(getMerchantNrOtherServicesColumnName(), "", true, true, java.lang.String.class, 20);
     addAttribute(getMerchantNrSubmissionColumnName(), "", true, true, java.lang.String.class, 20);
     addAttribute(getAttachmentCountColumnName(), "", true, true, java.lang.String.class);
     addAttribute(getPanColumnName(), "", true, true, java.lang.String.class);
