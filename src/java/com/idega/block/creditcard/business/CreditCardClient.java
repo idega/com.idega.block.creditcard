@@ -2,6 +2,7 @@ package com.idega.block.creditcard.business;
 
 import java.util.Collection;
 
+import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 
 /**
@@ -97,4 +98,7 @@ public interface CreditCardClient {
 	 * @return
 	 */
 	public boolean supportsDelayedTransactions();
+	
+	
+	public CreditCardAuthorizationEntry getAuthorizationEntry();
 }

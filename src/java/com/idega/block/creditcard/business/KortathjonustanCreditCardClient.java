@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 
 import javax.ejb.CreateException;
 
+import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesHome;
@@ -112,7 +113,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	private String strReferenceNumber = null;//Integer.toString((int)
 																												 // (Math.random() *
 																												 // 43200));
-
+	private KortathjonustanAuthorisationEntries auth = null;
 //	private Hashtable returnedProperties = null;
 //	// Test indicator
 //	private boolean bTestServer = false;
@@ -394,7 +395,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	 */
 	private void storeAuthorizationEntry(String encodedCardnumber, Object parentDataPK, Hashtable properties, String authorizationType) throws IDOLookupException, CreateException {
 		KortathjonustanAuthorisationEntriesHome authHome = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntries.class);
-		KortathjonustanAuthorisationEntries auth = authHome.create();
+		auth = authHome.create();
 
 		if (properties.containsKey(this.PROPERTY_AMOUNT))
 			auth.setAmount(Double.parseDouble(properties.get(this.PROPERTY_AMOUNT).toString()));//Double.parseDouble(strAmount));
@@ -882,6 +883,10 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 
 	public String getExpireDateString(String month, String year) {
 		return year+month;
+	}
+
+	public CreditCardAuthorizationEntry getAuthorizationEntry() {
+		return auth;
 	}
 
 }

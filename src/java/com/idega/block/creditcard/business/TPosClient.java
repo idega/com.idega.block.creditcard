@@ -1,5 +1,5 @@
 /*
- * $Id: TPosClient.java,v 1.20 2007/05/03 12:54:40 gimmi Exp $
+ * $Id: TPosClient.java,v 1.21 2008/04/09 05:01:47 gimmi Exp $
  * 
  * Copyright (C) 2002 Idega hf. All Rights Reserved.
  * 
@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Vector;
 
+import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.data.TPosAuthorisationEntriesBean;
 import com.idega.block.creditcard.data.TPosAuthorisationEntriesBeanHome;
@@ -46,7 +47,8 @@ public class TPosClient implements CreditCardClient {
 	private String _posId = null;
 	private String _receivePasswd = null;
 	private CreditCardMerchant _merchant = null;
-
+	private TPosAuthorisationEntriesBean entry = null;
+	
 	private int amountMultiplier = 100;
 
 	/**
@@ -415,7 +417,6 @@ public class TPosClient implements CreditCardClient {
 			}
 			boolean inserted = false;
 
-			TPosAuthorisationEntriesBean entry;
 			try {
 				TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);
 				entry = home.create();
@@ -750,5 +751,9 @@ public class TPosClient implements CreditCardClient {
 
 	public String getExpireDateString(String month, String year) {
 		return month+year;
+	}
+
+	public CreditCardAuthorizationEntry getAuthorizationEntry() {
+		return entry;
 	}
 }
