@@ -1,5 +1,5 @@
 /*
- * $Id: TPosClient.java,v 1.21 2008/04/09 05:01:47 gimmi Exp $
+ * $Id: TPosClient.java,v 1.22 2008/04/16 10:50:53 gimmi Exp $
  * 
  * Copyright (C) 2002 Idega hf. All Rights Reserved.
  * 
@@ -207,7 +207,7 @@ public class TPosClient implements CreditCardClient {
 	}
 
 	public String creditcardAuthorization(String nameOnCard, String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, String referenceNumber) throws CreditCardAuthorizationException {
-		String authID = (doAuth(cardnumber, monthExpires, yearExpires, amount, currency, "5", null, null));
+		String authID = (doAuth(cardnumber, monthExpires, yearExpires, ccVerifyNumber, amount, currency, "5", null, null));
 
 		StringBuffer buffer = getPropertyString(this._client);
 		buffer.append(TPOS3Client.PN_AUTHORIDENTIFYRSP).append("=").append(authID);
@@ -253,7 +253,7 @@ public class TPosClient implements CreditCardClient {
 	 *              Description of the Exception
 	 */
 	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, String referenceNumber) throws TPosException {
-		return (doAuth(cardnumber, monthExpires, yearExpires, amount, currency, "1", null, null));
+		return (doAuth(cardnumber, monthExpires, yearExpires, ccVerifyNumber, amount, currency, "1", null, null));
 	}
 
 	/*
@@ -281,8 +281,8 @@ public class TPosClient implements CreditCardClient {
 	 *              Description of the Exception
 	 */
 	public String doRefund(String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, Object parentDataPK, String captureProperties) throws TPosException {
-		System.out.println("Warning : TPosClient is NOT using CVC number");
-		return doAuth(cardnumber, monthExpires, yearExpires, amount, currency, "3", parentDataPK, null);
+		//System.out.println("Warning : TPosClient is NOT using CVC number");
+		return doAuth(cardnumber, monthExpires, yearExpires, ccVerifyNumber, amount, currency, "3", parentDataPK, null);
 	}
 
 	public String finishTransaction(String properties) throws CreditCardAuthorizationException {
@@ -294,11 +294,28 @@ public class TPosClient implements CreditCardClient {
 		String currency = (String) map.get(TPOS3Client.PN_CURRENCY);
 		String monthExpires = expires.substring(0, 2);
 		String yearExpires = expires.substring(2, 4);
+		String cvc = (String) map.get(TPOS3Client.PN_CVC2);
 		String authIDRsp = (String) map.get(TPOS3Client.PN_AUTHORIDENTIFYRSP);
 
-		return doAuth(cardnumber, monthExpires, yearExpires, Double.parseDouble(amount) / this.amountMultiplier, currency, "1", null, authIDRsp);
+		return doAuth(cardnumber, monthExpires, yearExpires, cvc, Double.parseDouble(amount) / this.amountMultiplier, currency, "1", null, authIDRsp);
 	}
 
+	public String voidTransaction(String properties) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented for tpos clients");
+//		HashMap map = parseProperties(properties);
+//
+//		String cardnumber = (String) map.get(TPOS3Client.PN_PAN);
+//		String expires = (String) map.get(TPOS3Client.PN_EXPIRE);
+//		String amount = (String) map.get(TPOS3Client.PN_AMOUNT);
+//		String currency = (String) map.get(TPOS3Client.PN_CURRENCY);
+//		String monthExpires = expires.substring(0, 2);
+//		String yearExpires = expires.substring(2, 4);
+//		String cvc = (String) map.get(TPOS3Client.PN_CVC2);
+//		String authIDRsp = (String) map.get(TPOS3Client.PN_AUTHORIDENTIFYRSP);
+//
+//		return doAuth(cardnumber, monthExpires, yearExpires, cvc, Double.parseDouble(amount) / this.amountMultiplier, currency, "2", null, authIDRsp);
+	}
+	
 	private HashMap parseProperties(String response) {
 		HashMap responseElements = new HashMap();
 		int index = 0;
@@ -358,7 +375,7 @@ public class TPosClient implements CreditCardClient {
 	 * @exception TPosException
 	 *              Description of the Exception
 	 */
-	private String doAuth(String cardnumber, String monthExpires, String yearExpires, double amount, String currency, String transactionType, Object parentDataPK, String authIDRsp) throws TPosException {
+	private String doAuth(String cardnumber, String monthExpires, String yearExpires, String CVC, double amount, String currency, String transactionType, Object parentDataPK, String authIDRsp) throws TPosException {
 		if (this._client != null) {
 
 			this._client.setProperty(TPOS3Client.PN_USERID, this._userId);
@@ -366,7 +383,6 @@ public class TPosClient implements CreditCardClient {
 			this._client.setProperty(TPOS3Client.PN_MERCHANTID, this._merchantId);
 			this._client.setProperty(TPOS3Client.PN_LOCATIONID, this._locationId);
 			this._client.setProperty(TPOS3Client.PN_POSID, this._posId);
-
 			String encodedCardNumber = CreditCardBusinessBean.encodeCreditCardNumber(cardnumber);
 			this._client.setProperty(TPOS3Client.PN_PAN, cardnumber);
 			this._client.setProperty(TPOS3Client.PN_EXPIRE, monthExpires + yearExpires);
@@ -379,6 +395,9 @@ public class TPosClient implements CreditCardClient {
 			this._client.setProperty(TPOS3Client.PN_AMOUNT, stringAmount);
 			this._client.setProperty(TPOS3Client.PN_CURRENCY, currency);
 			this._client.setProperty(TPOS3Client.PN_TRANSACTIONTYPE, transactionType);
+			if (CVC != null) {
+				this._client.setProperty(TPOS3Client.PN_CVC2, CVC);
+			}
 			if (transactionType.equals("2")) {
 				this._client.setProperty(TPOS3Client.PN_CARDHOLDERCODE, "2");
 			}

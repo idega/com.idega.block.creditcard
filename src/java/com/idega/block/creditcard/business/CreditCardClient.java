@@ -94,6 +94,15 @@ public interface CreditCardClient {
 	public String finishTransaction(String properties) throws CreditCardAuthorizationException;	
 	
 	/**
+	 * Finishes a previously authorized transaciton
+	 * @param properties Properties gotten from creditcardAuthorization
+	 * @throws CreditCardAuthorizationException
+	 * @return Authorization number
+	 */
+	public String voidTransaction(String properties) throws CreditCardAuthorizationException;	
+
+	
+	/**
 	 * Checks if the client supports delayed transaction. (creditcardAuthorization() and finishTransaction())
 	 * @return
 	 */

@@ -889,4 +889,9 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		return auth;
 	}
 
+	public String voidTransaction(String properties)
+			throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented for korta cliens");
+	}
+
 }

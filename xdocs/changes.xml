@@ -4,12 +4,16 @@
     <author email="gimmi@idega.com">Grimur Jonsson</author>
   </properties>
   <body>
-	<release version="3.1.15" date="2008-04-08">
+	<release version="3.1.16" date="2008-04-16">
+		<action dev="gimmi" type="update">
+			Tpos uses cvc now
+		</action>
+	</release>
+		<release version="3.1.15" date="2008-04-08">
 		<action dev="gimmi" type="update">
 			New method in clients, for getting authentry bean
 		</action>
 	</release>
-	
 	<release version="3.1.14" date="2007-12-20">
 		<action dev="gimmi" type="update">
 			Default tposmerchantid property can now be set in application. For refunding backwards compatability.
