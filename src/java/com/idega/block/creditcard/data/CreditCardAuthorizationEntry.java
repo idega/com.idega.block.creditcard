@@ -15,7 +15,8 @@ import com.idega.data.IDOEntity;
 public interface CreditCardAuthorizationEntry extends  IDOEntity {
 
   public static float amountMultiplier = 100;
- 	
+ 
+  public Object getPrimaryKey();
   public double getAmount();
 	public String getCurrency();
 	
