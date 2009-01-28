@@ -1,5 +1,5 @@
 /*
- * $Id: TPosClient.java,v 1.22 2008/04/16 10:50:53 gimmi Exp $
+ * $Id: TPosClient.java,v 1.23 2009/01/28 14:46:14 eiki Exp $
  * 
  * Copyright (C) 2002 Idega hf. All Rights Reserved.
  * 
@@ -9,9 +9,9 @@
  */
 package com.idega.block.creditcard.business;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Vector;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
@@ -743,10 +743,10 @@ public class TPosClient implements CreditCardClient {
 	// }
 
 	public Collection getValidCardTypes() {
-		Vector tmp = new Vector();
+		ArrayList tmp = new ArrayList();
 		tmp.add(CreditCardBusiness.CARD_TYPE_VISA);
 		tmp.add(CreditCardBusiness.CARD_TYPE_MASTERCARD);
-		// tmp.add(CreditCardBusiness.CARD_TYPE_AMERICAN_EXPRESS);
+	    tmp.add(CreditCardBusiness.CARD_TYPE_AMERICAN_EXPRESS);
 		return tmp;
 	}
 

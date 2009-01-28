@@ -86,7 +86,7 @@
       <type>java.lang.String</type>
       <value>IDF</value>
     </key>
-    <key>                                                                
+    <key>
       <name>tpos_locationid</name>
       <type>java.lang.String</type>
       <value>IDEGA</value>
@@ -128,3 +128,4 @@
     </key>
   </map>
 </pxml>
+
