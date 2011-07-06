@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -31,6 +32,7 @@ import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
 import com.idega.util.FileUtil;
 import com.idega.util.IWTimestamp;
+import com.tpos.client.TPOS3Client;
 
 public class KortathjonustanCreditCardClient implements CreditCardClient {
 
@@ -283,6 +285,12 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		}
 	}
 
+	public String getAuthorizationNumber(String properties) {
+		
+		return null;
+	}
+
+	
 	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, String referenceNumber) throws CreditCardAuthorizationException {
 		try {
 			IWTimestamp stamp = IWTimestamp.RightNow();

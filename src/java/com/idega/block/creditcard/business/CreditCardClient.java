@@ -110,4 +110,6 @@ public interface CreditCardClient {
 	
 	
 	public CreditCardAuthorizationEntry getAuthorizationEntry();
+	
+	public String getAuthorizationNumber(String properties);
 }
