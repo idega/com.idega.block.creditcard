@@ -2,7 +2,7 @@ package com.idega.block.creditcard.business;
 
 /*
  * Q&D java demo for communicating with kortathjonustan's RPCS
- * 
+ *
  * Gunnar Mar Gunnarsson 9. Dec 2003
  */
 
@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Vector;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -59,7 +58,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	private String PROPERTY_REFERENCE_ID = "d31";
 	private String PROPERTY_APPROVAL_CODE = "d38"; // gotten from response
 	private String PROPERTY_ACTION_CODE = "d39"; // gotten from response
-	
+
 	private String PROPERTY_ACCEPTOR_TERM_ID = "d41";
 	private String PROPERTY_ACCEPTOR_IDENT = "d42";
 	private String PROPERTY_CC_VERIFY_CODE = "d47";
@@ -149,7 +148,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		this.bundle = iwc.getIWMainApplication().getBundle(getBundleIdentifier());
 
 	}
-	
+
 	private void log(String msg) {
 
 		Handler fh = null;
@@ -167,7 +166,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		} finally {
 			if (fh != null) {
 				fh.close();
-				
+
 			}
 		}
 	}
@@ -201,7 +200,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		}
 		return currencyCode;
 	}
-	
+
 	private void setCurrencyAndAmount(String currency, double amount) throws CreditCardAuthorizationException {
 		if (currency != null) {
 			int amountMultiplier = 100;
@@ -263,7 +262,8 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		}
 		return string;
 	}
-	
+
+	@Override
 	public String creditcardAuthorization(String nameOnCard, String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, String referenceNumber) throws CreditCardAuthorizationException{
 		IWTimestamp stamp = IWTimestamp.RightNow();
 		this.strName = nameOnCard;
@@ -273,7 +273,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		setCurrencyAndAmount(currency, amount);
 		this.strCurrentDate = getDateString(stamp);
 		this.strReferenceNumber = convertStringToNumbers(referenceNumber);
-		
+
 		Hashtable returnedProperties = getFirstResponse();
 		if(returnedProperties != null) {
 			return propertiesToString(returnedProperties);
@@ -283,6 +283,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		}
 	}
 
+	@Override
 	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, String referenceNumber) throws CreditCardAuthorizationException {
 		try {
 			IWTimestamp stamp = IWTimestamp.RightNow();
@@ -337,6 +338,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		}
 	}
 
+	@Override
 	public String doRefund(String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, Object parentDataPK, String captureProperties) throws CreditCardAuthorizationException {
 		IWTimestamp stamp = IWTimestamp.RightNow();
 		this.strCCNumber = cardnumber;
@@ -417,7 +419,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		auth.setTransactionType(authorizationType);
 		auth.setCardNumber(encodedCardnumber);
 		auth.setDate(IWTimestamp.RightNow().getDate());
-		
+
 		if (parentDataPK != null) {
 			try {
 				auth.setParentID(((Integer) parentDataPK).intValue());
@@ -438,27 +440,27 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	 * "test.kortathjonustan.is"; int port = 8443; String SITE = "22"; String USER =
 	 * "idega"; String PASSWORD = "zde83af"; String ACCEPTOR_TERM_ID = "90000022";
 	 * String ACCEPTOR_IDENTIFICATION = "8180001";
-	 * 
+	 *
 	 * String strCCNumber = "5413033024823099"; String strCCExpire = "0504";
 	 * String strCCVerify = "150"; String strReferenceNumber =
 	 * Integer.toString((int) (Math.random() * 43200)); String keystore =
 	 * "/Applications/idega/webs/nat/idegaweb/bundles/com.idega.block.creditcard.bundle/resources/demoFolder/testkeys.jks";
 	 * String keystorePass = "changeit";
-	 * 
+	 *
 	 * KortathjonustanCreditCardClient client = new
 	 * KortathjonustanCreditCardClient(IWContext.getInstance(), host, port,
 	 * keystore, keystorePass, SITE, USER, PASSWORD, ACCEPTOR_TERM_ID,
 	 * ACCEPTOR_IDENTIFICATION); try { String tmp = client.doSale("Gr�mur Steri",
 	 * strCCNumber, strCCExpire.substring(2, 4), strCCExpire.substring(0, 2),
 	 * strCCVerify, 1, "ISK", strReferenceNumber );
-	 * 
+	 *
 	 * //CreditCardBusiness cBus = (CreditCardBusiness)
 	 * IBOLookup.getServiceInstance(IWContext.getInstance(),
 	 * CreditCardBusiness.class); //KortathjonustanAuthorisationEntries entry =
 	 * (KortathjonustanAuthorisationEntries) cBus.getAuthorizationEntry(supp,
 	 * tmp);
-	 * 
-	 * 
+	 *
+	 *
 	 * //String tmp2 = client.doRefund(strCCNumber, strCCExpire.substring(2, 4),
 	 * strCCExpire.substring(0, 2), strCCVerify, 1, "ISK",
 	 * entry.getResponseString()); System.out.println("AuthorizationNumber =
@@ -469,7 +471,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	 * System.out.println("ErrorNum = "+e.getErrorNumber()); System.out.println("
 	 * -----------------------"); e.printStackTrace(System.err); }
 	 *  }
-	 *  
+	 *
 	 */
 	private Hashtable doRefund(int iAmountToRefund, Hashtable captureProperties, Object parentDataPK) throws CreditCardAuthorizationException {
 		// TODO tjekka ef amountToRefund er sama og upphaflega refundi� ...
@@ -577,7 +579,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		}
 		return strPostData.toString();
 	}
-	
+
 	private String getPostData(Hashtable properties) {
 		StringBuffer strPostData = new StringBuffer();
 		try {
@@ -589,7 +591,8 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		}
 		return strPostData.toString();
 	}
-	
+
+	@Override
 	public String finishTransaction(String properties) throws KortathjonustanAuthorizationException {
 		Hashtable returnedCaptureProperties = finishTransaction(parseResponse(properties));
 		try {
@@ -837,7 +840,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 
 	private void appendProperty(StringBuffer buffer, String propertyName, String propertyValue) throws UnsupportedEncodingException {
 		appendProperty(buffer, propertyName, propertyValue, true);
-	}	
+	}
 	private void appendProperty(StringBuffer buffer, String propertyName, String propertyValue, boolean urlEncode) throws UnsupportedEncodingException {
 		if (propertyValue != null) {
 			if (urlEncode) {
@@ -854,22 +857,17 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 //		return oB64.encode(_strData.getBytes());
 //	}
 
-	public Collection getValidCardTypes() {
-		Vector tmp = new Vector();
-		tmp.add(CreditCardBusiness.CARD_TYPE_VISA);
-		tmp.add(CreditCardBusiness.CARD_TYPE_MASTERCARD);
-//		tmp.add(CreditCardBusiness.CARD_TYPE_ELECTRON);
-//		tmp.add(CreditCardBusiness.CARD_TYPE_DINERS);
-		tmp.add(CreditCardBusiness.CARD_TYPE_JCB);
-		//tmp.add(CreditCardBusiness.CARD_TYPE_DANKORT); // Virkar v�st bara � .dk
-		return tmp;
+	@Override
+	public Collection<String> getValidCardTypes() {
+		return TPosClient.getValidCardTypes("kortathjo");
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.idega.block.creditcard.business.CreditCardClient#getCreditCardMerchant()
 	 */
+	@Override
 	public CreditCardMerchant getCreditCardMerchant() {
 		return this.ccMerchant;
 	}
@@ -877,18 +875,22 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	/* (non-Javadoc)
 	 * @see com.idega.block.creditcard.business.CreditCardClient#supportsDelayedTransactions()
 	 */
+	@Override
 	public boolean supportsDelayedTransactions() {
 		return true;
-	} 
+	}
 
+	@Override
 	public String getExpireDateString(String month, String year) {
 		return year+month;
 	}
 
+	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntry() {
 		return auth;
 	}
 
+	@Override
 	public String voidTransaction(String properties)
 			throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented for korta cliens");

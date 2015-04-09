@@ -1,6 +1,7 @@
 package com.idega.block.creditcard.business;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
@@ -30,6 +31,7 @@ import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWResourceBundle;
+import com.idega.presentation.Image;
 import com.idega.presentation.ui.DropdownMenu;
 import com.idega.transaction.IdegaTransactionManager;
 import com.idega.user.data.Group;
@@ -51,10 +53,12 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 	public final static int CLIENT_TYPE_TPOS = 1;
 	public final static int CLIENT_TYPE_KORTATHJONUSTAN = 2;
 
+	@Override
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
 	}
 
+	@Override
 	public Collection getAuthorizationEntries(int clientType, String merchantID, IWTimestamp from, IWTimestamp to) throws IDOLookupException, FinderException {
 		if (clientType > 0) {
 			if (clientType == CLIENT_TYPE_KORTATHJONUSTAN) {
@@ -73,6 +77,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public DropdownMenu getCreditCardTypes(CreditCardClient client, IWResourceBundle iwrb, String dropdownName) {
 		Collection types = client.getValidCardTypes();
 		if (types != null && !types.isEmpty()) {
@@ -89,15 +94,16 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
-	public Collection getCreditCardTypeImages(CreditCardClient client) {
-		Collection types = client.getValidCardTypes();
-		Vector images = new Vector();
+	@Override
+	public Collection<Image> getCreditCardTypeImages(CreditCardClient client) {
+		Collection<String> types = client.getValidCardTypes();
+		Collection<Image> images = new ArrayList<Image>();
 		if (types != null && !types.isEmpty()) {
-			Iterator iter = types.iterator();
+			Iterator<String> iter = types.iterator();
 			IWBundle bundle = this.getBundle();
 			String type;
 			while (iter.hasNext()) {
-				type = (String) iter.next();
+				type = iter.next();
 				if (CreditCardBusiness.CARD_TYPE_DANKORT.equals(type)) {
 					images.add(bundle.getImage("logos/dankort.gif"));
 				}
@@ -125,6 +131,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return images;
 	}
 
+	@Override
 	public CreditCardClient getCreditCardClient(Supplier supplier, IWTimestamp stamp) throws Exception {
 
 		CreditCardMerchant merchant = getCreditCardMerchant(supplier, stamp);
@@ -133,11 +140,13 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return client;
 	}
 
+	@Override
 	public CreditCardClient getCreditCardClient(Group supplierManager, IWTimestamp stamp) throws Exception {
 		CreditCardMerchant m = getCreditCardMerchant(supplierManager, stamp);
 		return getCreditCardClient(m);
 	}
 
+	@Override
 	public CreditCardClient getCreditCardClient(CreditCardMerchant merchant) throws Exception {
 		if (merchant != null && merchant.getType() != null) {
 			if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(merchant.getType())) {
@@ -157,21 +166,25 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		// return new TPosClient(getIWApplicationContext());
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(String merchantPK, String merchantType) {
 		CreditCardInformation ccInfo = getCreditCardInformation(merchantPK, merchantType);
 		return getCreditCardMerchant(ccInfo);
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(Supplier supplier, IWTimestamp stamp) {
 		CreditCardInformation ccInfo = getCreditCardInformation(supplier, stamp);
 		return getCreditCardMerchant(ccInfo);
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, IWTimestamp stamp) {
 		CreditCardInformation ccInfo = getCreditCardInformation(supplierManager, stamp);
 		return getCreditCardMerchant(ccInfo);
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(CreditCardInformation ccInfo) {
 		if (ccInfo != null) {
 			try {
@@ -192,6 +205,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public CreditCardInformation getCreditCardInformation(String merchantPK, String merchantType) {
 		try {
 			CreditCardInformationHome ccInfoHome = (CreditCardInformationHome) IDOLookup.getHome(CreditCardInformation.class);
@@ -207,6 +221,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public CreditCardInformation getCreditCardInformation(Supplier supplier, IWTimestamp stamp) {
 		try {
 			Timestamp toCheck = null;
@@ -248,6 +263,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 	 * @throws FinderException
 	 * @throws IDOLookupException
 	 */
+	@Override
 	public CreditCardInformation getCreditCardInformation(Group supplierManager, IWTimestamp stamp) {
 		Timestamp toCheck = null;
 		if (stamp != null) {
@@ -297,6 +313,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(Supplier supplier, Object PK) {
 		try {
 			Collection coll = supplier.getCreditCardInformation();
@@ -309,6 +326,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, Object PK) {
 		try {
 			Collection coll = getCreditCardInformations(supplierManager);
@@ -343,6 +361,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public CreditCardMerchant createCreditCardMerchant(String type) throws CreateException {
 		try {
 			if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
@@ -360,10 +379,12 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		}
 	}
 
+	@Override
 	public void addCreditCardMerchant(Group supplierManager, CreditCardMerchant merchant) throws CreateException {
 		addCreditCardMerchant((Object) supplierManager, merchant);
 	}
 
+	@Override
 	public void addCreditCardMerchant(Supplier supplier, CreditCardMerchant merchant) throws CreateException {
 		addCreditCardMerchant((Object) supplier, merchant);
 	}
@@ -431,6 +452,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		}
 	}
 
+	@Override
 	public Collection getCreditCardInformations(Supplier supplier) throws IDORelationshipException {
 		Collection coll = supplier.getCreditCardInformation();
 		if (coll == null || coll.isEmpty()) {
@@ -453,6 +475,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return coll;
 	}
 
+	@Override
 	public Collection getCreditCardInformations(Group supplierManager) throws FinderException, IDOLookupException {
 		CreditCardInformationHome ccInfoHome = (CreditCardInformationHome) IDOLookup.getHome(CreditCardInformation.class, supplierManager.getDatasource());
 		return ccInfoHome.findBySupplierManager(supplierManager);
@@ -494,6 +517,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		}
 	}
 
+	@Override
 	public boolean verifyCreditCardNumber(String numberToCheck, CreditCardAuthorizationEntry entry) throws IllegalArgumentException {
 		if (numberToCheck != null && numberToCheck.length() >= 10) {
 			int length = numberToCheck.length();
@@ -506,11 +530,13 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		throw new IllegalArgumentException("Number must be at least 10 characters long");
 	}
 
+	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Group supplierManager, String authorizationCode, IWTimestamp stamp) {
 		CreditCardInformation info = getCreditCardInformation(supplierManager, stamp);
 		return getAuthorizationEntry(info, authorizationCode, stamp);
 	}
 
+	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Supplier supplier, String authorizationCode, IWTimestamp stamp) {
 		CreditCardInformation info = getCreditCardInformation(supplier, stamp);
 		CreditCardAuthorizationEntry entry = getAuthorizationEntry(info, authorizationCode, stamp);
@@ -520,6 +546,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return entry;
 	}
 
+	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntry(CreditCardInformation info, String authorizationCode, IWTimestamp stamp) {
 		if (info != null) {
 			try {
@@ -563,10 +590,12 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public boolean getUseCVC(CreditCardClient client) {
 		return !(client instanceof TPosClient);
 	}
 
+	@Override
 	public boolean getUseCVC(CreditCardMerchant merchant) {
 		if (merchant != null) {
 			return !CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(merchant.getType());
@@ -574,10 +603,12 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return false;
 	}
 
+	@Override
 	public boolean getUseCVC(Supplier supplier, IWTimestamp stamp) {
 		return getUseCVC(getCreditCardMerchant(supplier, stamp));
 	}
 
+	@Override
 	public Collection getAllRefunds(IWTimestamp from, IWTimestamp to, int clientType) throws IDOLookupException, FinderException {
 		Collection coll = new Vector();
 		if (clientType == CLIENT_TYPE_TPOS) {

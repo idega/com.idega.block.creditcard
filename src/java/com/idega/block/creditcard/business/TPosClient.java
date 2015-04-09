@@ -1,17 +1,20 @@
 /*
  * $Id: TPosClient.java,v 1.23 2009/01/28 14:46:14 eiki Exp $
- * 
+ *
  * Copyright (C) 2002 Idega hf. All Rights Reserved.
- * 
+ *
  * This software is the proprietary information of Idega hf. Use is subject to
  * license terms.
- * 
+ *
  */
 package com.idega.block.creditcard.business;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
@@ -20,6 +23,10 @@ import com.idega.block.creditcard.data.TPosAuthorisationEntriesBeanHome;
 import com.idega.data.IDOLookup;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
+import com.idega.idegaweb.IWMainApplication;
+import com.idega.util.CoreConstants;
+import com.idega.util.CreditCardType;
+import com.idega.util.StringUtil;
 import com.tpos.client.TPOS3Client;
 
 /**
@@ -48,12 +55,12 @@ public class TPosClient implements CreditCardClient {
 	private String _receivePasswd = null;
 	private CreditCardMerchant _merchant = null;
 	private TPosAuthorisationEntriesBean entry = null;
-	
+
 	private int amountMultiplier = 100;
 
 	/**
 	 * Constructor for the TPosClient object
-	 * 
+	 *
 	 * @param iwc
 	 *          Description of the Parameter
 	 * @exception Exception
@@ -79,7 +86,7 @@ public class TPosClient implements CreditCardClient {
 			if (path == null) {
 				throw new Exception("Unable to find properties file");
 			}
-	
+
 			String seperator = java.io.File.separator;
 			if (!path.endsWith(seperator)) {
 				path = path + seperator + this._iwb.getProperty("properties_file");
@@ -132,7 +139,7 @@ public class TPosClient implements CreditCardClient {
 	 */
 	/**
 	 * Description of the Method
-	 * 
+	 *
 	 * @return Description of the Return Value
 	 */
 	public String createNewBatch() {
@@ -157,7 +164,7 @@ public class TPosClient implements CreditCardClient {
 
 	/**
 	 * Gets the cACertificate attribute of the TPosClient object
-	 * 
+	 *
 	 * @return The cACertificate value
 	 */
 	public boolean getCACertificate() {
@@ -186,7 +193,7 @@ public class TPosClient implements CreditCardClient {
 
 	/**
 	 * Gets the keys attribute of the TPosClient object
-	 * 
+	 *
 	 * @return The keys value
 	 */
 	public boolean getKeys() {
@@ -206,6 +213,7 @@ public class TPosClient implements CreditCardClient {
 		return (valid);
 	}
 
+	@Override
 	public String creditcardAuthorization(String nameOnCard, String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, String referenceNumber) throws CreditCardAuthorizationException {
 		String authID = (doAuth(cardnumber, monthExpires, yearExpires, ccVerifyNumber, amount, currency, "5", null, null));
 
@@ -237,7 +245,7 @@ public class TPosClient implements CreditCardClient {
 
 	/**
 	 * Description of the Method
-	 * 
+	 *
 	 * @param cardnumber
 	 *          Description of the Parameter
 	 * @param monthExpires
@@ -252,6 +260,7 @@ public class TPosClient implements CreditCardClient {
 	 * @exception TPosException
 	 *              Description of the Exception
 	 */
+	@Override
 	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, String referenceNumber) throws TPosException {
 		return (doAuth(cardnumber, monthExpires, yearExpires, ccVerifyNumber, amount, currency, "1", null, null));
 	}
@@ -265,7 +274,7 @@ public class TPosClient implements CreditCardClient {
 	 */
 	/**
 	 * Description of the Method
-	 * 
+	 *
 	 * @param cardnumber
 	 *          Description of the Parameter
 	 * @param monthExpires
@@ -280,11 +289,13 @@ public class TPosClient implements CreditCardClient {
 	 * @exception TPosException
 	 *              Description of the Exception
 	 */
+	@Override
 	public String doRefund(String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, Object parentDataPK, String captureProperties) throws TPosException {
 		//System.out.println("Warning : TPosClient is NOT using CVC number");
 		return doAuth(cardnumber, monthExpires, yearExpires, ccVerifyNumber, amount, currency, "3", parentDataPK, null);
 	}
 
+	@Override
 	public String finishTransaction(String properties) throws CreditCardAuthorizationException {
 		HashMap map = parseProperties(properties);
 
@@ -300,6 +311,7 @@ public class TPosClient implements CreditCardClient {
 		return doAuth(cardnumber, monthExpires, yearExpires, cvc, Double.parseDouble(amount) / this.amountMultiplier, currency, "1", null, authIDRsp);
 	}
 
+	@Override
 	public String voidTransaction(String properties) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented for tpos clients");
 //		HashMap map = parseProperties(properties);
@@ -315,7 +327,7 @@ public class TPosClient implements CreditCardClient {
 //
 //		return doAuth(cardnumber, monthExpires, yearExpires, cvc, Double.parseDouble(amount) / this.amountMultiplier, currency, "2", null, authIDRsp);
 	}
-	
+
 	private HashMap parseProperties(String response) {
 		HashMap responseElements = new HashMap();
 		int index = 0;
@@ -345,7 +357,7 @@ public class TPosClient implements CreditCardClient {
 
 	/**
 	 * Gets the bundleIdentifier attribute of the TPosClient object
-	 * 
+	 *
 	 * @return The bundleIdentifier value
 	 */
 	public String getBundleIdentifier() {
@@ -354,7 +366,7 @@ public class TPosClient implements CreditCardClient {
 
 	/**
 	 * Description of the Method
-	 * 
+	 *
 	 * @param cardnumber
 	 *          Description of the Parameter
 	 * @param monthExpires
@@ -742,36 +754,56 @@ public class TPosClient implements CreditCardClient {
 	//
 	// }
 
-	public Collection getValidCardTypes() {
-		ArrayList tmp = new ArrayList();
-		tmp.add(CreditCardBusiness.CARD_TYPE_VISA);
-		tmp.add(CreditCardBusiness.CARD_TYPE_MASTERCARD);
-	    tmp.add(CreditCardBusiness.CARD_TYPE_AMERICAN_EXPRESS);
-		return tmp;
+	public static Collection<String> getValidCardTypes(String client) {
+		String supportedCards = IWMainApplication.getDefaultIWMainApplication().getSettings().getProperty(
+				client + "_supported_credit_cards",
+				CreditCardBusiness.CARD_TYPE_VISA + "," + CreditCardBusiness.CARD_TYPE_MASTERCARD
+		);
+		if (StringUtil.isEmpty(supportedCards)) {
+			return Collections.emptyList();
+		}
+
+		List<String> validCards = new ArrayList<String>();
+		List<String> cards = Arrays.asList(supportedCards.split(CoreConstants.COMMA));
+		for (CreditCardType type: CreditCardType.values()) {
+			if (cards.contains(type.name())) {
+				validCards.add(type.name());
+			}
+		}
+		return validCards;
+	}
+
+	@Override
+	public Collection<String> getValidCardTypes() {
+		return getValidCardTypes("tpos");
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.idega.block.creditcard.business.CreditCardClient#getCreditCardMerchant()
 	 */
+	@Override
 	public CreditCardMerchant getCreditCardMerchant() {
 		return this._merchant;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.idega.block.creditcard.business.CreditCardClient#supportsDelayedTransactions()
 	 */
+	@Override
 	public boolean supportsDelayedTransactions() {
 		return true;
 	}
 
+	@Override
 	public String getExpireDateString(String month, String year) {
 		return month+year;
 	}
 
+	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntry() {
 		return entry;
 	}
