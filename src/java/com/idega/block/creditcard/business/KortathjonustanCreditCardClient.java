@@ -284,6 +284,13 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
+	public String getAuthorizationNumber(String properties) {
+
+		return null;
+	}
+
+
+	@Override
 	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, String referenceNumber) throws CreditCardAuthorizationException {
 		try {
 			IWTimestamp stamp = IWTimestamp.RightNow();
