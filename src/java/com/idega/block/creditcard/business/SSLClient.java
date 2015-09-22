@@ -6,6 +6,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -20,6 +22,10 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
+
+import com.idega.idegaweb.IWMainApplication;
+import com.idega.presentation.IWContext;
+import com.idega.util.CoreUtil;
 
 /*
  * This SslClient uses the following Apache modules: - commons-logging-api.jar -
@@ -54,7 +60,7 @@ public class SSLClient {
 				// The production server uses well known certificates and therefore
 				// uses the default "cacerts" file that is located in the
 				// Java Runtime folder /jre/lib/security
-				this.m_oSSLCtx = SSLContext.getInstance("SSL");
+				this.m_oSSLCtx = SSLContext.getInstance(IWMainApplication.getDefaultIWMainApplication().getSettings().getProperty("creditcard.encryption_protocol", "TLS"));
 				oSSLKMF = KeyManagerFactory.getInstance("SunX509");
 				oSSLKS = KeyStore.getInstance("JKS");
 
@@ -67,10 +73,12 @@ public class SSLClient {
 					this.m_oSSLCtx.init(oSSLKMF.getKeyManagers(), getTrustManager(), new java.security.SecureRandom());
 				else
 					this.m_oSSLCtx.init(oSSLKMF.getKeyManagers(), null, new java.security.SecureRandom());
-			}
-			catch (Exception e) {
-				System.err.println("Error getting SSLClient : keyStorePass = " + _strKeyStorePass + ", keyStore =" + _strKeyStore);
-				e.printStackTrace(System.err);
+			} catch (Exception e) {
+				String message = "Error getting SSLClient : keyStorePass = " + _strKeyStorePass + ", keyStore =" + _strKeyStore;
+				Logger.getLogger(SSLClient.class.getName()).log(Level.WARNING, message, e);
+				IWContext iwc = CoreUtil.getIWContext();
+				CoreUtil.sendExceptionNotification(iwc == null ? null : iwc.getRequest(), null, message, e);
+				
 				throw new IOException(e.getMessage());
 			}
 
@@ -139,40 +147,56 @@ public class SSLClient {
 	}
 
 	public String sendRequest(String _strProcedure, String _strData, int _iConnectTimeoutSec, int _iRequestTimeoutSec) throws Exception {
-		HttpClient oClient = new HttpClient();
-		// Set Connection timeout
-		oClient.setConnectionTimeout(_iConnectTimeoutSec * 1000);
-		// Set Request timeout
-		oClient.setTimeout(_iRequestTimeoutSec * 1000);
-		// Set Basic-Authentication realm properties
-		oClient.getState().setCredentials(null, this.m_strHost, new UsernamePasswordCredentials(this.m_strRealmUser, this.m_strRealmPwd));
-		// Set the Socket Factory we will use to connect
-		Protocol.registerProtocol("https", new Protocol("https", this.m_oSSLSocketFactory, this.m_iPort));
-		// Configure the URI
-		String strURI = "https://" + this.m_strHost + ":" + this.m_iPort + _strProcedure;
-		// System.out.println("[SSLClient] strURI : "+strURI);
-		// System.out.println("[SSLClient] strData : "+_strData);
-		// Finally prepare the parameters to post
-		PostMethod oPost = new PostMethod(strURI);
-		oPost.setDoAuthentication(true);
-		oPost.setRequestBody(_strData);
-		oPost.setRequestHeader("Content-Type", PostMethod.FORM_URL_ENCODED_CONTENT_TYPE);
+		String strURI = null;
 		try {
-			// Fire the call at the server...
-			oClient.executeMethod(oPost);
+			strURI = "https://" + this.m_strHost + ":" + this.m_iPort + _strProcedure;
+			
+			HttpClient oClient = new HttpClient();
+			// Set Connection timeout
+			oClient.setConnectionTimeout(_iConnectTimeoutSec * 1000);
+			// Set Request timeout
+			oClient.setTimeout(_iRequestTimeoutSec * 1000);
+			// Set Basic-Authentication realm properties
+			oClient.getState().setCredentials(null, this.m_strHost, new UsernamePasswordCredentials(this.m_strRealmUser, this.m_strRealmPwd));
+			// Set the Socket Factory we will use to connect
+			Protocol.registerProtocol("https", new Protocol("https", this.m_oSSLSocketFactory, this.m_iPort));
+			// Configure the URI
+			// System.out.println("[SSLClient] strURI : "+strURI);
+			// System.out.println("[SSLClient] strData : "+_strData);
+			// Finally prepare the parameters to post
+			PostMethod oPost = new PostMethod(strURI);
+			oPost.setDoAuthentication(true);
+			oPost.setRequestBody(_strData);
+			oPost.setRequestHeader("Content-Type", PostMethod.FORM_URL_ENCODED_CONTENT_TYPE);
+			try {
+				// Fire the call at the server...
+				oClient.executeMethod(oPost);
+			} catch (Exception ex) {
+				String message = "Error calling " + strURI;
+				Logger.getLogger(SSLClient.class.getName()).log(Level.WARNING, message, ex);
+				IWContext iwc = CoreUtil.getIWContext();
+				CoreUtil.sendExceptionNotification(iwc == null ? null : iwc.getRequest(), null, message, ex);
+				
+				// MUST ADD BETTER, MORE SPECIFIC EXCEPTION HANDLING...
+				throw new Exception("HttpClient request got exception:" + ex.getMessage(), ex);
+			}
+			
+			return oPost.getResponseBodyAsString();
+		} catch (Exception e) {
+			String message = "Error calling " + strURI;
+			Logger.getLogger(SSLClient.class.getName()).log(Level.WARNING, message, e);
+			IWContext iwc = CoreUtil.getIWContext();
+			CoreUtil.sendExceptionNotification(iwc == null ? null : iwc.getRequest(), null, message, e);
+			
+			throw new Exception("HttpClient request got exception:" + e.getMessage(), e);
 		}
-		catch (Exception ex) {
-			// MUST ADD BETTER, MORE SPECIFIC EXCEPTION HANDLING...
-			throw new Exception("HttpClient request got exception:" + ex.getMessage(), ex);
-		}
-		return oPost.getResponseBodyAsString();
 	}
 
 	public static void main(String[] args) {
 		String strHost = "test.kortathjonustan.is";
 		int iPort = 8443;
 		String strKeyStorePass = "changeit";
-		String strKeyStorePath = "/demoFolder/testkeys.jks";
+		String strKeyStorePath = "/Users/valdas/Documents/Programming/3.1_Felix/com.idega.block.creditcard/resources/demoFolder/testkeys.jks";//"/demoFolder/testkeys.jks";
 		String strRequest = "site=22&user=idega&pwd=zde83af&d41=90000022&d42=8180001";
 		try {
 			SSLClient sslclient = new SSLClient(strHost, iPort, strKeyStorePath, strKeyStorePass, "idega", "zde83af");
