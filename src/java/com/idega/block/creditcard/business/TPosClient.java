@@ -12,6 +12,8 @@ package com.idega.block.creditcard.business;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
@@ -20,6 +22,8 @@ import com.idega.block.creditcard.data.TPosAuthorisationEntriesBeanHome;
 import com.idega.data.IDOLookup;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
+import com.idega.presentation.IWContext;
+import com.idega.util.CoreUtil;
 import com.tpos.client.TPOS3Client;
 
 /**
@@ -28,6 +32,8 @@ import com.tpos.client.TPOS3Client;
  */
 public class TPosClient implements CreditCardClient {
 
+	private static final Logger LOGGER = Logger.getLogger(TPosClient.class.getName());
+	
 	public final static String TPOS_USER_ID = "tpos_userid";
 	public final static String TPOS_PASSWD = "tpos_passwd";
 	public final static String TPOS_MERCHANT_ID = "tpos_merchantid";
@@ -59,21 +65,21 @@ public class TPosClient implements CreditCardClient {
 	 * @exception Exception
 	 *              Description of the Exception
 	 */
-	public TPosClient(IWApplicationContext iwc, CreditCardMerchant merchant) throws Exception {
+	public TPosClient(IWApplicationContext iwac, CreditCardMerchant merchant) throws Exception {
 		this._merchant = merchant;
-		init(iwc);
+		init(iwac);
 	}
 
-	public TPosClient(IWApplicationContext iwc) throws Exception {
-		init(iwc);
+	public TPosClient(IWApplicationContext iwac) throws Exception {
+		init(iwac);
 	}
 
-	private void init(IWApplicationContext iwc) throws Exception {
-		this._iwb = iwc.getIWMainApplication().getBundle(IW_BUNDLE_IDENTIFIER);
+	private void init(IWApplicationContext iwac) throws Exception {
+		this._iwb = iwac.getIWMainApplication().getBundle(IW_BUNDLE_IDENTIFIER);
 		// if (this._iwb != null) {
 		// _iwrb = this._iwb.getResourceBundle(iwc);
 		// }
-		String path = iwc.getIWMainApplication().getSettings().getProperty("TPOSCLIENT_PROPERTIES_FILE");
+		String path = iwac.getIWMainApplication().getSettings().getProperty("TPOSCLIENT_PROPERTIES_FILE");
 		if (path == null) {
 	 		path = this._iwb.getPropertiesRealPath();
 			if (path == null) {
@@ -88,7 +94,7 @@ public class TPosClient implements CreditCardClient {
 				path = path + this._iwb.getProperty("properties_file");
 			}
 		} else {
-			System.out.println("TposClient : Found path in application");
+			LOGGER.warning("TposClient : Found path in application");
 		}
 
 		try {
@@ -97,7 +103,7 @@ public class TPosClient implements CreditCardClient {
 			this._client.setIPSet(Integer.parseInt(ipset));
 
 			if (this._merchant == null) {
-				System.out.println("TPosClient : Using default TPosMerchant, ipset = " + ipset);
+				LOGGER.info("TPosClient : Using default TPosMerchant, ipset = " + ipset);
 				this._userId = this._iwb.getProperty(TPOS_USER_ID);
 				this._passwd = this._iwb.getProperty(TPOS_PASSWD);
 				this._merchantId = this._iwb.getProperty(TPOS_MERCHANT_ID);
@@ -106,7 +112,7 @@ public class TPosClient implements CreditCardClient {
 				this._receivePasswd = this._iwb.getProperty(TPOS_KEY_RECEIVE_PASSWD);
 			}
 			else {
-				System.out.println("TPosClient : Using TPosMerchant " + this._merchant.getName() + ", ipset = " + ipset);
+				LOGGER.info("TPosClient : Using TPosMerchant " + this._merchant.getName() + ", ipset = " + ipset);
 				this._userId = this._merchant.getUser();
 				this._passwd = this._merchant.getPassword();
 				this._merchantId = this._merchant.getMerchantID();
@@ -114,11 +120,11 @@ public class TPosClient implements CreditCardClient {
 				this._posId = this._merchant.getTerminalID();
 				this._receivePasswd = this._merchant.getExtraInfo();
 			}
-		}
-
-		catch (Exception e) {
-			System.out.println("Got an exception trying to create client");
-			e.printStackTrace();
+		} catch (Exception e) {
+			String message = "Got an exception trying to create client. Path: " + path;
+			LOGGER.log(Level.WARNING, message, e);
+			IWContext iwc = CoreUtil.getIWContext();
+			CoreUtil.sendExceptionNotification(iwc == null ? null : iwc.getRequest(), null, message, e);
 		}
 	}
 
@@ -144,8 +150,8 @@ public class TPosClient implements CreditCardClient {
 
 		boolean created = this._client.sendNewBatchReq();
 		if (!created) {
-			System.err.println("Error no: " + this._client.getProperty(TPOS3Client.PN_ERRORNUMBER));
-			System.err.println("Error string : " + this._client.getProperty(TPOS3Client.PN_ERRORTEXT));
+			LOGGER.warning("Error no: " + this._client.getProperty(TPOS3Client.PN_ERRORNUMBER));
+			LOGGER.warning("Error string : " + this._client.getProperty(TPOS3Client.PN_ERRORTEXT));
 
 			return (null);
 		}
@@ -168,16 +174,16 @@ public class TPosClient implements CreditCardClient {
 		boolean valid = this._client.sendCACertificateReq();
 
 		if (!valid) {
-			System.err.println("Error no: " + this._client.getProperty(TPOS3Client.PN_ERRORNUMBER));
-			System.err.println("Error string : " + this._client.getProperty(TPOS3Client.PN_ERRORTEXT));
+			LOGGER.warning("Error no: " + this._client.getProperty(TPOS3Client.PN_ERRORNUMBER));
+			LOGGER.warning("Error string : " + this._client.getProperty(TPOS3Client.PN_ERRORTEXT));
 		}
 
 		if (Integer.parseInt(this._client.getProperty(TPOS3Client.PN_TOTALRESPONSECODE), 10) == 0) {
 			this._client.confirmCACertificate();
 		}
 		else {
-			System.err.println("Error no: " + this._client.getProperty(TPOS3Client.PN_ERRORNUMBER));
-			System.err.println("Error string : " + this._client.getProperty(TPOS3Client.PN_ERRORTEXT));
+			LOGGER.warning("Error no: " + this._client.getProperty(TPOS3Client.PN_ERRORNUMBER));
+			LOGGER.warning("Error string : " + this._client.getProperty(TPOS3Client.PN_ERRORTEXT));
 
 			valid = false;
 		}
@@ -199,8 +205,8 @@ public class TPosClient implements CreditCardClient {
 		boolean valid = this._client.sendKeyPairReq();
 
 		if (!valid) {
-			System.err.println("Error no: " + this._client.getProperty(TPOS3Client.PN_ERRORNUMBER));
-			System.err.println("Error string : " + this._client.getProperty(TPOS3Client.PN_ERRORTEXT));
+			LOGGER.warning("Error no: " + this._client.getProperty(TPOS3Client.PN_ERRORNUMBER));
+			LOGGER.warning("Error string : " + this._client.getProperty(TPOS3Client.PN_ERRORTEXT));
 		}
 
 		return (valid);
@@ -292,7 +298,6 @@ public class TPosClient implements CreditCardClient {
 	 *              Description of the Exception
 	 */
 	public String doRefund(String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, Object parentDataPK, String captureProperties) throws TPosException {
-		//System.out.println("Warning : TPosClient is NOT using CVC number");
 		return doAuth(cardnumber, monthExpires, yearExpires, ccVerifyNumber, amount, currency, "3", parentDataPK, null, null);
 	}
 
@@ -342,14 +347,12 @@ public class TPosClient implements CreditCardClient {
 			if (tmpString.indexOf("=") > -1) {
 				key = tmpString.substring(0, tmpString.indexOf("="));
 				value = tmpString.substring(tmpString.indexOf("=") + 1, tmpString.length());
-				// System.out.println(tmpString+" ("+key+","+value+")");
 				responseElements.put(key, value);
 			}
 		}
 		if (response.indexOf("=") > -1) {
 			key = response.substring(0, response.indexOf("="));
 			value = response.substring(response.indexOf("=") + 1, response.length());
-			// System.out.println(response + " (" + key + "," + value + ")");
 			responseElements.put(key, value);
 		}
 		return responseElements;
@@ -500,7 +503,7 @@ public class TPosClient implements CreditCardClient {
 						entry.setParentID(((Integer) parentDataPK).intValue());
 					}
 					catch (Exception e) {
-						System.out.println("TPosClient : could not set parentID : " + parentDataPK);
+						LOGGER.warning("TPosClient : could not set parentID : " + parentDataPK);
 					}
 				}
 				entry.store();
@@ -513,7 +516,7 @@ public class TPosClient implements CreditCardClient {
 			}
 
 			if (!inserted) {
-				System.err.println("Unable to save entry to database");
+				LOGGER.warning("Unable to save entry to database");
 			}
 
 			if (!valid) {
