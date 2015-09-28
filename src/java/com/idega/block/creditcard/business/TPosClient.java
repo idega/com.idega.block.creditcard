@@ -390,7 +390,18 @@ public class TPosClient implements CreditCardClient {
 	 * @exception TPosException
 	 *              Description of the Exception
 	 */
-	private String doAuth(String cardnumber, String monthExpires, String yearExpires, String CVC, double amount, String currency, String transactionType, Object parentDataPK, String authIDRsp, String reference) throws TPosException {
+	private String doAuth(
+			String cardnumber,
+			String monthExpires,
+			String yearExpires,
+			String CVC,
+			double amount,
+			String currency,
+			String transactionType,
+			Object parentDataPK,
+			String authIDRsp,
+			String reference
+	) throws TPosException {
 		if (this._client != null) {
 
 			this._client.setProperty(TPOS3Client.PN_USERID, this._userId);
@@ -553,8 +564,9 @@ public class TPosClient implements CreditCardClient {
 					throw tposEx;
 			}
 
+			throw new TPosException("Unknown problem occurred while trying to authorize");
 		}
-		return ("-1");
+		throw new TPosException("TPOS client can not be initialized");
 	}
 
 	public Collection getValidCardTypes() {
