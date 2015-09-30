@@ -21,6 +21,7 @@ import com.idega.data.IDOEntity;
 public interface CreditCardMerchant extends IDOEntity{
 	public static final String MERCHANT_TYPE_TPOS = "TPOS";
 	public static final String MERCHANT_TYPE_KORTHATHJONUSTAN = "KORTATHJONUSTAN";
+	public static final String MERCHANT_TYPE_DUMMY = "DUMMY";
 	
   public static final String COLUMN_IS_DELETED = "IS_DELETED";
 

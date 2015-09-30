@@ -12,6 +12,11 @@ import javax.transaction.TransactionManager;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
+import com.idega.block.creditcard.data.DummyAuthorisationEntries;
+import com.idega.block.creditcard.data.DummyAuthorisationEntriesBMPBean;
+import com.idega.block.creditcard.data.DummyAuthorisationEntriesHome;
+import com.idega.block.creditcard.data.DummyMerchant;
+import com.idega.block.creditcard.data.DummyMerchantHome;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesBMPBean;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesHome;
@@ -52,6 +57,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 
 	public final static int CLIENT_TYPE_TPOS = 1;
 	public final static int CLIENT_TYPE_KORTATHJONUSTAN = 2;
+	public final static int CLIENT_TYPE_DUMMY = 3;
 
 	@Override
 	public String getBundleIdentifier() {
@@ -69,6 +75,12 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			}
 			else if (clientType == CLIENT_TYPE_TPOS) {
 				TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);
+				Collection coll = home.findByDates(from, to);
+
+				return coll;
+			} 
+			else if (clientType == CLIENT_TYPE_DUMMY) {
+				DummyAuthorisationEntriesHome home = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntries.class);
 				Collection coll = home.findByDates(from, to);
 
 				return coll;
@@ -160,6 +172,9 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 
 				return new KortathjonustanCreditCardClient(getIWApplicationContext(), hostName, Integer.parseInt(hostPort), keystore, keystorePass, merchant);
 			}
+			else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(merchant.getType())) {
+				return new DummyCreditCardClient(getIWApplicationContext());
+			}
 		}
 		return null;
 		// Default client
@@ -195,6 +210,10 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 				}
 				else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
 					KortathjonustanMerchantHome kortHome = (KortathjonustanMerchantHome) IDOLookup.getHome(KortathjonustanMerchant.class, ccInfo.getDatasource());
+					return kortHome.findByPrimaryKey(new Integer(ccInfo.getMerchantPKString()));
+				}
+				else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(type)) {
+					DummyMerchantHome kortHome = (DummyMerchantHome) IDOLookup.getHome(DummyMerchant.class, ccInfo.getDatasource());
 					return kortHome.findByPrimaryKey(new Integer(ccInfo.getMerchantPKString()));
 				}
 			}
@@ -371,6 +390,10 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
 				KortathjonustanMerchantHome kortHome = (KortathjonustanMerchantHome) IDOLookup.getHome(KortathjonustanMerchant.class);
 				return kortHome.create();
+			}
+			else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(type)) {
+				DummyMerchantHome dummyHome = (DummyMerchantHome) IDOLookup.getHome(DummyMerchant.class);
+				return dummyHome.create();
 			}
 			return null;
 		}
@@ -564,6 +587,13 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 						return entry;
 					}
 				}
+				else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(info.getType())) {
+					DummyAuthorisationEntriesHome authEntHome = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntries.class, info.getDatasource());
+					DummyAuthorisationEntries entry = authEntHome.findByAuthorizationCode(authorizationCode, stamp);
+					if (entry != null) {
+						return entry;
+					}
+				}
 			}
 			catch (IDOFinderException ignore) {
 			}
@@ -617,6 +647,10 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		}
 		else if (clientType == CLIENT_TYPE_KORTATHJONUSTAN) {
 			KortathjonustanAuthorisationEntriesHome home = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntriesBMPBean.class);
+			coll = home.findRefunds(from, to);
+		}
+		else if (clientType == CLIENT_TYPE_DUMMY) {
+			DummyAuthorisationEntriesHome home = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntriesBMPBean.class);
 			coll = home.findRefunds(from, to);
 		}
 		return coll;
