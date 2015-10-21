@@ -87,10 +87,12 @@ public class TPosException extends CreditCardAuthorizationException {
 			case 7:
 			case 37:
 			case 69: {
-				if (responseError != null && responseError.indexOf("121") != -1) {
-					return (iwrb.getLocalizedString("travel.creditcard_exceeds_limit", "Exceeds limits to withdrawal"));
+				if (responseError != null && responseError.indexOf(": 121-") != -1) {
+					return (iwrb.getLocalizedString("travel.creditcard_exceeded_withdrawal_limit", "Limit of withdrawal was exceeded on your credit card - payment failed"));
+				} else if (responseError != null && responseError.indexOf(": 100-") != -1) {
+					return (iwrb.getLocalizedString("travel.creditcard_rejected", "Credit card was rejected - payment failed"));
 				} else {
-					return (iwrb.getLocalizedString("travel.error_communicating","Error communicating with Central Payment Server"));
+					return (iwrb.getLocalizedString("travel.error_communicating", "Error communicating with Central Payment Server"));
 				}
 			}
 			case 75:
