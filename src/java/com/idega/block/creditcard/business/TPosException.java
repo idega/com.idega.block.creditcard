@@ -9,13 +9,20 @@
  */
 package com.idega.block.creditcard.business;
 
+import java.util.logging.Logger;
+
 import com.idega.idegaweb.IWResourceBundle;
+import com.idega.presentation.IWContext;
+import com.idega.util.CoreUtil;
 
 /**
  * @author <a href="mail:palli@idega.is">Pall Helgason</a>
  * @version 1.0
  */
 public class TPosException extends CreditCardAuthorizationException {
+	
+	private static final Logger LOGGER = Logger.getLogger(TPosException.class.getName());
+	
   /**
    *
    */
@@ -47,9 +54,12 @@ public class TPosException extends CreditCardAuthorizationException {
   }
 
   public String getLocalizedMessage(IWResourceBundle iwrb) {
-		System.out.println("TPOS errormessage = " + this.getErrorMessage());
-		System.out.println("number = " + this.getErrorNumber());
-		System.out.println("display = " + this.getDisplayError());
+	  String responseError = this.getErrorMessage();
+	  String message = "TPOS errormessage = " + responseError + ", number = " + this.getErrorNumber() + ", display = " + this.getDisplayError();
+	  LOGGER.warning(message);
+	  IWContext iwc = CoreUtil.getIWContext();
+	  CoreUtil.sendExceptionNotification(iwc == null ? null : iwc.getRequest(), null, message, this);
+	  
 		int number = Integer.parseInt(this.getErrorNumber());
 		switch (number) {
 			case 6:
@@ -76,7 +86,13 @@ public class TPosException extends CreditCardAuthorizationException {
 				return (iwrb.getLocalizedString("travel.cannot_connect_to_cps","Could not connect to Central Payment Server"));
 			case 7:
 			case 37:
-			case 69:
+			case 69: {
+				if (responseError != null && responseError.indexOf("121") != -1) {
+					return (iwrb.getLocalizedString("travel.creditcard_exceeds_limit", "Exceeds limits to withdrawal"));
+				} else {
+					return (iwrb.getLocalizedString("travel.error_communicating","Error communicating with Central Payment Server"));
+				}
+			}
 			case 75:
 				return (iwrb.getLocalizedString("travel.creditcard_autorization_failed","Authorization failed"));
 			case 20:
@@ -84,10 +100,12 @@ public class TPosException extends CreditCardAuthorizationException {
 				return (iwrb.getLocalizedString("travel.transaction_not_permitted","Transaction not permitted"));
 			case 99999:
 				return (iwrb.getLocalizedString("travel.booking_was_not_confirmed_try_again_later","Booking was not confirmed. Please try again later"));
+			case 32:
+				return (iwrb.getLocalizedString("travel.creditcard_client_failed","Credit card client failed"));
+			case 33:
+				return (iwrb.getLocalizedString("travel.creditcard_unknown_error","Unknown error has occured"));
 			default:
 				return (iwrb.getLocalizedString("travel.error_communicating","Error communicating with Central Payment Server"));
 		}
-
-
   }
 }

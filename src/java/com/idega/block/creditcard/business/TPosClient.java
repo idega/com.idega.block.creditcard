@@ -564,9 +564,14 @@ public class TPosClient implements CreditCardClient {
 					throw tposEx;
 			}
 
-			throw new TPosException("Unknown problem occurred while trying to authorize");
+			TPosException exception = new TPosException("Unknown problem occurred while trying to authorize");
+			exception.setErrorNumber(String.valueOf(33));
+			throw exception;
 		}
-		throw new TPosException("TPOS client can not be initialized");
+		
+		TPosException exception = new TPosException("TPOS client can not be initialized");
+		exception.setErrorNumber(String.valueOf(32));
+		throw exception;
 	}
 
 	public Collection getValidCardTypes() {
