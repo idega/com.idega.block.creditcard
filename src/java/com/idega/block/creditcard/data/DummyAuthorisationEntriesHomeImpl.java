@@ -25,8 +25,13 @@ import com.idega.util.IWTimestamp;
 public class DummyAuthorisationEntriesHomeImpl extends IDOFactory implements
 		DummyAuthorisationEntriesHome {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6276047455390776882L;
+
 	protected Class getEntityInterfaceClass() {
-		return KortathjonustanAuthorisationEntries.class;
+		return DummyAuthorisationEntries.class;
 	}
 
 	public DummyAuthorisationEntries create() throws javax.ejb.CreateException {

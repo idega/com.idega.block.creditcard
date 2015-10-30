@@ -71,7 +71,7 @@ public class DummyCreditCardClient implements CreditCardClient {
 
 		try {
 			Logger logger = Logger.getLogger(this.getClass().getName());
-			fh = new FileHandler(this.bundle.getPropertiesRealPath() + FileUtil.getFileSeparator() + "dummyCC.log");
+			fh = new FileHandler(System.getProperty("catalina.base") + FileUtil.getFileSeparator() + "logs" + FileUtil.getFileSeparator() + "dummyCC.log");
 			logger.addHandler(fh);
 			logger.setLevel(Level.ALL);
 			logger.info(msg);
