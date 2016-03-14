@@ -5,5 +5,6 @@ public interface DummyMerchantHome extends com.idega.data.IDOHome
 {
  public DummyMerchant create() throws javax.ejb.CreateException;
  public DummyMerchant findByPrimaryKey(Object pk) throws javax.ejb.FinderException;
+ public DummyMerchant findByName(String name) throws javax.ejb.FinderException;
 
 }

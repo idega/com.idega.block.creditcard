@@ -2,9 +2,15 @@ package com.idega.block.creditcard.data;
 
 import java.sql.Timestamp;
 
+import javax.ejb.FinderException;
 import javax.ejb.RemoveException;
 
+import org.hsqldb.lib.StringUtil;
+
 import com.idega.data.GenericEntity;
+import com.idega.data.query.MatchCriteria;
+import com.idega.data.query.SelectQuery;
+import com.idega.data.query.Table;
 import com.idega.util.IWTimestamp;
 
 /**
@@ -21,14 +27,17 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	private static final String COLUMN_MODIFICATION_DATE = "MODIFICATION_DATE";
 	private static final String COLUMN_END_DATE = "END_DATE";
 
+	@Override
 	public String getEntityName() {
 		return ENTITY_NAME;
 	}
 
+	@Override
 	public String getType() {
 		return MERCHANT_TYPE_DUMMY;
 	}
-	
+
+	@Override
 	public void initializeAttributes() {
 		addAttribute(getIDColumnName());
 		addAttribute(COLUMN_NAME, "name", true, true, String.class);
@@ -40,17 +49,20 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
     addAttribute(COLUMN_IS_DELETED, "Is delted", true, true, Boolean.class);
 	}
 
+	@Override
 	public void setName(String name) {
 		setColumn(COLUMN_NAME, name);
 	}
-	
+
+	@Override
 	public String getName() {
 		return getStringColumnValue(COLUMN_NAME);
 	}
-	
+
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getLocation()
 	 */
+	@Override
 	public String getLocation() {
 		return "DUMMY_LOCATION";
 	}
@@ -58,6 +70,7 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getUser()
 	 */
+	@Override
 	public String getUser() {
 		return "DUMMY_USER";
 	}
@@ -65,6 +78,7 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getPassword()
 	 */
+	@Override
 	public String getPassword() {
 		return "DUMMY_PASSWORD";
 	}
@@ -72,6 +86,7 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getTerminalID()
 	 */
+	@Override
 	public String getTerminalID() {
 		return getStringColumnValue(COLUMN_ACCEPTOR_TERMINAL_ID);
 	}
@@ -79,6 +94,7 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getMerchantID()
 	 */
+	@Override
 	public String getMerchantID() {
 		return getStringColumnValue(COLUMN_ACCEPTOR_IDENTIFICATION);
 	}
@@ -86,6 +102,7 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * Not implemented
 	 */
+	@Override
 	public String getExtraInfo() {
 		return null;
 	}
@@ -93,27 +110,31 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/** (non-Javadoc)
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setLocation(java.lang.String)
 	 */
+	@Override
 	public void setLocation(String location) {
-		
+
 	}
 
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setUser(java.lang.String)
 	 */
+	@Override
 	public void setUser(String user) {
-		
+
 	}
 
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setPassword(java.lang.String)
 	 */
+	@Override
 	public void setPassword(String password) {
-	
+
 	}
 
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setTerminalID(java.lang.String)
 	 */
+	@Override
 	public void setTerminalID(String terminalID) {
 		setColumn(COLUMN_ACCEPTOR_TERMINAL_ID, terminalID);
 	}
@@ -121,6 +142,7 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setMerchantID(java.lang.String)
 	 */
+	@Override
 	public void setMerchantID(String id) {
 		setColumn(COLUMN_ACCEPTOR_IDENTIFICATION, id);
 	}
@@ -128,12 +150,14 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * Not Implemented
 	 */
+	@Override
 	public void setExtraInfo(String extra) {
 	}
 
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getStartDate()
 	 */
+	@Override
 	public Timestamp getStartDate() {
 		return getTimestampColumnValue(COLUMN_START_DATE);
 	}
@@ -141,6 +165,7 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getEndDate()
 	 */
+	@Override
 	public Timestamp getEndDate() {
 		return getTimestampColumnValue(COLUMN_END_DATE);
 	}
@@ -148,6 +173,7 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#IsDeleted()
 	 */
+	@Override
 	public boolean getIsDeleted() {
 		return getBooleanColumnValue(COLUMN_IS_DELETED);
 	}
@@ -166,6 +192,7 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getModificationDate()
 	 */
+	@Override
 	public Timestamp getModificationDate() {
 		return getTimestampColumnValue(COLUMN_MODIFICATION_DATE);
 	}
@@ -177,6 +204,7 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#store()
 	 */
+	@Override
 	public void store() {
 		setModificationDate(IWTimestamp.RightNow().getTimestamp());
 		if (getStartDate() == null) {
@@ -188,10 +216,25 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#remove()
 	 */
+	@Override
 	public void remove() throws RemoveException {
 		setModificationDate(IWTimestamp.RightNow().getTimestamp());
 		setEndDate(IWTimestamp.RightNow().getTimestamp());
 		setColumn(COLUMN_IS_DELETED, true);
 		store();
 	}
+
+
+	public Object ejbFindByName(String merchantName) throws FinderException {
+		Table table = new Table(this);
+
+		SelectQuery query = new SelectQuery(table);
+		query.addColumn(table, getIDColumnName());
+		if (!StringUtil.isEmpty(merchantName)) {
+			query.addCriteria(new MatchCriteria(table.getColumn(COLUMN_NAME), MatchCriteria.EQUALS, merchantName));
+			return idoFindOnePKByQuery(query);
+		}
+		return null;
+	}
+
 }
