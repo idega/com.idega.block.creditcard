@@ -1,13 +1,7 @@
-package com.idega.block.creditcard.data;
+package com.idega.block.creditcard2.data.beans;
 
 import java.sql.Date;
-import java.util.Collection;
 
-import javax.ejb.EJBException;
-import javax.ejb.EJBLocalHome;
-import javax.ejb.EJBLocalObject;
-import javax.ejb.FinderException;
-import javax.ejb.RemoveException;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,26 +11,54 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-import com.idega.data.IDOEntity;
-import com.idega.data.IDOEntityDefinition;
-import com.idega.data.IDOStoreException;
+import com.idega.block.creditcard2.business.CreditCardAuthorizationEntry;
+
 
 @Entity
 @Table(name = "BORGUN_AUTHORISATION_ENTRIES")
-//@NamedQueries(
-//	{
-//		@NamedQuery(
-//				name = KvartaSavedFormEntity.GET_BY_ID,
-//				query = "from KvartaSavedFormEntity sf where sf."+KvartaSavedFormEntity.idProp+" = :"+KvartaSavedFormEntity.idProp
-//				),
-//		@NamedQuery(
-//				name = KvartaSavedFormEntity.GET_BY_UUID,
-//				query = "from KvartaSavedFormEntity sf where sf."+KvartaSavedFormEntity.submissionUUIDProp+" = :"+KvartaSavedFormEntity.submissionUUIDProp
-//				)
-//	}
-//)
+@NamedQueries(
+	{
+		@NamedQuery(
+				name = BorgunAuthorisationEntry.GET_BY_ID,
+				query = "from BorgunAuthorisationEntry bae where bae."+BorgunAuthorisationEntry.idProp+" = :"+BorgunAuthorisationEntry.idProp
+				),
+		@NamedQuery(
+				name = BorgunAuthorisationEntry.GET_BY_PARENT_ID,
+				query = "from BorgunAuthorisationEntry bae where bae."+BorgunAuthorisationEntry.parentProp+" = :"+BorgunAuthorisationEntry.parentProp
+				),
+		@NamedQuery(
+				name = BorgunAuthorisationEntry.GET_BY_AUTH_CODE,
+				query = "from BorgunAuthorisationEntry bae where bae."+BorgunAuthorisationEntry.authCodeProp+" = :"+BorgunAuthorisationEntry.authCodeProp
+				),
+		@NamedQuery(
+				name = BorgunAuthorisationEntry.GET_BY_DATES,
+				query = "from BorgunAuthorisationEntry bae where bae."+BorgunAuthorisationEntry.dateProp+" >= :"+BorgunAuthorisationEntry.dateFromProp + " and " +BorgunAuthorisationEntry.dateProp+ " <=:" +BorgunAuthorisationEntry.dateToProp 
+				),
+		@NamedQuery(
+				name = BorgunAuthorisationEntry.GET_REFUNDS_BY_DATES,
+				query = "from BorgunAuthorisationEntry bae where bae.transactionType = "+BorgunAuthorisationEntry.AUTHORIZATION_TYPE_REFUND+" and bae."+BorgunAuthorisationEntry.dateProp+" >= :"+BorgunAuthorisationEntry.dateFromProp + " and " +BorgunAuthorisationEntry.dateProp+ " <=:" +BorgunAuthorisationEntry.dateToProp 
+				)
+	}
+)
 public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry{
 
+	public static final String GET_BY_ID = "BorgunAuthorisationEntry.getByID";
+	public static final String GET_BY_PARENT_ID = "BorgunAuthorisationEntry.getByParentID";
+	public static final String GET_BY_AUTH_CODE = "BorgunAuthorisationEntry.getByAuthCode";
+	public static final String idProp = "id";
+	public static final String parentProp = "parent";
+	public static final String authCodeProp = "authCode";
+	public static final String GET_BY_DATES = "BorgunAuthorisationEntry.GET_BY_DATES";
+	public static final String GET_REFUNDS_BY_DATES = "BorgunAuthorisationEntry.GET_REFUNDS_BY_DATES";
+	public static final String dateProp = "date";
+	public static final String dateFromProp = "dateFrom";
+	public static final String dateToProp = "dateTo";
+	
+	public static final String AUTHORIZATION_TYPE_SALE = "1";
+	public static final String AUTHORIZATION_TYPE_REFUND = "3";
+	public static final String AUTHORIZATION_TYPE_PARTIAL_REVERSAL = "4";
+	public static final String AUTHORIZATION_TYPE_PRE_AUTHORIZE = "5";
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "ID")
@@ -180,92 +202,28 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry{
 		this.serverResponse = serverResponse;
 	}
 
-	@Override
-	public void store() throws IDOStoreException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void remove() throws RemoveException, EJBException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public Object getPrimaryKey() {
 		return this.id;
 	}
 
-	@Override
 	public String getCardExpires() {
 		return this.cardExpireDate;
 	}
 
-	@Override
 	public String getAuthorizationCode() {
 		return this.authCode;
 	}
 
-	@Override
 	public String getExtraField() {
 		return this.serverResponse;
 	}
 
-	@Override
 	public int getParentID() {
 		return parent.getId().intValue();
 	}
 
-	@Override
 	public CreditCardAuthorizationEntry getParent() {
 		return this.parent;
 	}
 
-	@Override
-	public CreditCardAuthorizationEntry getChild() throws FinderException {
-		//TODO make get child  
-		return null;
-	}
-	
-	@Override
-	public int compareTo(IDOEntity o) {
-		return 0;
-	}
-
-	@Override
-	public IDOEntityDefinition getEntityDefinition() {
-		return null;
-	}
-
-	@Override
-	public Integer decode(String pkString) {
-		return null;
-	}
-
-	@Override
-	public Collection<Integer> decode(String[] pkString) {
-		return null;
-	}
-
-	@Override
-	public String getDatasource() {
-		return null;
-	}
-
-	@Override
-	public void setDatasource(String datasource) {
-		
-	}
-
-	@Override
-	public EJBLocalHome getEJBLocalHome() throws EJBException {
-		return null;
-	}
-
-	@Override
-	public boolean isIdentical(EJBLocalObject arg0) throws EJBException {
-		return false;
-	}
-	
 }

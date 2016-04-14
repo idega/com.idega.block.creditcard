@@ -1,31 +1,44 @@
-package com.idega.block.creditcard.data;
+package com.idega.block.creditcard2.data.beans;
 
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.Collection;
-
-import javax.ejb.EJBException;
-import javax.ejb.EJBLocalHome;
-import javax.ejb.EJBLocalObject;
-import javax.ejb.RemoveException;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-import com.idega.data.IDOEntity;
-import com.idega.data.IDOEntityDefinition;
+import com.idega.block.creditcard2.business.CreditCardMerchant;
+
 
 @Entity
 @Table(name = "BORGUN_MERCHANT")
+@NamedQueries(
+{
+	@NamedQuery(
+			name = BorgunMerchant.GET_BY_ID,
+			query = "from BorgunMerchant bm where bm."+BorgunMerchant.idProp+" = :"+BorgunMerchant.idProp
+			),
+	@NamedQuery(
+			name = BorgunMerchant.GET_BY_NAME,
+			query = "from BorgunMerchant bm where bm."+BorgunMerchant.nameProp+" = :"+BorgunMerchant.nameProp
+			)
+}
+)
 public class BorgunMerchant implements CreditCardMerchant{
+	
+	public static final String GET_BY_ID = "BorgunMerchant.getByID";
+	public static final String GET_BY_NAME = "BorgunMerchant.getByName";
+	public static final String idProp = "id";
+	public static final String nameProp = "merchantName";
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "ID")
-	private Long id;
+	private Integer id;
 	
 	@Column(name = "MERCHANT_ID")
 	private String merchantId;
@@ -72,11 +85,11 @@ public class BorgunMerchant implements CreditCardMerchant{
 	@Column(name = "deleted")
 	private Boolean deleted;
 	
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -179,120 +192,73 @@ public class BorgunMerchant implements CreditCardMerchant{
 		return getMerchantID();
 	}
 
-	@Override
 	public String getExtraInfo() {
 		return this.extraInfo;
 	}
 
-	@Override
-	public Timestamp getStartDate() {
-		return new Timestamp(this.startDate.getTime());
+	public Date getStartDate() {
+		return this.startDate;
 	}
 
-	@Override
-	public Timestamp getModificationDate() {
-		return new Timestamp(this.modificationDate.getTime());
+	public Date getModificationDate() {
+		return this.modificationDate;
 	}
 
-	@Override
-	public Timestamp getEndDate() {
-		return new Timestamp(this.endDate.getTime());
+	public Date getEndDate() {
+		return this.endDate;
 	}
 
-	@Override
-	public boolean getIsDeleted() {
+	public Boolean getIsDeleted() {
 		return this.deleted.booleanValue();
 	}
 
-	@Override
+	public void setIsDeleted(boolean isDeleted) {
+		this.deleted  = isDeleted;
+	}
+	
 	public void setName(String name) {
 		this.merchantName = name;		
 	}
 
-	@Override
 	public void setLocation(String location) {
 		this.location = location;
 	}
 
-	@Override
 	public void setUser(String user) {
 		setMerchantLogin(user);
 	}
 
-	@Override
 	public void setPassword(String password) {
 		setMerchantPassword(password);
 	}
 
-	@Override
 	public void setTerminalID(String terminalID) {
 		setMerchantTerminal(terminalID);
 	}
 
-	@Override
 	public void setMerchantID(String id) {
 		setMerchantId(merchantId);
 	}
 
-	@Override
 	public void setExtraInfo(String extra) {
 		this.extraInfo = extra;
 	}
 
-	@Override
-	public void store() {
-		// TODO Auto-generated method stub
+	public Integer getPrimaryKey() {
+		return getId();
 	}
 
-	@Override
-	public void remove() throws RemoveException {
-		// TODO Auto-generated method stub
+	public void setStartDate(Date date) {
+		this.startDate = date;
 	}
+
 	
-	
-	//unused IDO methods 
-	@Override
-	public IDOEntityDefinition getEntityDefinition() {
-		return null;
+	public void setModificationDate(Date date) {
+		this.modificationDate = date;
 	}
 
-	@Override
-	public Integer decode(String pkString) {
-		return null;
-	}
-
-	@Override
-	public Collection<Integer> decode(String[] pkString) {
-		return null;
-	}
-
-	@Override
-	public String getDatasource() {
-		return null;
-	}
-
-	@Override
-	public void setDatasource(String datasource) {
-	}
-
-	@Override
-	public EJBLocalHome getEJBLocalHome() throws EJBException {
-		return null;
-	}
-
-	@Override
-	public Object getPrimaryKey() throws EJBException {
-		return null;
-	}
-
-	@Override
-	public boolean isIdentical(EJBLocalObject arg0) throws EJBException {
-		return false;
-	}
-
-	@Override
-	public int compareTo(IDOEntity o) {
-		return 0;
+	public void setEndDate(Date date) {
+		this.endDate = date;
 	}
 	
 }

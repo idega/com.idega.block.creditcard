@@ -1,4 +1,4 @@
-package com.idega.block.creditcard.data;
+package com.idega.block.creditcard2.business;
 
 import java.io.IOException;
 import java.io.StringReader;
