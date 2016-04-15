@@ -10,8 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.idega.block.creditcard2.business.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard2.data.beans.BorgunAuthorisationEntry;
-import com.idega.block.creditcard2.data.beans.DummyAuthorisationEntry;
-import com.idega.block.creditcard2.data.beans.KortathjonustanAuthorisationEntry;
 import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.core.persistence.Param;
 import com.idega.core.persistence.impl.GenericDaoImpl;
@@ -20,8 +18,9 @@ import com.idega.core.persistence.impl.GenericDaoImpl;
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 @Transactional(readOnly = false)
 public class BorgunAuthorisationEntryDAO extends GenericDaoImpl implements AuthorisationEntriesDAO<BorgunAuthorisationEntry> {
+
 	public static final String BEAN_NAME = "BorgunAuthorisationEntryDAO";
-	
+
 	@Override
 	public CreditCardAuthorizationEntry getChild(BorgunAuthorisationEntry entry) {
 		return getSingleResult(BorgunAuthorisationEntry.GET_BY_PARENT_ID, BorgunAuthorisationEntry.class, new Param(BorgunAuthorisationEntry.parentProp, entry.getId()));
@@ -41,7 +40,7 @@ public class BorgunAuthorisationEntryDAO extends GenericDaoImpl implements Autho
 	public List<CreditCardAuthorizationEntry> findRefunds(Date from, Date to) {
 		return getResultList(BorgunAuthorisationEntry.GET_REFUNDS_BY_DATES, CreditCardAuthorizationEntry.class, new Param(BorgunAuthorisationEntry.dateFromProp, from), new Param(BorgunAuthorisationEntry.dateToProp, to));
 	}
-	
+
 	@Override
 	public void store(BorgunAuthorisationEntry entry) {
 		if (entry.getId()!=null) {

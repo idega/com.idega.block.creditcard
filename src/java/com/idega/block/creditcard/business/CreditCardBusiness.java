@@ -26,9 +26,6 @@ import com.idega.user.data.Group;
 import com.idega.util.IWTimestamp;
 
 /**
- * <p>
- * TODO gimmi Describe Type CreditCardBusiness
- * </p>
  * Last modified: $Date: 2007/06/11 18:11:43 $ by $Author: gimmi $
  *
  * @author <a href="mailto:gimmi@idega.com">gimmi</a>

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,31 +13,31 @@ import javax.ejb.FinderException;
 import javax.transaction.TransactionManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
 import com.idega.block.creditcard2.data.beans.DummyMerchant;
-import com.idega.block.creditcard2.data.beans.KortathjonustanAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.KortathjonustanMerchant;
 import com.idega.block.creditcard2.data.beans.TPosMerchant;
 import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.block.creditcard2.data.dao.MerchantDAO;
 import com.idega.block.creditcard2.data.dao.impl.BorgunAuthorisationEntryDAO;
+import com.idega.block.creditcard2.data.dao.impl.BorgunMerchantDAO;
 import com.idega.block.creditcard2.data.dao.impl.DummyAuthorisationEntryDAO;
+import com.idega.block.creditcard2.data.dao.impl.DummyMerchantDAO;
 import com.idega.block.creditcard2.data.dao.impl.KortathjonustanAuthorisationEntryDAO;
+import com.idega.block.creditcard2.data.dao.impl.KortathjonustanMerchantDAO;
 import com.idega.block.creditcard2.data.dao.impl.TPosAuthorisationEntryDAO;
+import com.idega.block.creditcard2.data.dao.impl.TPosMerchantDAO;
 import com.idega.block.trade.data.bean.CreditCardInformation;
 import com.idega.block.trade.data.dao.CreditCardInformationDAO;
 import com.idega.block.trade.stockroom.data.Supplier;
-import com.idega.business.IBOService;
-import com.idega.data.IDOFinderException;
-import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
-import com.idega.idegaweb.IWBundleLoader;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
@@ -52,32 +51,12 @@ import com.idega.util.IWTimestamp;
 import com.idega.util.expression.ELUtil;
 
 @Service(CreditCardBusiness.BEAN_NAME)
-@Scope("singleton")
+@Scope(BeanDefinition.SCOPE_SINGLETON)
 public class CreditCardBusiness {
 
 	@Autowired
-	private MerchantDAO<TPosMerchant> tposMerchantDao;
-	@Autowired
-	private MerchantDAO<KortathjonustanMerchant> kortathjonustanMerchantDao;
-	@Autowired
-	private MerchantDAO<DummyMerchant> dummyMerchantDao;
-	@Autowired
-	private MerchantDAO<BorgunMerchant> borgunMerchantDao;
-	
-	@Autowired
-	private AuthorisationEntriesDAO<TPosAuthorisationEntryDAO> tposAuthorisationEntryDAO;
-	@Autowired
-	private AuthorisationEntriesDAO<KortathjonustanAuthorisationEntryDAO> kortathjonustanAuthorisationEntryDAO;
-	@Autowired
-	private AuthorisationEntriesDAO<DummyAuthorisationEntryDAO> dummyAuthorisationEntryDAO;
-	@Autowired
-	private AuthorisationEntriesDAO<BorgunAuthorisationEntryDAO> borgunAuthorisationEntryDAO;
-	
-	
-	@Autowired
 	private CreditCardInformationDAO creditCardInformationDAO;
-	
-	
+
 	public final static String CARD_TYPE_VISA = CreditCardType.VISA.name();
 	public final static String CARD_TYPE_ELECTRON = CreditCardType.ELECTRON.name();
 	public final static String CARD_TYPE_DINERS = CreditCardType.DINERS.name();
@@ -97,82 +76,50 @@ public class CreditCardBusiness {
 	public final static int CLIENT_TYPE_KORTATHJONUSTAN = 2;
 	public final static int CLIENT_TYPE_DUMMY = 3;
 	public final static int CLIENT_TYPE_BORGUN = 4;
-	
+
 	public static final String BEAN_NAME = "CreditCardBusiness";
-	
+
 	public CreditCardInformationDAO getCreditCardInformationDAO(){
 		if (creditCardInformationDAO==null) ELUtil.getInstance().autowire(this);
 		return creditCardInformationDAO;
 	}
-	
+
 	public void setCreditCardInformationDAO(CreditCardInformationDAO creditCardInformationDAO){
 		this.creditCardInformationDAO = creditCardInformationDAO;
 	}
-	
-	public MerchantDAO<TPosMerchant> getTposMerchantDao() {
-		if (tposMerchantDao==null) ELUtil.getInstance().autowire(this);
-		return tposMerchantDao;
-	}
 
-	public void setTposMerchantDao(MerchantDAO<TPosMerchant> tposMerchantDao) {
-		this.tposMerchantDao = tposMerchantDao;
+	public MerchantDAO<TPosMerchant> getTposMerchantDao() {
+		return ELUtil.getInstance().getBean(TPosMerchantDAO.BEAN_NAME);
 	}
 
 	public MerchantDAO<KortathjonustanMerchant> getKortathjonustanMerchantDao() {
-		if (kortathjonustanMerchantDao==null) ELUtil.getInstance().autowire(this);
-		return kortathjonustanMerchantDao;
-	}
-
-	public void setKortathjonustanMerchantDao(MerchantDAO<KortathjonustanMerchant> kortathjonustanMerchantDao) {
-		this.kortathjonustanMerchantDao = kortathjonustanMerchantDao;
+		return ELUtil.getInstance().getBean(KortathjonustanMerchantDAO.BEAN_NAME);
 	}
 
 	public MerchantDAO<DummyMerchant> getDummyMerchantDao() {
-		if (dummyMerchantDao==null) ELUtil.getInstance().autowire(this);
-		return dummyMerchantDao;
+		return ELUtil.getInstance().getBean(DummyMerchantDAO.BEAN_NAME);
 	}
 
-	public void setDummyMerchantDao(MerchantDAO<DummyMerchant> dummyMerchantDao) {
-		this.dummyMerchantDao = dummyMerchantDao;
+	public TPosAuthorisationEntryDAO getTposAuthorisationEntryDAO() {
+		return ELUtil.getInstance().getBean(TPosAuthorisationEntryDAO.BEAN_NAME);
 	}
 
-	public AuthorisationEntriesDAO<TPosAuthorisationEntryDAO> getTposAuthorisationEntryDAO() {
-		if (tposAuthorisationEntryDAO==null) ELUtil.getInstance().autowire(this);
-		return tposAuthorisationEntryDAO;
+	public KortathjonustanAuthorisationEntryDAO getKortathjonustanAuthorisationEntryDAO() {
+		return ELUtil.getInstance().getBean(KortathjonustanAuthorisationEntryDAO.BEAN_NAME);
 	}
 
-	public void setTposAuthorisationEntryDAO(AuthorisationEntriesDAO<TPosAuthorisationEntryDAO> tposAuthorisationEntryDAO) {
-		this.tposAuthorisationEntryDAO = tposAuthorisationEntryDAO;
+	public DummyAuthorisationEntryDAO getDummyAuthorisationEntryDAO() {
+		return ELUtil.getInstance().getBean(DummyAuthorisationEntryDAO.BEAN_NAME);
 	}
 
-	public AuthorisationEntriesDAO<KortathjonustanAuthorisationEntryDAO> getKortathjonustanAuthorisationEntryDAO() {
-		if (kortathjonustanAuthorisationEntryDAO==null) ELUtil.getInstance().autowire(this);
-		return kortathjonustanAuthorisationEntryDAO;
-	}
-
-	public void setKortathjonustanAuthorisationEntryDAO(
-			AuthorisationEntriesDAO<KortathjonustanAuthorisationEntryDAO> kortathjonustanAuthorisationEntryDAO) {
-		this.kortathjonustanAuthorisationEntryDAO = kortathjonustanAuthorisationEntryDAO;
-	}
-
-	public AuthorisationEntriesDAO<DummyAuthorisationEntryDAO> getDummyAuthorisationEntryDAO() {
-		if (dummyAuthorisationEntryDAO==null) ELUtil.getInstance().autowire(this);
-		return dummyAuthorisationEntryDAO;
-	}
-
-	public void setDummyAuthorisationEntryDAO(
-			AuthorisationEntriesDAO<DummyAuthorisationEntryDAO> dummyAuthorisationEntryDAO) {
-		this.dummyAuthorisationEntryDAO = dummyAuthorisationEntryDAO;
-	}
-
-	public AuthorisationEntriesDAO getAuthorisationEntriesDAO(int clientType){
+	public AuthorisationEntriesDAO<?> getAuthorisationEntriesDAO(int clientType){
 		if (clientType > 0) {
 			if (clientType == CLIENT_TYPE_KORTATHJONUSTAN) {
 				return getKortathjonustanAuthorisationEntryDAO();
 			}
 			else if (clientType == CLIENT_TYPE_TPOS) {
 				return getTposAuthorisationEntryDAO();
-			} 
+			}
 			else if (clientType == CLIENT_TYPE_DUMMY) {
 				return getDummyAuthorisationEntryDAO();
 			} else if (clientType == CLIENT_TYPE_BORGUN){
@@ -181,8 +128,8 @@ public class CreditCardBusiness {
 		}
 		return null;
 	}
-	
-	public AuthorisationEntriesDAO getAuthorisationEntriesDAO(CreditCardInformation info){
+
+	public AuthorisationEntriesDAO<?> getAuthorisationEntriesDAO(CreditCardInformation info){
 		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(info.getType())) {
 			return getTposAuthorisationEntryDAO();
 		}
@@ -196,8 +143,8 @@ public class CreditCardBusiness {
 		}
 		return null;
 	}
-	
-	public MerchantDAO getCreditCardMerchantDAO(CreditCardInformation ccInfo){
+
+	public MerchantDAO<?> getCreditCardMerchantDAO(CreditCardInformation ccInfo){
 		String type = ccInfo.getType();
 		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
 			return getTposMerchantDao();
@@ -214,8 +161,8 @@ public class CreditCardBusiness {
 
 		return null;
 	}
-	
-	public MerchantDAO getCreditCardMerchantDAO(String type){
+
+	public MerchantDAO<?> getCreditCardMerchantDAO(String type){
 		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
 			return getTposMerchantDao();
 		}
@@ -230,7 +177,7 @@ public class CreditCardBusiness {
 		}
 		return null;
 	}
-	
+
 	public enum CreditCardType {
 		VISA, ELECTRON, DINERS, DANKORT, MASTERCARD, JCB, AMERICAN_EXRESS;
 	}
@@ -247,14 +194,14 @@ public class CreditCardBusiness {
 	}
 
 	public DropdownMenu getCreditCardTypes(CreditCardClient client, IWResourceBundle iwrb, String dropdownName) {
-		Collection types = client.getValidCardTypes();
+		Collection<String> types = client.getValidCardTypes();
 		if (types != null && !types.isEmpty()) {
 			DropdownMenu menu = new DropdownMenu(dropdownName);
-			Iterator iter = types.iterator();
+			Iterator<String> iter = types.iterator();
 			String type;
 			menu.addMenuElement("-1", iwrb.getLocalizedString("select_one", "Select one:"));
 			while (iter.hasNext()) {
-				type = (String) iter.next();
+				type = iter.next();
 				menu.addMenuElement(type, iwrb.getLocalizedString("card_type." + type, type));
 			}
 			return menu;
@@ -265,7 +212,7 @@ public class CreditCardBusiness {
 	private IWBundle getBundle(){
 		return IWContext.getCurrentInstance().getApplicationContext().getIWMainApplication().getBundle(IW_BUNDLE_IDENTIFIER);
 	}
-	
+
 	public Collection<Image> getCreditCardTypeImages(CreditCardClient client) {
 		Collection<String> types = client.getValidCardTypes();
 		Collection<Image> images = new ArrayList<Image>();
@@ -302,7 +249,7 @@ public class CreditCardBusiness {
 		return images;
 	}
 
-	
+
 	public CreditCardClient getCreditCardClient(Supplier supplier, IWTimestamp stamp) throws Exception {
 
 		CreditCardMerchant merchant = getCreditCardMerchant(supplier, stamp);
@@ -311,13 +258,13 @@ public class CreditCardBusiness {
 		return client;
 	}
 
-	
+
 	public CreditCardClient getCreditCardClient(Group supplierManager, IWTimestamp stamp) throws Exception {
 		CreditCardMerchant m = getCreditCardMerchant(supplierManager, stamp);
 		return getCreditCardClient(m);
 	}
 
-	
+
 	public CreditCardClient getCreditCardClient(CreditCardMerchant merchant) throws Exception {
 		if (merchant != null && merchant.getType() != null) {
 			if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(merchant.getType())) {
@@ -340,25 +287,25 @@ public class CreditCardBusiness {
 		// return new TPosClient(getIWApplicationContext());
 	}
 
-	
+
 	public CreditCardMerchant getCreditCardMerchant(String merchantPK, String merchantType) {
 		CreditCardInformation ccInfo = getCreditCardInformation(merchantPK, merchantType);
 		return getCreditCardMerchant(ccInfo);
 	}
 
-	
+
 	public CreditCardMerchant getCreditCardMerchant(Supplier supplier, IWTimestamp stamp) {
 		CreditCardInformation ccInfo = getCreditCardInformation(supplier, stamp);
 		return getCreditCardMerchant(ccInfo);
 	}
 
-	
+
 	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, IWTimestamp stamp) {
 		CreditCardInformation ccInfo = getCreditCardInformation(supplierManager, stamp);
 		return getCreditCardMerchant(ccInfo);
 	}
 
-	
+
 	public CreditCardMerchant getCreditCardMerchant(CreditCardInformation ccInfo) {
 		if (ccInfo != null) {
 			return getCreditCardMerchantDAO(ccInfo).findById(Integer.parseInt(ccInfo.getMerchantPK()));
@@ -366,13 +313,13 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	
+
 	public CreditCardInformation getCreditCardInformation(String merchantPK, String merchantType) {
 		CreditCardInformationDAO ccInfoHome = ELUtil.getInstance().getBean(CreditCardInformationDAO.BEAN_NAME);
 		return ccInfoHome.findByMerchant(merchantPK, merchantType);
 	}
 
-	
+
 	public CreditCardInformation getCreditCardInformation(Supplier supplier, IWTimestamp stamp) {
 		try {
 			Timestamp toCheck = null;
@@ -416,7 +363,7 @@ public class CreditCardBusiness {
 	 * @throws FinderException
 	 * @throws IDOLookupException
 	 */
-	
+
 	public CreditCardInformation getCreditCardInformation(Group supplierManager, IWTimestamp stamp) {
 		Timestamp toCheck = null;
 		if (stamp != null) {
@@ -468,7 +415,7 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	
+
 	public CreditCardMerchant getCreditCardMerchant(Supplier supplier, Object PK) {
 		try {
 			Collection coll = supplier.getCreditCardInformation();
@@ -481,7 +428,7 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	
+
 	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, Object PK) {
 		try {
 			Collection coll = getCreditCardInformations(supplierManager);
@@ -516,7 +463,7 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	
+
 	public CreditCardMerchant createCreditCardMerchant(String type) {
 			if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
 				return new TPosMerchant();
@@ -530,12 +477,12 @@ public class CreditCardBusiness {
 			return null;
 	}
 
-	
+
 	public void addCreditCardMerchant(Group supplierManager, CreditCardMerchant merchant) throws CreateException {
 		addCreditCardMerchant((Object) supplierManager, merchant);
 	}
 
-	
+
 	public void addCreditCardMerchant(Supplier supplier, CreditCardMerchant merchant) throws CreateException {
 		addCreditCardMerchant((Object) supplier, merchant);
 	}
@@ -570,7 +517,8 @@ public class CreditCardBusiness {
 						tmpMerchant = getCreditCardMerchant((Group) merchantType, new Integer(info.getMerchantPK()));
 					}
 					if (tmpMerchant != null && !tmpMerchant.getIsDeleted()) {
-						getCreditCardMerchantDAO(tmpMerchant.getType()).removeMerchant(tmpMerchant);
+						MerchantDAO merchantDAO = getCreditCardMerchantDAO(tmpMerchant.getType());
+						merchantDAO.removeMerchant(tmpMerchant);
 					}
 				}
 			}
@@ -581,7 +529,7 @@ public class CreditCardBusiness {
 			if (isSupplierManager) {
 				info.setSupplierManager((Group) merchantType);
 			}
-			
+
 			getCreditCardInformationDAO().store(info);
 
 
@@ -603,7 +551,6 @@ public class CreditCardBusiness {
 		}
 	}
 
-	
 	public Collection getCreditCardInformations(Supplier supplier) throws IDORelationshipException {
 		Collection coll = supplier.getCreditCardInformation();
 		if (coll == null || coll.isEmpty()) {
@@ -626,7 +573,6 @@ public class CreditCardBusiness {
 		return coll;
 	}
 
-	
 	public Collection getCreditCardInformations(Group supplierManager) throws FinderException, IDOLookupException {
 		CreditCardInformationDAO ccInfoHome = ELUtil.getInstance().getBean(CreditCardInformationDAO.BEAN_NAME);
 		return ccInfoHome.findBySupplierManager(supplierManager);
@@ -668,7 +614,7 @@ public class CreditCardBusiness {
 		}
 	}
 
-	
+
 	public boolean verifyCreditCardNumber(String numberToCheck, CreditCardAuthorizationEntry entry) throws IllegalArgumentException {
 		if (numberToCheck != null && numberToCheck.length() >= 10) {
 			int length = numberToCheck.length();
@@ -681,13 +627,13 @@ public class CreditCardBusiness {
 		throw new IllegalArgumentException("Number must be at least 10 characters long");
 	}
 
-	
+
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Group supplierManager, String authorizationCode, IWTimestamp stamp) {
 		CreditCardInformation info = getCreditCardInformation(supplierManager, stamp);
 		return getAuthorizationEntry(info, authorizationCode, stamp);
 	}
 
-	
+
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Supplier supplier, String authorizationCode, IWTimestamp stamp) {
 		CreditCardInformation info = getCreditCardInformation(supplier, stamp);
 		CreditCardAuthorizationEntry entry = getAuthorizationEntry(info, authorizationCode, stamp);
@@ -704,17 +650,17 @@ public class CreditCardBusiness {
 		return entry;
 	}
 
-	
+
 	public CreditCardAuthorizationEntry getAuthorizationEntry(CreditCardInformation info, String authorizationCode, IWTimestamp stamp) {
 		return getAuthorisationEntriesDAO(info).findByAuthorizationCode(authorizationCode, stamp.getSQLDate());
 	}
 
-	
+
 	public boolean getUseCVC(CreditCardClient client) {
 		return !(client instanceof TPosClient);
 	}
 
-	
+
 	public boolean getUseCVC(CreditCardMerchant merchant) {
 		if (merchant != null) {
 			return !CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(merchant.getType());
@@ -722,27 +668,27 @@ public class CreditCardBusiness {
 		return false;
 	}
 
-	
+
 	public boolean getUseCVC(Supplier supplier, IWTimestamp stamp) {
 		return getUseCVC(getCreditCardMerchant(supplier, stamp));
 	}
 
-	
+
 	public List<CreditCardAuthorizationEntry> getAllRefunds(IWTimestamp from, IWTimestamp to, int clientType) throws IDOLookupException, FinderException {
 		if (clientType > 0) {
 			return getAuthorisationEntriesDAO(clientType).findRefunds(from.getSQLDate(), to.getSQLDate());
 		}
 		return null;
 	}
-	
+
 	private Logger getLogger(){
 		return Logger.getLogger(getClass().getName());
 	}
 
 	private void log(String msg) {
 		getLogger().log(Level.INFO,msg);
-	}	
-	
+	}
+
 	private IWApplicationContext getIWApplicationContext(){
 		if(this.iwac==null){
 			return IWMainApplication.getDefaultIWApplicationContext();
@@ -751,20 +697,11 @@ public class CreditCardBusiness {
 	  }
 
 	public MerchantDAO<BorgunMerchant> getBorgunMerchantDao() {
-		if (borgunMerchantDao==null) ELUtil.getInstance().autowire(this);
-		return borgunMerchantDao;
+		return ELUtil.getInstance().getBean(BorgunMerchantDAO.BEAN_NAME);
 	}
 
-	public void setBorgunMerchantDao(MerchantDAO<BorgunMerchant> borgunMerchantDao) {
-		this.borgunMerchantDao = borgunMerchantDao;
+	public BorgunAuthorisationEntryDAO getBorgunAuthorisationEntryDAO() {
+		return ELUtil.getInstance().getBean(BorgunAuthorisationEntryDAO.BEAN_NAME);
 	}
 
-	public AuthorisationEntriesDAO<BorgunAuthorisationEntryDAO> getBorgunAuthorisationEntryDAO() {
-		if (borgunAuthorisationEntryDAO==null) ELUtil.getInstance().autowire(this);
-		return borgunAuthorisationEntryDAO;
-	}
-
-	public void setBorgunAuthorisationEntryDAO(AuthorisationEntriesDAO<BorgunAuthorisationEntryDAO> borgunAuthorisationEntryDAO) {
-		this.borgunAuthorisationEntryDAO = borgunAuthorisationEntryDAO;
-	}
 }

@@ -2,24 +2,24 @@ package com.idega.block.creditcard2.data.dao.impl;
 
 import java.sql.Date;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.idega.block.creditcard2.business.CreditCardMerchant;
 import com.idega.block.creditcard2.data.beans.TPosMerchant;
 import com.idega.block.creditcard2.data.dao.MerchantDAO;
 import com.idega.core.persistence.Param;
 import com.idega.core.persistence.impl.GenericDaoImpl;
 import com.idega.util.IWTimestamp;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.config.BeanDefinition;
-
 
 @Repository(TPosMerchantDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 @Transactional(readOnly = false)
 public class TPosMerchantDAO extends GenericDaoImpl implements MerchantDAO<TPosMerchant> {
 	public static final String BEAN_NAME = "TPosMerchantDAO";
-	
+
 	@Override
 	public void store(TPosMerchant merchant) {
 		if (merchant.getId()!=null) {
