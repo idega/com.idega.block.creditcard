@@ -1,7 +1,7 @@
 package com.idega.block.creditcard2.data.beans;
 
 import java.sql.Date;
-import java.sql.Timestamp;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,78 +13,70 @@ import javax.persistence.Table;
 
 import com.idega.block.creditcard2.business.CreditCardMerchant;
 
-
 @Entity
 @Table(name = "BORGUN_MERCHANT")
-@NamedQueries(
-{
-	@NamedQuery(
-			name = BorgunMerchant.GET_BY_ID,
-			query = "from BorgunMerchant bm where bm."+BorgunMerchant.idProp+" = :"+BorgunMerchant.idProp
-			),
-	@NamedQuery(
-			name = BorgunMerchant.GET_BY_NAME,
-			query = "from BorgunMerchant bm where bm."+BorgunMerchant.nameProp+" = :"+BorgunMerchant.nameProp
-			)
-}
-)
-public class BorgunMerchant implements CreditCardMerchant{
-	
+@NamedQueries({
+		@NamedQuery(name = BorgunMerchant.GET_BY_ID, query = "from BorgunMerchant bm where bm." + BorgunMerchant.idProp
+				+ " = :" + BorgunMerchant.idProp),
+		@NamedQuery(name = BorgunMerchant.GET_BY_NAME, query = "from BorgunMerchant bm where bm."
+				+ BorgunMerchant.nameProp + " = :" + BorgunMerchant.nameProp) })
+public class BorgunMerchant implements CreditCardMerchant {
+
 	public static final String GET_BY_ID = "BorgunMerchant.getByID";
 	public static final String GET_BY_NAME = "BorgunMerchant.getByName";
 	public static final String idProp = "id";
 	public static final String nameProp = "merchantName";
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "ID")
 	private Integer id;
-	
+
 	@Column(name = "MERCHANT_ID")
 	private String merchantId;
-	
+
 	@Column(name = "MERCHANT_LOGIN")
 	private String merchantLogin;
-	
+
 	@Column(name = "MERCHANT_PASSWORD")
 	private String merchantPassword;
-	
+
 	@Column(name = "MERCHANT_DOMAIN")
 	private String merchantDomain;
-	
+
 	@Column(name = "MERCHANT_URL")
 	private String merchantUrl;
-	
+
 	@Column(name = "MERCHANT_PROCESSOR")
 	private String merchantProcessor;
-	
+
 	@Column(name = "MERCHANT_TERMINAL")
 	private String merchantTerminal;
-	
+
 	@Column(name = "MERCHANT_RRN_SUFFIX")
 	private String merchantRrnSuffix;
 
 	@Column(name = "MERCHANT_NAME")
 	private String merchantName;
-	
+
 	@Column(name = "location")
 	private String location;
-	
+
 	@Column(name = "extra_info")
 	private String extraInfo;
-		
+
 	@Column(name = "start_date")
 	private Date startDate;
-	
+
 	@Column(name = "modification_date")
 	private Date modificationDate;
-	
+
 	@Column(name = "end_date")
 	private Date endDate;
-	
+
 	@Column(name = "deleted")
 	private Boolean deleted;
-	
+
 	public Integer getId() {
 		return id;
 	}
@@ -189,13 +181,15 @@ public class BorgunMerchant implements CreditCardMerchant{
 
 	@Override
 	public String getMerchantID() {
-		return getMerchantID();
+		return getMerchantId();
 	}
 
+	@Override
 	public String getExtraInfo() {
 		return this.extraInfo;
 	}
 
+	@Override
 	public Date getStartDate() {
 		return this.startDate;
 	}
@@ -204,20 +198,22 @@ public class BorgunMerchant implements CreditCardMerchant{
 		return this.modificationDate;
 	}
 
+	@Override
 	public Date getEndDate() {
 		return this.endDate;
 	}
 
+	@Override
 	public Boolean getIsDeleted() {
 		return this.deleted.booleanValue();
 	}
 
 	public void setIsDeleted(boolean isDeleted) {
-		this.deleted  = isDeleted;
+		this.deleted = isDeleted;
 	}
-	
+
 	public void setName(String name) {
-		this.merchantName = name;		
+		this.merchantName = name;
 	}
 
 	public void setLocation(String location) {
@@ -244,6 +240,7 @@ public class BorgunMerchant implements CreditCardMerchant{
 		this.extraInfo = extra;
 	}
 
+	@Override
 	public Integer getPrimaryKey() {
 		return getId();
 	}
@@ -252,7 +249,6 @@ public class BorgunMerchant implements CreditCardMerchant{
 		this.startDate = date;
 	}
 
-	
 	public void setModificationDate(Date date) {
 		this.modificationDate = date;
 	}
@@ -260,5 +256,5 @@ public class BorgunMerchant implements CreditCardMerchant{
 	public void setEndDate(Date date) {
 		this.endDate = date;
 	}
-	
+
 }

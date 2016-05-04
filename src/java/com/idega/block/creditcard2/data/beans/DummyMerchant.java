@@ -4,6 +4,8 @@ import java.sql.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -11,71 +13,73 @@ import javax.persistence.Table;
 
 import com.idega.block.creditcard2.business.CreditCardMerchant;
 
-
-
 @Entity
 @Table(name = DummyMerchant.ENTITY_NAME)
-@NamedQueries ({
-		@NamedQuery(name = DummyMerchant.findByName, query="from DummyMerchant mer where mer." + DummyMerchant.nameProp + " =:"  + DummyMerchant.nameProp),
-		@NamedQuery(name = DummyMerchant.findById, query="from DummyMerchant mer where mer." + DummyMerchant.idProp + " =:"  + DummyMerchant.idProp)
-})
-public class DummyMerchant implements CreditCardMerchant{
+@NamedQueries({
+		@NamedQuery(name = DummyMerchant.findByName, query = "from DummyMerchant mer where mer."
+				+ DummyMerchant.nameProp + " =:" + DummyMerchant.nameProp),
+		@NamedQuery(name = DummyMerchant.findById, query = "from DummyMerchant mer where mer." + DummyMerchant.idProp
+				+ " =:" + DummyMerchant.idProp) })
+public class DummyMerchant implements CreditCardMerchant {
 
 	public static final String ENTITY_NAME = "CC_DUMMY_MERCHANT";
-	
+
 	public static final String findByName = "DummyMerchant.findByName";
 	public static final String findById = "DummyMerchant.findById";
 
 	public static final String idProp = "id";
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "CC_DUMMY_MERCHANT_ID")
 	private Integer id;
-	
+
 	public static final String nameProp = "name";
 	@Column(name = "MERCHANT_NAME")
 	private String name;
-	
+
 	@Column(name = "ACCEPTOR_TERM_ID")
 	private String accTermId;
-	
+
 	@Column(name = "ACCEPTOR_IDENTIFICATION")
 	private String accId;
-	
+
 	@Column(name = "START_DATE")
 	private Date startDate;
-	
+
 	@Column(name = "MODIFICATION_DATE")
 	private Date modificationDate;
-	
+
 	@Column(name = "END_DATE")
 	private Date endDate;
-	
+
 	@Column(name = "IS_DELETED")
-	private Boolean deleted; 
-	
+	private Boolean deleted;
+
+	@Override
 	public String getType() {
 		return MERCHANT_TYPE_DUMMY;
 	}
 
+	@Override
 	public String getLocation() {
 		return "DUMMY_LOCATION";
 	}
 
-	
+	@Override
 	public String getUser() {
 		return "DUMMY_USER";
 	}
 
+	@Override
 	public String getPassword() {
 		return "DUMMY_PASSWORD";
 	}
 
-	
+	@Override
 	public String getExtraInfo() {
 		return null;
 	}
 
-	
 	public void setLocation(String location) {
 
 	}
@@ -99,6 +103,7 @@ public class DummyMerchant implements CreditCardMerchant{
 		this.id = id;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -123,6 +128,7 @@ public class DummyMerchant implements CreditCardMerchant{
 		this.accId = accId;
 	}
 
+	@Override
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -139,6 +145,7 @@ public class DummyMerchant implements CreditCardMerchant{
 		this.modificationDate = modificationDate;
 	}
 
+	@Override
 	public Date getEndDate() {
 		return endDate;
 	}
@@ -159,9 +166,9 @@ public class DummyMerchant implements CreditCardMerchant{
 	public Boolean getIsDeleted() {
 		return getDeleted();
 	}
-	
+
 	@Override
-	public Integer getPrimaryKey(){
+	public Integer getPrimaryKey() {
 		return getId();
 	}
 

@@ -4,6 +4,8 @@ import java.sql.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -13,55 +15,56 @@ import com.idega.block.creditcard2.business.CreditCardMerchant;
 
 @Entity
 @Table(name = TPosMerchant.EntityName)
-@NamedQueries ({
-	@NamedQuery(name = TPosMerchant.findByName, query="from TPosMerchant where mer." + TPosMerchant.nameProp + " =:"  + TPosMerchant.nameProp),
-	@NamedQuery(name = TPosMerchant.findById, query="from TPosMerchant mer where mer." + TPosMerchant.idProp + " =:"  + TPosMerchant.idProp)
-})
-public class TPosMerchant implements CreditCardMerchant{
-	
-	  public static final String EntityName = "TPOS_MERCHANT";
-	  public static final String findByName = "TPosMerchant.findByName";
-	  public static final String findById = "TPosMerchant.findById";
-	  public static final String nameProp = "merchantName";
-	  public static final String idProp = "id";
-	  
-		
-	  @Id
-	  @Column(name="TPOS_MERCHANT_ID")
-	  private Integer id;
-  
-	  @Column(name="MERCHANT_NAME")
-	  private String merchantName;
-	  
-	  @Column(name="MERCHANT_ID")
-	  private String merchantId;
-	  
-	  @Column(name="LOCATION_ID")
-	  private String locationId;
-	  
-	  @Column(name="USER_ID")
-	  private String userId;
-	  
-	  @Column(name="PASSW")
-	  private String passw;
-	  
-	  @Column(name="POS_ID")
-	  private String posId;
-	  
-	  @Column(name="KEY_RCV_PASSW")
-	  private String keyRcvPassw;
-	  
-	  @Column(name="START_DATE")
-	  private Date startDate;
-	  
-	  @Column(name="MODIFIED_DATE")
-	  private Date modifiedDate;
-	  
-	  @Column(name="END_DATE")
-	  private Date endDate;
-	  
-	  @Column(name="IS_DELETED")
-	  private Boolean deleted;
+@NamedQueries({
+		@NamedQuery(name = TPosMerchant.findByName, query = "from TPosMerchant mer where mer." + TPosMerchant.nameProp
+				+ " =:" + TPosMerchant.nameProp),
+		@NamedQuery(name = TPosMerchant.findById, query = "from TPosMerchant mer where mer." + TPosMerchant.idProp
+				+ " =:" + TPosMerchant.idProp) })
+public class TPosMerchant implements CreditCardMerchant {
+
+	public static final String EntityName = "TPOS_MERCHANT";
+	public static final String findByName = "TPosMerchant.findByName";
+	public static final String findById = "TPosMerchant.findById";
+	public static final String nameProp = "merchantName";
+	public static final String idProp = "id";
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "TPOS_MERCHANT_ID")
+	private Integer id;
+
+	@Column(name = "MERCHANT_NAME")
+	private String merchantName;
+
+	@Column(name = "MERCHANT_ID")
+	private String merchantId;
+
+	@Column(name = "LOCATION_ID")
+	private String locationId;
+
+	@Column(name = "USER_ID")
+	private String userId;
+
+	@Column(name = "PASSW")
+	private String passw;
+
+	@Column(name = "POS_ID")
+	private String posId;
+
+	@Column(name = "KEY_RCV_PASSW")
+	private String keyRcvPassw;
+
+	@Column(name = "START_DATE")
+	private Date startDate;
+
+	@Column(name = "MODIFIED_DATE")
+	private Date modifiedDate;
+
+	@Column(name = "END_DATE")
+	private Date endDate;
+
+	@Column(name = "IS_DELETED")
+	private Boolean deleted;
 
 	public Integer getId() {
 		return id;
@@ -127,6 +130,7 @@ public class TPosMerchant implements CreditCardMerchant{
 		this.keyRcvPassw = keyRcvPassw;
 	}
 
+	@Override
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -143,6 +147,7 @@ public class TPosMerchant implements CreditCardMerchant{
 		this.modifiedDate = modifiedDate;
 	}
 
+	@Override
 	public Date getEndDate() {
 		return endDate;
 	}
@@ -158,18 +163,19 @@ public class TPosMerchant implements CreditCardMerchant{
 	public void setDeleted(Boolean deleted) {
 		this.deleted = deleted;
 	}
-	  
+
 	@Override
 	public Boolean getIsDeleted() {
 		return getDeleted();
 	}
-  
+
+	@Override
 	public String getType() {
 		return MERCHANT_TYPE_TPOS;
 	}
-	
+
 	@Override
-	public Integer getPrimaryKey(){
+	public Integer getPrimaryKey() {
 		return getId();
 	}
 

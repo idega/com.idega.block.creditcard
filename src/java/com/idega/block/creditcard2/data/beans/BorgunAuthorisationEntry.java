@@ -7,40 +7,31 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.idega.block.creditcard2.business.CreditCardAuthorizationEntry;
 
-
 @Entity
 @Table(name = "BORGUN_AUTHORISATION_ENTRIES")
-@NamedQueries(
-	{
-		@NamedQuery(
-				name = BorgunAuthorisationEntry.GET_BY_ID,
-				query = "from BorgunAuthorisationEntry bae where bae."+BorgunAuthorisationEntry.idProp+" = :"+BorgunAuthorisationEntry.idProp
-				),
-		@NamedQuery(
-				name = BorgunAuthorisationEntry.GET_BY_PARENT_ID,
-				query = "from BorgunAuthorisationEntry bae where bae."+BorgunAuthorisationEntry.parentProp+" = :"+BorgunAuthorisationEntry.parentProp
-				),
-		@NamedQuery(
-				name = BorgunAuthorisationEntry.GET_BY_AUTH_CODE,
-				query = "from BorgunAuthorisationEntry bae where bae."+BorgunAuthorisationEntry.authCodeProp+" = :"+BorgunAuthorisationEntry.authCodeProp
-				),
-		@NamedQuery(
-				name = BorgunAuthorisationEntry.GET_BY_DATES,
-				query = "from BorgunAuthorisationEntry bae where bae."+BorgunAuthorisationEntry.dateProp+" >= :"+BorgunAuthorisationEntry.dateFromProp + " and " +BorgunAuthorisationEntry.dateProp+ " <=:" +BorgunAuthorisationEntry.dateToProp 
-				),
-		@NamedQuery(
-				name = BorgunAuthorisationEntry.GET_REFUNDS_BY_DATES,
-				query = "from BorgunAuthorisationEntry bae where bae.transactionType = "+BorgunAuthorisationEntry.AUTHORIZATION_TYPE_REFUND+" and bae."+BorgunAuthorisationEntry.dateProp+" >= :"+BorgunAuthorisationEntry.dateFromProp + " and " +BorgunAuthorisationEntry.dateProp+ " <=:" +BorgunAuthorisationEntry.dateToProp 
-				)
-	}
-)
-public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry{
+@NamedQueries({
+		@NamedQuery(name = BorgunAuthorisationEntry.GET_BY_ID, query = "from BorgunAuthorisationEntry bae where bae."
+				+ BorgunAuthorisationEntry.idProp + " = :" + BorgunAuthorisationEntry.idProp),
+		@NamedQuery(name = BorgunAuthorisationEntry.GET_BY_PARENT_ID, query = "from BorgunAuthorisationEntry bae where bae."
+				+ BorgunAuthorisationEntry.parentProp + " = :" + BorgunAuthorisationEntry.parentProp),
+		@NamedQuery(name = BorgunAuthorisationEntry.GET_BY_AUTH_CODE, query = "from BorgunAuthorisationEntry bae where bae."
+				+ BorgunAuthorisationEntry.authCodeProp + " = :" + BorgunAuthorisationEntry.authCodeProp),
+		@NamedQuery(name = BorgunAuthorisationEntry.GET_BY_DATES, query = "from BorgunAuthorisationEntry bae where bae."
+				+ BorgunAuthorisationEntry.dateProp + " >= :" + BorgunAuthorisationEntry.dateFromProp + " and "
+				+ BorgunAuthorisationEntry.dateProp + " <=:" + BorgunAuthorisationEntry.dateToProp),
+		@NamedQuery(name = BorgunAuthorisationEntry.GET_REFUNDS_BY_DATES, query = "from BorgunAuthorisationEntry bae where bae.transactionType = "
+				+ BorgunAuthorisationEntry.AUTHORIZATION_TYPE_REFUND + " and bae." + BorgunAuthorisationEntry.dateProp
+				+ " >= :" + BorgunAuthorisationEntry.dateFromProp + " and " + BorgunAuthorisationEntry.dateProp + " <=:"
+				+ BorgunAuthorisationEntry.dateToProp) })
+public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public static final String GET_BY_ID = "BorgunAuthorisationEntry.getByID";
 	public static final String GET_BY_PARENT_ID = "BorgunAuthorisationEntry.getByParentID";
@@ -53,59 +44,81 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry{
 	public static final String dateProp = "date";
 	public static final String dateFromProp = "dateFrom";
 	public static final String dateToProp = "dateTo";
-	
+
 	public static final String AUTHORIZATION_TYPE_SALE = "1";
 	public static final String AUTHORIZATION_TYPE_REFUND = "3";
 	public static final String AUTHORIZATION_TYPE_PARTIAL_REVERSAL = "4";
 	public static final String AUTHORIZATION_TYPE_PRE_AUTHORIZE = "5";
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "ID")
 	private Long id;
-	
+
 	@Column(name = "amount")
 	private Double amount;
-	
+
 	@Column(name = "auth_code")
 	private String authCode;
-	
+
 	@Column(name = "brand_name")
 	private String brandName;
-	
+
 	@Column(name = "card_expire_date")
 	private String cardExpireDate;
-	
+
 	@Column(name = "card_number")
-	private String cardNumber;	
-	
+	private String cardNumber;
+
 	@Column(name = "currency")
-	private String currency;	
-	
+	private String currency;
+
 	@Column(name = "date")
-	private Date date;	
-	
+	private Date date;
+
 	@Column(name = "error_number")
-	private String errorNumber;	
-	
+	private String errorNumber;
+
 	@Column(name = "error_text")
-	private String errorText;	
-	
+	private String errorText;
+
 	@Column(name = "transaction_type")
 	private String transactionType;
-	
-	@Column(name = "server_response")
+
+	@Column(name = "server_response", length = 65000)
 	private String serverResponse;
 
 	@Column(name = "rrn")
 	private String rrn;
-	
-	@Column(name = "parent")
+
+	public String getRrn() {
+		return rrn;
+	}
+
+	public void setRrn(String rrn) {
+		this.rrn = rrn;
+	}
+
+	@OneToOne
+	@JoinColumn(name = "parent")
 	private BorgunAuthorisationEntry parent;
-	
-	@Column(name= "merchant")
+
+	public void setParent(BorgunAuthorisationEntry parent) {
+		this.parent = parent;
+	}
+
+	@OneToOne
+	@JoinColumn(name = "merchant", nullable = false)
 	private BorgunMerchant merchant;
-	
+
+	public BorgunMerchant getMerchant() {
+		return merchant;
+	}
+
+	public void setMerchant(BorgunMerchant merchant) {
+		this.merchant = merchant;
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -146,6 +159,7 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry{
 		this.cardExpireDate = cardExpireDate;
 	}
 
+	@Override
 	public String getCardNumber() {
 		return cardNumber;
 	}

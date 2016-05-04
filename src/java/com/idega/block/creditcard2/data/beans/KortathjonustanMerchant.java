@@ -4,6 +4,8 @@ import java.sql.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -12,11 +14,12 @@ import javax.persistence.Table;
 import com.idega.block.creditcard2.business.CreditCardMerchant;
 
 @Entity
-@Table(name =KortathjonustanMerchant.ENTITY_NAME)
-@NamedQueries ({
-	@NamedQuery(name = KortathjonustanMerchant.findByName, query="from KortathjonustanMerchant mer where mer." + KortathjonustanMerchant.nameProp + " =:"  + KortathjonustanMerchant.nameProp),
-	@NamedQuery(name = KortathjonustanMerchant.findById, query="from KortathjonustanMerchant mer where mer." + KortathjonustanMerchant.idProp + " =:"  + KortathjonustanMerchant.idProp)
-})
+@Table(name = KortathjonustanMerchant.ENTITY_NAME)
+@NamedQueries({
+		@NamedQuery(name = KortathjonustanMerchant.findByName, query = "from KortathjonustanMerchant mer where mer."
+				+ KortathjonustanMerchant.nameProp + " =:" + KortathjonustanMerchant.nameProp),
+		@NamedQuery(name = KortathjonustanMerchant.findById, query = "from KortathjonustanMerchant mer where mer."
+				+ KortathjonustanMerchant.idProp + " =:" + KortathjonustanMerchant.idProp) })
 public class KortathjonustanMerchant implements CreditCardMerchant {
 
 	public static final String ENTITY_NAME = "CC_KTH_MERCHANT";
@@ -24,52 +27,55 @@ public class KortathjonustanMerchant implements CreditCardMerchant {
 	public static final String findById = "KortathjonustanMerchant.findById";
 	public static final String nameProp = "merchantName";
 	public static final String idProp = "id";
-	
+
 	public String getEntityName() {
 		return ENTITY_NAME;
 	}
 
+	@Override
 	public String getType() {
 		return MERCHANT_TYPE_KORTHATHJONUSTAN;
 	}
-	
+
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "CC_KTH_MERCHANT_ID")
 	Integer id;
-	
+
 	@Column(name = "MERCHANT_NAME")
 	private String merchantName;
-	
-	@Column (name ="SITE")
+
+	@Column(name = "SITE")
 	private String site;
-	
+
 	@Column(name = "USER_ID")
 	private String userId;
-	
-	@Column(name ="USER_PASSWORD")
+
+	@Column(name = "USER_PASSWORD")
 	private String userPassword;
-	
+
 	@Column(name = "ACCEPTOR_TERM_ID")
 	private String accTermId;
-	
+
 	@Column(name = "ACCEPTOR_IDENTIFICATION")
 	private String accId;
-	
-	@Column (name = "START_DATE")
+
+	@Column(name = "START_DATE")
 	private Date startDate;
-	
-	@Column(name ="MODIFICATION_DATE")
+
+	@Column(name = "MODIFICATION_DATE")
 	private Date modificationDate;
-	
-	@Column (name = "END_DATE")
+
+	@Column(name = "END_DATE")
 	private Date endDate;
-	
-	@Column (name ="IS_DELETED")
+
+	@Column(name = "IS_DELETED")
 	private Boolean deleted;
-	
+
 	/**
 	 * Not implemented
 	 */
+	@Override
 	public String getExtraInfo() {
 		return null;
 	}
@@ -136,6 +142,7 @@ public class KortathjonustanMerchant implements CreditCardMerchant {
 		this.accId = accId;
 	}
 
+	@Override
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -152,6 +159,7 @@ public class KortathjonustanMerchant implements CreditCardMerchant {
 		this.modificationDate = modificationDate;
 	}
 
+	@Override
 	public Date getEndDate() {
 		return endDate;
 	}
@@ -172,9 +180,9 @@ public class KortathjonustanMerchant implements CreditCardMerchant {
 	public Boolean getIsDeleted() {
 		return getDeleted();
 	}
-	
+
 	@Override
-	public Integer getPrimaryKey(){
+	public Integer getPrimaryKey() {
 		return getId();
 	}
 

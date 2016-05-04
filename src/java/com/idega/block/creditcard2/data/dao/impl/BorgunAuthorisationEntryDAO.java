@@ -17,42 +17,55 @@ import com.idega.core.persistence.impl.GenericDaoImpl;
 @Repository(BorgunAuthorisationEntryDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 @Transactional(readOnly = false)
-public class BorgunAuthorisationEntryDAO extends GenericDaoImpl implements AuthorisationEntriesDAO<BorgunAuthorisationEntry> {
+public class BorgunAuthorisationEntryDAO extends GenericDaoImpl
+		implements AuthorisationEntriesDAO<BorgunAuthorisationEntry> {
 
 	public static final String BEAN_NAME = "BorgunAuthorisationEntryDAO";
 
 	@Override
 	public CreditCardAuthorizationEntry getChild(BorgunAuthorisationEntry entry) {
-		return getSingleResult(BorgunAuthorisationEntry.GET_BY_PARENT_ID, BorgunAuthorisationEntry.class, new Param(BorgunAuthorisationEntry.parentProp, entry.getId()));
+		return getSingleResult(BorgunAuthorisationEntry.GET_BY_PARENT_ID, BorgunAuthorisationEntry.class,
+				new Param(BorgunAuthorisationEntry.parentProp, entry.getId()));
 	}
 
 	@Override
 	public CreditCardAuthorizationEntry findByAuthorizationCode(String code, Date date) {
-		return getSingleResult(BorgunAuthorisationEntry.GET_BY_AUTH_CODE, BorgunAuthorisationEntry.class, new Param(BorgunAuthorisationEntry.authCodeProp, code));
+		return getSingleResult(BorgunAuthorisationEntry.GET_BY_AUTH_CODE, BorgunAuthorisationEntry.class,
+				new Param(BorgunAuthorisationEntry.authCodeProp, code));
 	}
 
 	@Override
 	public List<CreditCardAuthorizationEntry> findByDates(Date from, Date to) {
-		return getResultList(BorgunAuthorisationEntry.GET_BY_DATES, CreditCardAuthorizationEntry.class, new Param(BorgunAuthorisationEntry.dateFromProp, from), new Param(BorgunAuthorisationEntry.dateToProp, to));
+		return getResultList(BorgunAuthorisationEntry.GET_BY_DATES, CreditCardAuthorizationEntry.class,
+				new Param(BorgunAuthorisationEntry.dateFromProp, from),
+				new Param(BorgunAuthorisationEntry.dateToProp, to));
 	}
 
 	@Override
 	public List<CreditCardAuthorizationEntry> findRefunds(Date from, Date to) {
-		return getResultList(BorgunAuthorisationEntry.GET_REFUNDS_BY_DATES, CreditCardAuthorizationEntry.class, new Param(BorgunAuthorisationEntry.dateFromProp, from), new Param(BorgunAuthorisationEntry.dateToProp, to));
+		return getResultList(BorgunAuthorisationEntry.GET_REFUNDS_BY_DATES, CreditCardAuthorizationEntry.class,
+				new Param(BorgunAuthorisationEntry.dateFromProp, from),
+				new Param(BorgunAuthorisationEntry.dateToProp, to));
 	}
 
 	@Override
 	public void store(BorgunAuthorisationEntry entry) {
-		if (entry.getId()!=null) {
+		if (entry.getId() != null) {
 			persist(entry);
-		}
-		else {
+		} else {
 			merge(entry);
 		}
 	}
 
 	public BorgunAuthorisationEntry findById(Integer parentDataPK) {
-		return getSingleResultByInlineQuery("from BorgunAuthorisationEntry kae where kae.id =:id", BorgunAuthorisationEntry.class, new Param("id", parentDataPK));
+		return getSingleResultByInlineQuery("from BorgunAuthorisationEntry kae where kae.id =:id",
+				BorgunAuthorisationEntry.class, new Param("id", parentDataPK));
+	}
+
+	public String getLastAuthorizationForMerchant(String merchantRrnSuffix) {
+		return getSingleResultByInlineQuery(
+				"select max(kae.rrn) from BorgunAuthorisationEntry kae where kae.rrn Like :rrn", String.class,
+				new Param("rrn", merchantRrnSuffix + "%"));
 	}
 
 }
