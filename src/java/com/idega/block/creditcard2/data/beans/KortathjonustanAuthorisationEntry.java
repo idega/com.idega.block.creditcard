@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
@@ -97,6 +98,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 	@Column(name = "SERVER_RESPONSE")
 	private String serverResponse;
 
+	@OneToOne
 	@JoinColumn(name = "PARENT_ID")
 	private KortathjonustanAuthorisationEntry parent;
 
