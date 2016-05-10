@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.idega.block.creditcard2.business.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard2.data.beans.BorgunAuthorisationEntry;
 import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.core.persistence.Param;

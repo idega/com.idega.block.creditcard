@@ -1,7 +1,13 @@
 package com.idega.block.creditcard2.data.beans;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.Collection;
 
+import javax.ejb.EJBException;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
+import javax.ejb.RemoveException;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,7 +17,9 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-import com.idega.block.creditcard2.business.CreditCardMerchant;
+import com.idega.block.creditcard.data.CreditCardMerchant;
+import com.idega.data.IDOEntity;
+import com.idega.data.IDOEntityDefinition;
 
 @Entity
 @Table(name = DummyMerchant.ENTITY_NAME)
@@ -80,18 +88,22 @@ public class DummyMerchant implements CreditCardMerchant {
 		return null;
 	}
 
+	@Override
 	public void setLocation(String location) {
 
 	}
 
+	@Override
 	public void setUser(String user) {
 
 	}
 
+	@Override
 	public void setPassword(String password) {
 
 	}
 
+	@Override
 	public void setExtraInfo(String extra) {
 	}
 
@@ -108,6 +120,7 @@ public class DummyMerchant implements CreditCardMerchant {
 		return name;
 	}
 
+	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -128,8 +141,7 @@ public class DummyMerchant implements CreditCardMerchant {
 		this.accId = accId;
 	}
 
-	@Override
-	public Date getStartDate() {
+	public Date getStartDateSql() {
 		return startDate;
 	}
 
@@ -137,7 +149,7 @@ public class DummyMerchant implements CreditCardMerchant {
 		this.startDate = startDate;
 	}
 
-	public Date getModificationDate() {
+	public Date getModificationDateSql() {
 		return modificationDate;
 	}
 
@@ -145,8 +157,7 @@ public class DummyMerchant implements CreditCardMerchant {
 		this.modificationDate = modificationDate;
 	}
 
-	@Override
-	public Date getEndDate() {
+	public Date getEndDateSql() {
 		return endDate;
 	}
 
@@ -163,7 +174,7 @@ public class DummyMerchant implements CreditCardMerchant {
 	}
 
 	@Override
-	public Boolean getIsDeleted() {
+	public boolean getIsDeleted() {
 		return getDeleted();
 	}
 
@@ -180,5 +191,92 @@ public class DummyMerchant implements CreditCardMerchant {
 	@Override
 	public String getTerminalID() {
 		return getAccId();
+	}
+
+	@Override
+	public IDOEntityDefinition getEntityDefinition() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Integer decode(String pkString) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<Integer> decode(String[] pkString) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDatasource() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setDatasource(String datasource) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public EJBLocalHome getEJBLocalHome() throws EJBException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isIdentical(EJBLocalObject arg0) throws EJBException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int compareTo(IDOEntity o) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Timestamp getStartDate() {
+		return new Timestamp(this.startDate.getTime());
+	}
+
+	@Override
+	public Timestamp getModificationDate() {
+		return new Timestamp(this.modificationDate.getTime());
+	}
+
+	@Override
+	public Timestamp getEndDate() {
+		return new Timestamp(this.endDate.getTime());
+	}
+
+	@Override
+	public void setTerminalID(String terminalID) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setMerchantID(String id) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void store() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void remove() throws RemoveException {
+		// TODO Auto-generated method stub
+
 	}
 }

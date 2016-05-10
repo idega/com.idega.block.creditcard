@@ -17,6 +17,9 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.idega.block.creditcard.business.CreditCardClient;
+import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
 import com.idega.block.creditcard2.data.beans.DummyMerchant;
 import com.idega.block.creditcard2.data.beans.KortathjonustanMerchant;
@@ -288,6 +291,17 @@ public class CreditCardBusiness {
 		return getCreditCardMerchant(ccInfo);
 	}
 
+	public CreditCardMerchant getCreditCardMerchant(com.idega.block.trade.data.CreditCardInformation ccInfo) {
+		if (ccInfo != null) {
+			CreditCardInformationDAO cciDAO = ELUtil.getInstance().getBean(CreditCardInformationDAO.BEAN_NAME);
+			CreditCardInformation info = cciDAO.findByPrimaryKey((Integer) ccInfo.getPrimaryKey());
+			if (info != null) {
+				return getCreditCardMerchantDAO(info).findById(Integer.parseInt(info.getMerchantPK()));
+			}
+		}
+		return null;
+	}
+
 	public CreditCardMerchant getCreditCardMerchant(CreditCardInformation ccInfo) {
 		if (ccInfo != null) {
 			return getCreditCardMerchantDAO(ccInfo).findById(Integer.parseInt(ccInfo.getMerchantPK()));
@@ -442,6 +456,8 @@ public class CreditCardBusiness {
 			return new KortathjonustanMerchant();
 		} else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(type)) {
 			return new DummyMerchant();
+		} else if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(type)) {
+			return new BorgunMerchant();
 		}
 		return null;
 	}

@@ -1,17 +1,27 @@
 package com.idega.block.creditcard2.data.beans;
 
 import java.sql.Date;
+import java.util.Collection;
 
+import javax.ejb.EJBException;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
+import javax.ejb.FinderException;
+import javax.ejb.RemoveException;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-import com.idega.block.creditcard2.business.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.data.IDOEntity;
+import com.idega.data.IDOEntityDefinition;
+import com.idega.data.IDOStoreException;
 
 @Entity
 @Table(name = "CC_KORTTHJ_AUTH_ENTRIES")
@@ -87,8 +97,8 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 	@Column(name = "SERVER_RESPONSE")
 	private String serverResponse;
 
-	@Column(name = "PARENT_ID")
-	private Integer parent;
+	@JoinColumn(name = "PARENT_ID")
+	private KortathjonustanAuthorisationEntry parent;
 
 	@Column(name = "TRANSACTION_TYPE")
 	private String transactionType;
@@ -105,7 +115,8 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 		this.id = id;
 	}
 
-	public Double getAmount() {
+	@Override
+	public double getAmount() {
 		return amount;
 	}
 
@@ -121,6 +132,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 		this.authCode = authCode;
 	}
 
+	@Override
 	public String getBrandName() {
 		return brandName;
 	}
@@ -129,6 +141,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 		this.brandName = brandName;
 	}
 
+	@Override
 	public String getCardExpires() {
 		return cardExpires;
 	}
@@ -146,6 +159,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 		this.cardNumber = cardNumber;
 	}
 
+	@Override
 	public String getCurrency() {
 		return currency;
 	}
@@ -162,6 +176,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 		this.entryDate = entryDate;
 	}
 
+	@Override
 	public String getErrorNumber() {
 		return errorNumber;
 	}
@@ -170,6 +185,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 		this.errorNumber = errorNumber;
 	}
 
+	@Override
 	public String getErrorText() {
 		return errorText;
 	}
@@ -186,11 +202,12 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 		this.serverResponse = serverResponse;
 	}
 
-	public Integer getParent() {
+	@Override
+	public CreditCardAuthorizationEntry getParent() {
 		return parent;
 	}
 
-	public void setParent(Integer parent) {
+	public void setParent(KortathjonustanAuthorisationEntry parent) {
 		this.parent = parent;
 	}
 
@@ -200,6 +217,102 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 
 	public void setTransactionType(String transactionType) {
 		this.transactionType = transactionType;
+	}
+
+	@Override
+	public void store() throws IDOStoreException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public IDOEntityDefinition getEntityDefinition() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Integer decode(String pkString) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<Integer> decode(String[] pkString) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDatasource() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setDatasource(String datasource) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public EJBLocalHome getEJBLocalHome() throws EJBException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isIdentical(EJBLocalObject arg0) throws EJBException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void remove() throws RemoveException, EJBException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public int compareTo(IDOEntity o) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Object getPrimaryKey() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Date getDate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getAuthorizationCode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getExtraField() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getParentID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public CreditCardAuthorizationEntry getChild() throws FinderException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

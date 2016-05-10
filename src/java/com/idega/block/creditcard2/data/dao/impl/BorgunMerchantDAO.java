@@ -2,33 +2,30 @@ package com.idega.block.creditcard2.data.dao.impl;
 
 import java.sql.Date;
 
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.config.BeanDefinition;
 
-import com.idega.block.creditcard2.business.CreditCardMerchant;
+import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
-import com.idega.block.creditcard2.data.beans.DummyMerchant;
 import com.idega.block.creditcard2.data.dao.MerchantDAO;
 import com.idega.core.persistence.Param;
 import com.idega.core.persistence.impl.GenericDaoImpl;
 import com.idega.util.IWTimestamp;
-
 
 @Repository(BorgunMerchantDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 @Transactional(readOnly = false)
 public class BorgunMerchantDAO extends GenericDaoImpl implements MerchantDAO<BorgunMerchant> {
 	public static final String BEAN_NAME = "BorgunMerchantDAO";
-	
+
 	@Override
 	public void store(BorgunMerchant merchant) {
-		if (merchant.getId()!=null) {
+		if (merchant.getId() != null) {
 			merchant.setStartDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));
 			persist(merchant);
-		}
-		else {
+		} else {
 			merchant.setModificationDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));
 			merge(merchant);
 		}
@@ -44,7 +41,8 @@ public class BorgunMerchantDAO extends GenericDaoImpl implements MerchantDAO<Bor
 
 	@Override
 	public BorgunMerchant findByName(String name) {
-		return getSingleResult(BorgunMerchant.GET_BY_NAME, BorgunMerchant.class, new Param(BorgunMerchant.nameProp, name));
+		return getSingleResult(BorgunMerchant.GET_BY_NAME, BorgunMerchant.class,
+				new Param(BorgunMerchant.nameProp, name));
 	}
 
 	@Override

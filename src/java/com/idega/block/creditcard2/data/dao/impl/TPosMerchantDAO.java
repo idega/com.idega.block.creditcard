@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.idega.block.creditcard2.business.CreditCardMerchant;
+import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard2.data.beans.TPosMerchant;
 import com.idega.block.creditcard2.data.dao.MerchantDAO;
 import com.idega.core.persistence.Param;
@@ -22,11 +22,10 @@ public class TPosMerchantDAO extends GenericDaoImpl implements MerchantDAO<TPosM
 
 	@Override
 	public void store(TPosMerchant merchant) {
-		if (merchant.getId()!=null) {
+		if (merchant.getId() != null) {
 			merchant.setStartDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));
 			persist(merchant);
-		}
-		else {
+		} else {
 			merchant.setModifiedDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));
 			merge(merchant);
 		}

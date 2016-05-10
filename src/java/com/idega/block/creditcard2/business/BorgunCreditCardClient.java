@@ -14,6 +14,10 @@ import javax.xml.ws.BindingProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.SAXException;
 
+import com.idega.block.creditcard.business.CreditCardAuthorizationException;
+import com.idega.block.creditcard.business.CreditCardClient;
+import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard2.data.beans.BorgunAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
 import com.idega.block.creditcard2.data.dao.impl.BorgunAuthorisationEntryDAO;

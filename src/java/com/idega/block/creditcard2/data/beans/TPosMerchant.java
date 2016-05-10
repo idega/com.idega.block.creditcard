@@ -1,7 +1,13 @@
 package com.idega.block.creditcard2.data.beans;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.Collection;
 
+import javax.ejb.EJBException;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
+import javax.ejb.RemoveException;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,7 +17,9 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
-import com.idega.block.creditcard2.business.CreditCardMerchant;
+import com.idega.block.creditcard.data.CreditCardMerchant;
+import com.idega.data.IDOEntity;
+import com.idega.data.IDOEntityDefinition;
 
 @Entity
 @Table(name = TPosMerchant.EntityName)
@@ -130,8 +138,7 @@ public class TPosMerchant implements CreditCardMerchant {
 		this.keyRcvPassw = keyRcvPassw;
 	}
 
-	@Override
-	public Date getStartDate() {
+	public Date getStartDateSql() {
 		return startDate;
 	}
 
@@ -147,8 +154,7 @@ public class TPosMerchant implements CreditCardMerchant {
 		this.modifiedDate = modifiedDate;
 	}
 
-	@Override
-	public Date getEndDate() {
+	public Date getEndDateSql() {
 		return endDate;
 	}
 
@@ -165,7 +171,7 @@ public class TPosMerchant implements CreditCardMerchant {
 	}
 
 	@Override
-	public Boolean getIsDeleted() {
+	public boolean getIsDeleted() {
 		return getDeleted();
 	}
 
@@ -206,11 +212,122 @@ public class TPosMerchant implements CreditCardMerchant {
 
 	@Override
 	public String getTerminalID() {
-		return null;
+		return getPosId();
 	}
 
 	@Override
 	public String getExtraInfo() {
 		return getKeyRcvPassw();
+	}
+
+	@Override
+	public IDOEntityDefinition getEntityDefinition() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Integer decode(String pkString) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<Integer> decode(String[] pkString) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDatasource() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setDatasource(String datasource) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public EJBLocalHome getEJBLocalHome() throws EJBException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isIdentical(EJBLocalObject arg0) throws EJBException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int compareTo(IDOEntity o) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Timestamp getStartDate() {
+		return new Timestamp(this.startDate.getTime());
+	}
+
+	@Override
+	public Timestamp getModificationDate() {
+		return new Timestamp(this.modifiedDate.getTime());
+	}
+
+	@Override
+	public Timestamp getEndDate() {
+		return new Timestamp(this.endDate.getTime());
+	}
+
+	@Override
+	public void setName(String name) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setLocation(String location) {
+		setLocationId(location);
+	}
+
+	@Override
+	public void setUser(String user) {
+		setUserId(user);
+	}
+
+	@Override
+	public void setPassword(String password) {
+		setPassw(password);
+	}
+
+	@Override
+	public void setTerminalID(String terminalID) {
+		setPosId(terminalID);
+	}
+
+	@Override
+	public void setMerchantID(String id) {
+		setMerchantId(id);
+	}
+
+	@Override
+	public void setExtraInfo(String extra) {
+		setKeyRcvPassw(extra);
+	}
+
+	@Override
+	public void store() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void remove() throws RemoveException {
+		// TODO Auto-generated method stub
+
 	}
 }
