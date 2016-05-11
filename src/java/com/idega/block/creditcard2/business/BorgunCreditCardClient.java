@@ -315,10 +315,12 @@ public class BorgunCreditCardClient implements CreditCardClient {
 		auth.setRrn(resultData.get(BorgunCreditCardClient.RETRIEVAL_REFERENCE_NUMBER));
 		try {
 			BorgunDocument doc = new BorgunDocument(result);
-			doc.getData().put(BorgunCreditCardClient.CARD_NUMBER,
+			Map<String, String> data = doc.getData();
+			data.put(BorgunCreditCardClient.CARD_NUMBER,
 					CreditCardBusiness.encodeCreditCardNumber(doc.getData().get(BorgunCreditCardClient.CARD_NUMBER)));
+			doc.setData(data);
 			auth.setServerResponse(doc.toString());
-		} catch (SAXException | IOException | ParserConfigurationException e) {
+		} catch (Exception e) {
 		}
 		auth = getAuthDAO().store(auth);
 	}
