@@ -14,5 +14,5 @@ public interface AuthorisationEntriesDAO<T> {
 
 	public List<CreditCardAuthorizationEntry> findRefunds(Date from, Date to);
 
-	public void store(T entry);
+	public T store(T entry);
 }

@@ -16,13 +16,14 @@ import com.idega.util.IWTimestamp;
 
 @Repository(TPosMerchantDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-@Transactional(readOnly = false)
+@Transactional(readOnly = true)
 public class TPosMerchantDAO extends GenericDaoImpl implements MerchantDAO<TPosMerchant> {
 	public static final String BEAN_NAME = "TPosMerchantDAO";
 
 	@Override
+	@Transactional(readOnly = false)
 	public void store(TPosMerchant merchant) {
-		if (merchant.getId() != null) {
+		if (merchant.getId() == null) {
 			merchant.setStartDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));
 			persist(merchant);
 		} else {
@@ -32,6 +33,7 @@ public class TPosMerchantDAO extends GenericDaoImpl implements MerchantDAO<TPosM
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public void removeMerchant(TPosMerchant merchant) {
 		merchant.setModifiedDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));
 		merchant.setEndDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));

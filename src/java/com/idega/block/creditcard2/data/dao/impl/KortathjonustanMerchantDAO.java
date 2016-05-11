@@ -16,13 +16,14 @@ import com.idega.util.IWTimestamp;
 
 @Repository(KortathjonustanMerchantDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-@Transactional(readOnly = false)
+@Transactional(readOnly = true)
 public class KortathjonustanMerchantDAO extends GenericDaoImpl implements MerchantDAO<KortathjonustanMerchant> {
 	public static final String BEAN_NAME = "KortathjonustanMerchantDAO";
 
 	@Override
+	@Transactional(readOnly = false)
 	public void store(KortathjonustanMerchant merchant) {
-		if (merchant.getId() != null) {
+		if (merchant.getId() == null) {
 			merchant.setStartDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));
 			persist(merchant);
 		} else {
@@ -32,6 +33,7 @@ public class KortathjonustanMerchantDAO extends GenericDaoImpl implements Mercha
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public void removeMerchant(KortathjonustanMerchant merchant) {
 		merchant.setModificationDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));
 		merchant.setEndDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));

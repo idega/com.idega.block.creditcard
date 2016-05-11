@@ -16,13 +16,14 @@ import com.idega.util.IWTimestamp;
 
 @Repository(BorgunMerchantDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-@Transactional(readOnly = false)
+@Transactional(readOnly = true)
 public class BorgunMerchantDAO extends GenericDaoImpl implements MerchantDAO<BorgunMerchant> {
 	public static final String BEAN_NAME = "BorgunMerchantDAO";
 
 	@Override
+	@Transactional(readOnly = false)
 	public void store(BorgunMerchant merchant) {
-		if (merchant.getId() != null) {
+		if (merchant.getId() == null) {
 			merchant.setStartDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));
 			persist(merchant);
 		} else {
@@ -32,6 +33,7 @@ public class BorgunMerchantDAO extends GenericDaoImpl implements MerchantDAO<Bor
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public void removeMerchant(BorgunMerchant merchant) {
 		merchant.setModificationDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));
 		merchant.setEndDate(new Date(IWTimestamp.getTimestampRightNow().getTime()));

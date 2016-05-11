@@ -16,7 +16,7 @@ import com.idega.core.persistence.impl.GenericDaoImpl;
 
 @Repository(BorgunAuthorisationEntryDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-@Transactional(readOnly = false)
+@Transactional(readOnly = true)
 public class BorgunAuthorisationEntryDAO extends GenericDaoImpl
 		implements AuthorisationEntriesDAO<BorgunAuthorisationEntry> {
 
@@ -49,22 +49,29 @@ public class BorgunAuthorisationEntryDAO extends GenericDaoImpl
 	}
 
 	@Override
-	public void store(BorgunAuthorisationEntry entry) {
-		if (entry.getId() != null) {
+	@Transactional(readOnly = false)
+	public BorgunAuthorisationEntry store(BorgunAuthorisationEntry entry) {
+		if (entry.getId() == null) {
 			persist(entry);
 		} else {
 			merge(entry);
 		}
+
+		if (entry.getPrimaryKey() == null) {
+			throw new RuntimeException(BorgunAuthorisationEntry.class.getName() + " could not be saved");
+		}
+
+		return entry;
 	}
 
 	public BorgunAuthorisationEntry findById(Integer parentDataPK) {
-		return getSingleResultByInlineQuery("from BorgunAuthorisationEntry kae where kae.id =:id",
+		return getSingleResultByInlineQuery("from BorgunAuthorisationEntry bae where bae.id =:id",
 				BorgunAuthorisationEntry.class, new Param("id", parentDataPK));
 	}
 
 	public String getLastAuthorizationForMerchant(String merchantRrnSuffix) {
 		return getSingleResultByInlineQuery(
-				"select max(kae.rrn) from BorgunAuthorisationEntry kae where kae.rrn Like :rrn", String.class,
+				"select max(bae.rrn) from BorgunAuthorisationEntry bae where bae.rrn Like :rrn", String.class,
 				new Param("rrn", merchantRrnSuffix + "%"));
 	}
 

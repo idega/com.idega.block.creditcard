@@ -19,6 +19,8 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Type;
+
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.data.IDOEntity;
 import com.idega.data.IDOEntityDefinition;
@@ -94,7 +96,8 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "transaction_type")
 	private String transactionType;
 
-	@Column(name = "server_response", length = 65000)
+	@Column(name = "server_response")
+	@Type(type="text")
 	private String serverResponse;
 
 	@Column(name = "rrn")

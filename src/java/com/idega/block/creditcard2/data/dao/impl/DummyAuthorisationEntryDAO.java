@@ -16,9 +16,9 @@ import com.idega.core.persistence.impl.GenericDaoImpl;
 
 @Repository(DummyAuthorisationEntryDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-@Transactional(readOnly = false)
-public class DummyAuthorisationEntryDAO extends GenericDaoImpl
-		implements AuthorisationEntriesDAO<DummyAuthorisationEntry> {
+@Transactional(readOnly = true)
+public class DummyAuthorisationEntryDAO extends GenericDaoImpl implements AuthorisationEntriesDAO<DummyAuthorisationEntry> {
+
 	public static final String BEAN_NAME = "DummyAuthorisationEntryDAO";
 
 	@Override
@@ -48,12 +48,15 @@ public class DummyAuthorisationEntryDAO extends GenericDaoImpl
 	}
 
 	@Override
-	public void store(DummyAuthorisationEntry entry) {
-		if (entry.getId() != null) {
+	@Transactional(readOnly = false)
+	public DummyAuthorisationEntry store(DummyAuthorisationEntry entry) {
+		if (entry.getId() == null) {
 			persist(entry);
 		} else {
 			merge(entry);
 		}
+
+		return entry.getPrimaryKey() == null ? null : entry;
 	}
 
 	public DummyAuthorisationEntry findById(Integer parentDataPK) {

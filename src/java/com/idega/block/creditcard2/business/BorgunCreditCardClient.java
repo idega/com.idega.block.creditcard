@@ -320,7 +320,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 			auth.setServerResponse(doc.toString());
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 		}
-		getAuthDAO().store(auth);
+		auth = getAuthDAO().store(auth);
 	}
 
 	@Override
@@ -336,7 +336,12 @@ public class BorgunCreditCardClient implements CreditCardClient {
 		params.put(BorgunCreditCardClient.MERCHANT_ID, this.merchant.getMerchantID());
 		params.put(BorgunCreditCardClient.TERMINAL_ID, this.merchant.getTerminalID());
 		params.put(BorgunCreditCardClient.TRANSACTOIN_TYPE, "5");
-		params.put(BorgunCreditCardClient.TRANSACTOIN_AMOUNT, new String((amount * 100) + ""));
+		if ("JPY".equals(currency)) {
+			params.put(BorgunCreditCardClient.TRANSACTOIN_AMOUNT, new String(((Double) (amount * 1)).intValue() + ""));
+		} else {
+			params.put(BorgunCreditCardClient.TRANSACTOIN_AMOUNT,
+					new String(((Double) (amount * 100)).intValue() + ""));
+		}
 		params.put(BorgunCreditCardClient.TRANSACTOIN_CURRENCY, getCurrencyCode(currency));
 		params.put(BorgunCreditCardClient.DATE_AND_TIME, getYYMMDDHHMMSSDate());
 		params.put(BorgunCreditCardClient.CARD_NUMBER, cardnumber);
