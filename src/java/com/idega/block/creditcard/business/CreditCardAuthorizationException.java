@@ -11,8 +11,8 @@ import com.idega.idegaweb.IWResourceBundle;
 /**
  * @author gimmi
  *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ *         To change the template for this generated type comment go to Window -
+ *         Preferences - Java - Code Generation - Code and Comments
  */
 public class CreditCardAuthorizationException extends Exception {
 
@@ -20,9 +20,8 @@ public class CreditCardAuthorizationException extends Exception {
 	protected String _errorNumber = null;
 	protected String _displayError = null;
 
-	
 	/**
-	 * 
+	 *
 	 */
 	public CreditCardAuthorizationException() {
 		super();
@@ -33,6 +32,11 @@ public class CreditCardAuthorizationException extends Exception {
 	 */
 	public CreditCardAuthorizationException(String arg0) {
 		super(arg0);
+	}
+
+	public CreditCardAuthorizationException(String arg0, String errorNumber) {
+		super(arg0);
+		this._errorNumber = errorNumber;
 	}
 
 	/**
@@ -61,7 +65,7 @@ public class CreditCardAuthorizationException extends Exception {
 	 *
 	 */
 	public String getErrorMessage() {
-		return(this._errorMessage);
+		return (this._errorMessage);
 	}
 
 	/**
@@ -75,7 +79,7 @@ public class CreditCardAuthorizationException extends Exception {
 	 *
 	 */
 	public String getErrorNumber() {
-		return(this._errorNumber);
+		return (this._errorNumber);
 	}
 
 	/**
@@ -89,14 +93,17 @@ public class CreditCardAuthorizationException extends Exception {
 	 *
 	 */
 	public String getDisplayError() {
-		return(this._displayError);
+		return (this._displayError);
 	}
-	
+
 	public void setParentException(Exception e) {
 		this.setStackTrace(e.getStackTrace());
 	}
-	
+
 	public String getLocalizedMessage(IWResourceBundle iwrb) {
-		return "unimplemented";
+		if ((iwrb != null) || (this._errorNumber != null) || (this._errorMessage != null)) {
+			return iwrb.getLocalizedString("CCERROR_" + this._errorNumber, this._errorMessage);
+		}
+		return this._errorMessage;
 	}
 }
