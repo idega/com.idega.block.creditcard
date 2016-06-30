@@ -101,7 +101,7 @@ public class CreditCardAuthorizationException extends Exception {
 	}
 
 	public String getLocalizedMessage(IWResourceBundle iwrb) {
-		if ((iwrb != null) || (this._errorNumber != null) || (this._errorMessage != null)) {
+		if ((iwrb != null) && (this._errorNumber != null) && (this._errorMessage != null)) {
 			return iwrb.getLocalizedString("CCERROR_" + this._errorNumber, this._errorMessage);
 		}
 		return this._errorMessage;
