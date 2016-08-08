@@ -69,10 +69,10 @@ public class BorgunAuthorisationEntryDAO extends GenericDaoImpl
 				BorgunAuthorisationEntry.class, new Param("id", parentDataPK));
 	}
 
-	public String getLastAuthorizationForMerchant(String merchantRrnSuffix) {
+	public String getLastAuthorizationForMerchant(String merchantRrnSuffix, Integer merchantId) {
 		return getSingleResultByInlineQuery(
-				"select max(bae.rrn) from BorgunAuthorisationEntry bae where bae.rrn Like :rrn", String.class,
-				new Param("rrn", merchantRrnSuffix + "%"));
+				"select max(bae.rrn) from BorgunAuthorisationEntry bae where bae.rrn Like :rrn and bae.merchant.id = :id",
+				String.class, new Param("rrn", merchantRrnSuffix + "%"), new Param("id", merchantId));
 	}
 
 }

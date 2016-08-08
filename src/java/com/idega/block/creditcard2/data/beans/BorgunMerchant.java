@@ -58,6 +58,9 @@ public class BorgunMerchant implements CreditCardMerchant {
 	@Column(name = "MERCHANT_PROCESSOR")
 	private String merchantProcessor;
 
+	@Column(name = "MERCHANT_CONTRACT_NUMBER")
+	private String merchantContractNumber;
+
 	@Column(name = "MERCHANT_TERMINAL")
 	private String merchantTerminal;
 
@@ -211,6 +214,8 @@ public class BorgunMerchant implements CreditCardMerchant {
 
 	@Override
 	public boolean getIsDeleted() {
+		if (this.deleted == null)
+			return false;
 		return this.deleted.booleanValue();
 	}
 
@@ -320,16 +325,22 @@ public class BorgunMerchant implements CreditCardMerchant {
 
 	@Override
 	public Timestamp getStartDate() {
+		if (this.startDate == null)
+			return null;
 		return new Timestamp(this.startDate.getTime());
 	}
 
 	@Override
 	public Timestamp getModificationDate() {
+		if (this.modificationDate == null)
+			return null;
 		return new Timestamp(this.modificationDate.getTime());
 	}
 
 	@Override
 	public Timestamp getEndDate() {
+		if (this.endDate == null)
+			return null;
 		return new Timestamp(this.endDate.getTime());
 	}
 
@@ -343,6 +354,14 @@ public class BorgunMerchant implements CreditCardMerchant {
 	public void remove() throws RemoveException {
 		// TODO Auto-generated method stub
 
+	}
+
+	public String getMerchantContractNumber() {
+		return merchantContractNumber;
+	}
+
+	public void setMerchantContractNumber(String merchantContractNumber) {
+		this.merchantContractNumber = merchantContractNumber;
 	}
 
 }

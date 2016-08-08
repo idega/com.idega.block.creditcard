@@ -31,6 +31,7 @@ import borgun.heimir.pub.ws.authorization.Authorization;
 import borgun.heimir.pub.ws.authorization.AuthorizationPortType;
 import borgun.heimir.pub.ws.authorization.CancelAuthorizationInput;
 import borgun.heimir.pub.ws.authorization.GetAuthorizationInput;
+import borgun.heimir.pub.ws.authorization.GetVirtualCard;
 
 public class BorgunCreditCardClient implements CreditCardClient {
 
@@ -102,6 +103,8 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	private static final Object LOCK = new Object() {
 	};
 
+	private static HashMap<Integer, RRN> authRefs = new HashMap<Integer, RRN>();
+
 	public BorgunCreditCardClient(CreditCardMerchant merchant) {
 		if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(merchant.getType())) {
 			this.login = ((BorgunMerchant) merchant).getUser();
@@ -148,28 +151,46 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	}
 
 	private String getRRN() {
-		synchronized (LOCK) {
-			String suffix = ((BorgunMerchant) merchant).getMerchantRrnSuffix();
-			if (lastAuth == null) {
-				String last = getAuthDAO().getLastAuthorizationForMerchant(suffix);
-				if (last == null) {
-					lastAuth = (long) 1;
+
+		RRN ref = authRefs.get(merchant.getPrimaryKey());
+		String suffix = ((BorgunMerchant) merchant).getMerchantRrnSuffix();
+		Long lastAuth;
+
+		if (ref == null) {
+			synchronized (LOCK) {
+				ref = authRefs.get(merchant.getPrimaryKey());
+				if (ref == null) {
+					ref = new RRN();
+					String last = getAuthDAO().getLastAuthorizationForMerchant(suffix,
+							(Integer) merchant.getPrimaryKey());
+					if (last == null) {
+						lastAuth = (long) 1;
+					} else {
+						String lastNUmber = last.substring(suffix.length());
+						lastAuth = Long.parseLong(lastNUmber, 10);
+						lastAuth++;
+					}
+					ref.setLastAuth(lastAuth);
+					authRefs.put((Integer) merchant.getPrimaryKey(), ref);
 				} else {
-					String lastNUmber = last.substring(suffix.length());
-					lastAuth = Long.parseLong(lastNUmber, 10);
-					lastAuth++;
+					synchronized (ref.getLOCK()) {
+						lastAuth = ref.getNextAuth();
+					}
 				}
-			} else {
-				lastAuth++;
 			}
-			StringBuilder rrn = new StringBuilder();
-			rrn.append(suffix);
-			for (int i = 0; i < 12 - (suffix.length() + lastAuth.toString().length()); i++) {
-				rrn.append('0');
+		} else {
+			synchronized (ref.getLOCK()) {
+				lastAuth = ref.getNextAuth();
 			}
-			rrn.append(lastAuth);
-			return rrn.toString();
 		}
+		StringBuilder rrn = new StringBuilder();
+		rrn.append(suffix);
+		for (int i = 0; i < 12 - (suffix.length() + lastAuth.toString().length()); i++) {
+			rrn.append('0');
+		}
+		rrn.append(lastAuth);
+		return rrn.toString();
+
 	}
 
 	@Override
@@ -186,6 +207,39 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	@Override
 	public CreditCardMerchant getCreditCardMerchant() {
 		return merchant;
+	}
+
+	public String getVirtualCardNumber(String cardnumber) throws CreditCardAuthorizationException {
+		try {
+			Authorization service = new Authorization();
+			AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
+			HashMap<String, String> params = new HashMap<String, String>();
+			params.put("BurgunActionName", "getVirtualCard");
+			params.put(BorgunCreditCardClient.MERCHANT_CONTRACT_NUMBER,
+					((BorgunMerchant) this.merchant).getMerchantContractNumber());
+			params.put(BorgunCreditCardClient.CARD_NUMBER, cardnumber);
+			String result = null;
+			BorgunDocument doc = new BorgunDocument(params);
+			GetVirtualCard parameters = new GetVirtualCard();
+			parameters.setVirtualCardRequestXML(doc.toString());
+			Map<String, Object> req_ctx = ((BindingProvider) port).getRequestContext();
+			req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, this.url);
+			req_ctx.put(BindingProvider.USERNAME_PROPERTY, this.login);
+			req_ctx.put(BindingProvider.PASSWORD_PROPERTY, this.password);
+			result = port.getVirtualCard(parameters.getVirtualCardRequestXML());
+			doc = new BorgunDocument(result);
+			Map<String, String> resultData = doc.getData();
+			if (resultData.containsKey(BorgunCreditCardClient.VIRTUAL_CARD_NUMBER)) {
+				return resultData.get(BorgunCreditCardClient.VIRTUAL_CARD_NUMBER);
+			} else {
+				throw new CreditCardAuthorizationException("ERROR: no card number returned", "UNKNOWN");
+			}
+
+		} catch (Exception e) {
+			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(e);
+			ex.setErrorNumber("UNKNOWN");
+			throw ex;
+		}
 	}
 
 	@Override
@@ -253,7 +307,12 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	}
 
 	private IWResourceBundle getResourceBundle() {
-		return getBundle().getResourceBundle(IWContext.getCurrentInstance());
+		IWContext iwc = IWContext.getCurrentInstance();
+		if (iwc != null) {
+			return getBundle().getResourceBundle(iwc);
+		} else {
+			return getBundle().getResourceBundle(IWMainApplication.getDefaultIWMainApplication().getDefaultLocale());
+		}
 	}
 
 	private IWBundle getBundle() {
