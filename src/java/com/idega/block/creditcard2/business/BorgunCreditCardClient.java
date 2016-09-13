@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
@@ -25,6 +27,7 @@ import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
+import com.idega.util.datastructures.map.MapUtil;
 import com.idega.util.expression.ELUtil;
 
 import borgun.heimir.pub.ws.authorization.Authorization;
@@ -40,6 +43,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	private String url;
 	private CreditCardMerchant merchant;
 	private BorgunAuthorisationEntry auth = null;
+
 	@Autowired
 	private BorgunAuthorisationEntryDAO authDAO = null;
 
@@ -324,9 +328,16 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires,
-			String ccVerifyNumber, double amount, String currency, String referenceNumber)
-					throws CreditCardAuthorizationException {
+	public String doSale(
+			String nameOnCard,
+			String cardnumber,
+			String monthExpires,
+			String yearExpires,
+			String ccVerifyNumber,
+			double amount,
+			String currency,
+			String referenceNumber
+	) throws CreditCardAuthorizationException {
 		Authorization service = new Authorization();
 		AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
 		HashMap<String, String> params = new HashMap<String, String>();
@@ -361,32 +372,32 @@ public class BorgunCreditCardClient implements CreditCardClient {
 			doc = new BorgunDocument(result);
 			Map<String, String> resultData = doc.getData();
 			storeAuthorizationEntry(resultData, result, null);
-			if (resultData.containsKey(BorgunCreditCardClient.ACTION_CODE)) {
-				if (!BorgunCreditCardClient.ACTION_CODE_ACCEPTED
-						.equals(resultData.get(BorgunCreditCardClient.ACTION_CODE)))
+
+			if (!MapUtil.isEmpty(resultData) && resultData.containsKey(BorgunCreditCardClient.ACTION_CODE)) {
+				if (!BorgunCreditCardClient.ACTION_CODE_ACCEPTED.equals(resultData.get(BorgunCreditCardClient.ACTION_CODE)))
 					throw new CreditCardAuthorizationException(
 							getResourceBundle().getLocalizedString(
 									"CCERROR_" + resultData.get(BorgunCreditCardClient.ACTION_CODE),
-									"ERROR: authorization code not 000"),
-							resultData.get(BorgunCreditCardClient.ACTION_CODE));
+									"ERROR: authorization code not 000"
+							),
+							resultData.get(BorgunCreditCardClient.ACTION_CODE)
+					);
 			} else {
 				throw new CreditCardAuthorizationException("ERROR: no action code", "NOACC");
 			}
 
-			if (resultData.containsKey(BorgunCreditCardClient.AUTHORISATION_CODE))
+			if (resultData.containsKey(BorgunCreditCardClient.AUTHORISATION_CODE)) {
 				return resultData.get(BorgunCreditCardClient.AUTHORISATION_CODE);
-		} catch (Exception e) {
-			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(e);
-			ex.setErrorNumber("UNKNOWN");
-			throw ex;
+			}
+		} catch (Throwable e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "doSale method failed", e);
+			throw new CreditCardAuthorizationException(e, "ERROR: no authorization code", "UNKNOWN");
 		}
-		CreditCardAuthorizationException ex = new CreditCardAuthorizationException("ERROR: no authorization code");
-		ex.setErrorNumber("UNKNOWN");
-		throw ex;
+
+		throw new CreditCardAuthorizationException("ERROR: no authorization code", "UNKNOWN");
 	}
 
-	private void storeAuthorizationEntry(Map<String, String> resultData, String result,
-			BorgunAuthorisationEntry authEnt) {
+	private void storeAuthorizationEntry(Map<String, String> resultData, String result, BorgunAuthorisationEntry authEnt) {
 		auth = new BorgunAuthorisationEntry();
 		if (authEnt != null)
 			auth.setParent(authEnt);
@@ -417,9 +428,16 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String creditcardAuthorization(String nameOnCard, String cardnumber, String monthExpires, String yearExpires,
-			String ccVerifyNumber, double amount, String currency, String referenceNumber)
-					throws CreditCardAuthorizationException {
+	public String creditcardAuthorization(
+			String nameOnCard,
+			String cardnumber,
+			String monthExpires,
+			String yearExpires,
+			String ccVerifyNumber,
+			double amount,
+			String currency,
+			String referenceNumber
+	) throws CreditCardAuthorizationException {
 		Authorization service = new Authorization();
 		AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
 		HashMap<String, String> params = new HashMap<String, String>();
@@ -432,8 +450,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 		if ("JPY".equals(currency)) {
 			params.put(BorgunCreditCardClient.TRANSACTOIN_AMOUNT, new String(((Double) (amount * 1)).intValue() + ""));
 		} else {
-			params.put(BorgunCreditCardClient.TRANSACTOIN_AMOUNT,
-					new String(((Double) (amount * 100)).intValue() + ""));
+			params.put(BorgunCreditCardClient.TRANSACTOIN_AMOUNT, new String(((Double) (amount * 100)).intValue() + ""));
 		}
 		params.put(BorgunCreditCardClient.TRANSACTOIN_CURRENCY, getCurrencyCode(currency));
 		params.put(BorgunCreditCardClient.DATE_AND_TIME, getYYMMDDHHMMSSDate());
@@ -454,21 +471,24 @@ public class BorgunCreditCardClient implements CreditCardClient {
 			doc = new BorgunDocument(result);
 			Map<String, String> resultData = doc.getData();
 			storeAuthorizationEntry(resultData, result, null);
-			if (resultData.containsKey(BorgunCreditCardClient.ACTION_CODE)) {
-				if (!BorgunCreditCardClient.ACTION_CODE_ACCEPTED
-						.equals(resultData.get(BorgunCreditCardClient.ACTION_CODE)))
+
+			if (!MapUtil.isEmpty(resultData) && resultData.containsKey(BorgunCreditCardClient.ACTION_CODE)) {
+				if (!BorgunCreditCardClient.ACTION_CODE_ACCEPTED.equals(resultData.get(BorgunCreditCardClient.ACTION_CODE)))
 					throw new CreditCardAuthorizationException(
 							getResourceBundle().getLocalizedString(
 									"CCERROR_" + resultData.get(BorgunCreditCardClient.ACTION_CODE),
-									"ERROR: authorization code not 000"),
-							resultData.get(BorgunCreditCardClient.ACTION_CODE));
+									"ERROR: authorization code not 000"
+							),
+							resultData.get(BorgunCreditCardClient.ACTION_CODE)
+					);
 			} else {
 				throw new CreditCardAuthorizationException("ERROR: no action code", "NOACC");
 			}
 
-			return result;// TODO hide pan
-		} catch (Exception e) {
-			throw new CreditCardAuthorizationException(e);
+			return result;
+		} catch (Throwable e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "creditcardAuthorization method failed", e);
+			throw new CreditCardAuthorizationException(e, "ERROR: no authorization code", "UNKNOWN");
 		}
 	}
 
