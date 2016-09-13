@@ -373,28 +373,46 @@ public class BorgunCreditCardClient implements CreditCardClient {
 			Map<String, String> resultData = doc.getData();
 			storeAuthorizationEntry(resultData, result, null);
 
-			if (!MapUtil.isEmpty(resultData) && resultData.containsKey(BorgunCreditCardClient.ACTION_CODE)) {
-				if (!BorgunCreditCardClient.ACTION_CODE_ACCEPTED.equals(resultData.get(BorgunCreditCardClient.ACTION_CODE)))
-					throw new CreditCardAuthorizationException(
-							getResourceBundle().getLocalizedString(
-									"CCERROR_" + resultData.get(BorgunCreditCardClient.ACTION_CODE),
-									"ERROR: authorization code not 000"
-							),
-							resultData.get(BorgunCreditCardClient.ACTION_CODE)
-					);
-			} else {
-				throw new CreditCardAuthorizationException("ERROR: no action code", "NOACC");
+			if (!isResultValid(resultData)) {
+				throw new CreditCardAuthorizationException("ERROR: no authorization code", "UNKNOWN");
 			}
 
 			if (resultData.containsKey(BorgunCreditCardClient.AUTHORISATION_CODE)) {
 				return resultData.get(BorgunCreditCardClient.AUTHORISATION_CODE);
 			}
+		} catch (CreditCardAuthorizationException ccae) {
+			throw ccae;
 		} catch (Throwable e) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "doSale method failed", e);
 			throw new CreditCardAuthorizationException(e, "ERROR: no authorization code", "UNKNOWN");
 		}
 
 		throw new CreditCardAuthorizationException("ERROR: no authorization code", "UNKNOWN");
+	}
+
+	private boolean isResultValid(Map<String, String> resultData) throws CreditCardAuthorizationException {
+		String actionCode = null;
+		try {
+			if (!MapUtil.isEmpty(resultData) && resultData.containsKey(BorgunCreditCardClient.ACTION_CODE)) {
+				actionCode = resultData.get(BorgunCreditCardClient.ACTION_CODE);
+				if (!BorgunCreditCardClient.ACTION_CODE_ACCEPTED.equals(actionCode)) {
+					throw new CreditCardAuthorizationException(
+							getResourceBundle().getLocalizedString(
+									"CCERROR_" + actionCode,
+									"ERROR: authorization code not 000"
+							),
+							actionCode
+					);
+				}
+			} else {
+				throw new CreditCardAuthorizationException("ERROR: no action code", "NOACC");
+			}
+
+			return true;
+		} catch (Throwable e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error checking result: " + resultData, e);
+			throw new CreditCardAuthorizationException(e, actionCode == null ? "ERROR: no authorization code" : "CCERROR_" + actionCode, actionCode == null ? "UNKNOWN" : actionCode);
+		}
 	}
 
 	private void storeAuthorizationEntry(Map<String, String> resultData, String result, BorgunAuthorisationEntry authEnt) {
@@ -472,20 +490,13 @@ public class BorgunCreditCardClient implements CreditCardClient {
 			Map<String, String> resultData = doc.getData();
 			storeAuthorizationEntry(resultData, result, null);
 
-			if (!MapUtil.isEmpty(resultData) && resultData.containsKey(BorgunCreditCardClient.ACTION_CODE)) {
-				if (!BorgunCreditCardClient.ACTION_CODE_ACCEPTED.equals(resultData.get(BorgunCreditCardClient.ACTION_CODE)))
-					throw new CreditCardAuthorizationException(
-							getResourceBundle().getLocalizedString(
-									"CCERROR_" + resultData.get(BorgunCreditCardClient.ACTION_CODE),
-									"ERROR: authorization code not 000"
-							),
-							resultData.get(BorgunCreditCardClient.ACTION_CODE)
-					);
-			} else {
-				throw new CreditCardAuthorizationException("ERROR: no action code", "NOACC");
+			if (!isResultValid(resultData)) {
+				throw new CreditCardAuthorizationException("ERROR: no authorization code", "UNKNOWN");
 			}
 
 			return result;
+		} catch (CreditCardAuthorizationException ccae) {
+			throw ccae;
 		} catch (Throwable e) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "creditcardAuthorization method failed", e);
 			throw new CreditCardAuthorizationException(e, "ERROR: no authorization code", "UNKNOWN");
