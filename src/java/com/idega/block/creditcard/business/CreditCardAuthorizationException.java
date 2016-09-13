@@ -16,6 +16,8 @@ import com.idega.idegaweb.IWResourceBundle;
  */
 public class CreditCardAuthorizationException extends Exception {
 
+	private static final long serialVersionUID = -5439026878445387334L;
+
 	protected String _errorMessage = null;
 	protected String _errorNumber = null;
 	protected String _displayError = null;
@@ -101,7 +103,7 @@ public class CreditCardAuthorizationException extends Exception {
 	}
 
 	public String getLocalizedMessage(IWResourceBundle iwrb) {
-		if ((iwrb != null) && (this._errorNumber != null) && (this._errorMessage != null)) {
+		if (iwrb != null && this._errorNumber != null && this._errorMessage != null) {
 			return iwrb.getLocalizedString("CCERROR_" + this._errorNumber, this._errorMessage);
 		}
 		return this._errorMessage;
