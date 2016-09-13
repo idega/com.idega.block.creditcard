@@ -56,6 +56,13 @@ public class CreditCardAuthorizationException extends Exception {
 		super(arg0);
 	}
 
+	public CreditCardAuthorizationException(Throwable arg0, String errorMessage, String errorNumber) {
+		super(arg0);
+
+		this._errorMessage = errorMessage;
+		this._errorNumber = errorNumber;
+	}
+
 	/**
 	 *
 	 */
