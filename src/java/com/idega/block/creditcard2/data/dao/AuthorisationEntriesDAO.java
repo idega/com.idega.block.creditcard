@@ -6,6 +6,7 @@ import java.util.List;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 
 public interface AuthorisationEntriesDAO<T> {
+
 	public CreditCardAuthorizationEntry getChild(T entry);
 
 	public CreditCardAuthorizationEntry findByAuthorizationCode(String code, Date date);
@@ -15,4 +16,5 @@ public interface AuthorisationEntriesDAO<T> {
 	public List<CreditCardAuthorizationEntry> findRefunds(Date from, Date to);
 
 	public T store(T entry);
+
 }

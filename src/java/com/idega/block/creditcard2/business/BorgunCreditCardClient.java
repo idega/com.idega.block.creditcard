@@ -248,11 +248,24 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String doRefund(String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber,
-			double amount, String currency, Object parentDataPK, String extraField)
-					throws CreditCardAuthorizationException {
+	public String doRefund(
+			String cardnumber,
+			String monthExpires,
+			String yearExpires,
+			String ccVerifyNumber,
+			double amount,
+			String currency,
+			Object parentDataPK,
+			String extraField
+	) throws CreditCardAuthorizationException {
 		try {
-			BorgunAuthorisationEntry auth = getAuthDAO().findById((Integer) parentDataPK);
+			Long id = parentDataPK instanceof Long ?
+					(Long) parentDataPK :
+					parentDataPK instanceof Integer ?
+							((Integer) parentDataPK).longValue() :
+							Long.valueOf(parentDataPK.toString());
+
+			BorgunAuthorisationEntry auth = getAuthDAO().findById(id);
 			BorgunDocument prevAuth = new BorgunDocument(auth.getServerResponse());
 			Authorization service = new Authorization();
 			AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
