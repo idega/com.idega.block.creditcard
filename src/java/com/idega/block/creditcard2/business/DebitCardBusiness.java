@@ -37,8 +37,8 @@ import com.idega.block.creditcard2.data.dao.impl.TPosAuthorisationEntryDAO;
 import com.idega.block.creditcard2.data.dao.impl.TPosMerchantDAO;
 import com.idega.block.creditcard2.data.dao.impl.ValitorAuthorisationEntryDAO;
 import com.idega.block.creditcard2.data.dao.impl.ValitorMerchantDAO;
-import com.idega.block.trade.data.bean.CreditCardInformation;
-import com.idega.block.trade.data.dao.CreditCardInformationDAO;
+import com.idega.block.trade.data.bean.DebitCardInformation;
+import com.idega.block.trade.data.dao.DebitCardInformationDAO;
 import com.idega.block.trade.stockroom.data.Supplier;
 import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
@@ -54,23 +54,22 @@ import com.idega.user.dao.GroupDAO;
 import com.idega.user.data.bean.Group;
 import com.idega.util.Encrypter;
 import com.idega.util.IWTimestamp;
-import com.idega.util.ListUtil;
 import com.idega.util.expression.ELUtil;
 
-@Service(CreditCardBusiness.BEAN_NAME)
+@Service(DebitCardBusiness.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class CreditCardBusiness {
+public class DebitCardBusiness {
 
 	@Autowired
-	private CreditCardInformationDAO creditCardInformationDAO;
+	private DebitCardInformationDAO debitCardInformationDAO;
 
-	public final static String CARD_TYPE_VISA = CreditCardType.VISA.name();
-	public final static String CARD_TYPE_ELECTRON = CreditCardType.ELECTRON.name();
-	public final static String CARD_TYPE_DINERS = CreditCardType.DINERS.name();
-	public final static String CARD_TYPE_DANKORT = CreditCardType.DANKORT.name();
-	public final static String CARD_TYPE_MASTERCARD = CreditCardType.MASTERCARD.name();
-	public final static String CARD_TYPE_JCB = CreditCardType.JCB.name();
-	public final static String CARD_TYPE_AMERICAN_EXPRESS = CreditCardType.AMERICAN_EXRESS.name();
+	public final static String CARD_TYPE_VISA = DebitCardType.VISA.name();
+	public final static String CARD_TYPE_ELECTRON = DebitCardType.ELECTRON.name();
+	public final static String CARD_TYPE_DINERS = DebitCardType.DINERS.name();
+	public final static String CARD_TYPE_DANKORT = DebitCardType.DANKORT.name();
+	public final static String CARD_TYPE_MASTERCARD = DebitCardType.MASTERCARD.name();
+	public final static String CARD_TYPE_JCB = DebitCardType.JCB.name();
+	public final static String CARD_TYPE_AMERICAN_EXPRESS = DebitCardType.AMERICAN_EXRESS.name();
 
 	public final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.creditcard";
 
@@ -85,16 +84,16 @@ public class CreditCardBusiness {
 	public final static int CLIENT_TYPE_BORGUN = 4;
 	public final static int CLIENT_TYPE_VALITOR = 5;
 
-	public static final String BEAN_NAME = "CreditCardBusiness";
+	public static final String BEAN_NAME = "DebitCardBusiness";
 
-	public CreditCardInformationDAO getCreditCardInformationDAO() {
-		if (creditCardInformationDAO == null)
+	public DebitCardInformationDAO getDebitCardInformationDAO() {
+		if (debitCardInformationDAO == null)
 			ELUtil.getInstance().autowire(this);
-		return creditCardInformationDAO;
+		return debitCardInformationDAO;
 	}
 
-	public void setCreditCardInformationDAO(CreditCardInformationDAO creditCardInformationDAO) {
-		this.creditCardInformationDAO = creditCardInformationDAO;
+	public void setDebitCardInformationDAO(DebitCardInformationDAO debitCardInformationDAO) {
+		this.debitCardInformationDAO = debitCardInformationDAO;
 	}
 
 	public MerchantDAO<TPosMerchant> getTposMerchantDao() {
@@ -146,7 +145,7 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	public AuthorisationEntriesDAO<?> getAuthorisationEntriesDAO(CreditCardInformation info) {
+	public AuthorisationEntriesDAO<?> getAuthorisationEntriesDAO(DebitCardInformation info) {
 		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(info.getType())) {
 			return getTposAuthorisationEntryDAO();
 		} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(info.getType())) {
@@ -161,7 +160,7 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	public MerchantDAO<?> getCreditCardMerchantDAO(CreditCardInformation ccInfo) {
+	public MerchantDAO<?> getDebitCardMerchantDAO(DebitCardInformation ccInfo) {
 		String type = ccInfo.getType();
 		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
 			return getTposMerchantDao();
@@ -178,7 +177,7 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	public MerchantDAO<?> getCreditCardMerchantDAO(String type) {
+	public MerchantDAO<?> getDebitCardMerchantDAO(String type) {
 		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
 			return getTposMerchantDao();
 		} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
@@ -193,7 +192,7 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	public enum CreditCardType {
+	public enum DebitCardType {
 		VISA, ELECTRON, DINERS, DANKORT, MASTERCARD, JCB, AMERICAN_EXRESS;
 	}
 
@@ -209,7 +208,7 @@ public class CreditCardBusiness {
 		return getAuthorisationEntriesDAO(clientType).findByDates(from.getSQLDate(), to.getSQLDate());
 	}
 
-	public DropdownMenu getCreditCardTypes(CreditCardClient client, IWResourceBundle iwrb, String dropdownName) {
+	public DropdownMenu getDebitCardTypes(CreditCardClient client, IWResourceBundle iwrb, String dropdownName) {
 		Collection<String> types = client.getValidCardTypes();
 		if (types != null && !types.isEmpty()) {
 			DropdownMenu menu = new DropdownMenu(dropdownName);
@@ -230,7 +229,7 @@ public class CreditCardBusiness {
 				.getBundle(IW_BUNDLE_IDENTIFIER);
 	}
 
-	public Collection<Image> getCreditCardTypeImages(CreditCardClient client) {
+	public Collection<Image> getDebitCardTypeImages(CreditCardClient client) {
 		Collection<String> types = client.getValidCardTypes();
 		Collection<Image> images = new ArrayList<Image>();
 		if (types != null && !types.isEmpty()) {
@@ -239,19 +238,19 @@ public class CreditCardBusiness {
 			String type;
 			while (iter.hasNext()) {
 				type = iter.next();
-				if (CreditCardBusiness.CARD_TYPE_DANKORT.equals(type)) {
+				if (DebitCardBusiness.CARD_TYPE_DANKORT.equals(type)) {
 					images.add(bundle.getImage("logos/dankort.gif"));
-				} else if (CreditCardBusiness.CARD_TYPE_DINERS.equals(type)) {
+				} else if (DebitCardBusiness.CARD_TYPE_DINERS.equals(type)) {
 					images.add(bundle.getImage("logos/diners.gif"));
-				} else if (CreditCardBusiness.CARD_TYPE_ELECTRON.equals(type)) {
+				} else if (DebitCardBusiness.CARD_TYPE_ELECTRON.equals(type)) {
 					images.add(bundle.getImage("logos/electron.gif"));
-				} else if (CreditCardBusiness.CARD_TYPE_JCB.equals(type)) {
+				} else if (DebitCardBusiness.CARD_TYPE_JCB.equals(type)) {
 					images.add(bundle.getImage("logos/jcb.gif"));
-				} else if (CreditCardBusiness.CARD_TYPE_MASTERCARD.equals(type)) {
+				} else if (DebitCardBusiness.CARD_TYPE_MASTERCARD.equals(type)) {
 					images.add(bundle.getImage("logos/mastercard.gif"));
-				} else if (CreditCardBusiness.CARD_TYPE_VISA.equals(type)) {
+				} else if (DebitCardBusiness.CARD_TYPE_VISA.equals(type)) {
 					images.add(bundle.getImage("logos/visa.gif"));
-				} else if (CreditCardBusiness.CARD_TYPE_AMERICAN_EXPRESS.equals(type)) {
+				} else if (DebitCardBusiness.CARD_TYPE_AMERICAN_EXPRESS.equals(type)) {
 					images.add(bundle.getImage("logos/ae.gif"));
 				}
 			}
@@ -260,20 +259,20 @@ public class CreditCardBusiness {
 		return images;
 	}
 
-	public CreditCardClient getCreditCardClient(Supplier supplier, IWTimestamp stamp) throws Exception {
+	public CreditCardClient getDebitCardClient(Supplier supplier, IWTimestamp stamp) throws Exception {
 
-		CreditCardMerchant merchant = getCreditCardMerchant(supplier, stamp);
-		CreditCardClient client = getCreditCardClient(merchant);
+		CreditCardMerchant merchant = getDebitCardMerchant(supplier, stamp);
+		CreditCardClient client = getDebitCardClient(merchant);
 
 		return client;
 	}
 
-	public CreditCardClient getCreditCardClient(Group supplierManager, IWTimestamp stamp) throws Exception {
-		CreditCardMerchant m = getCreditCardMerchant(supplierManager, stamp);
-		return getCreditCardClient(m);
+	public CreditCardClient getDebitCardClient(Group supplierManager, IWTimestamp stamp) throws Exception {
+		CreditCardMerchant m = getDebitCardMerchant(supplierManager, stamp);
+		return getDebitCardClient(m);
 	}
 
-	public CreditCardClient getCreditCardClient(CreditCardMerchant merchant) throws Exception {
+	public CreditCardClient getDebitCardClient(CreditCardMerchant merchant) throws Exception {
 		if (merchant != null && merchant.getType() != null) {
 			if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(merchant.getType())) {
 				return new TPosClient(getIWApplicationContext(), merchant);
@@ -298,45 +297,34 @@ public class CreditCardBusiness {
 		// return new TPosClient(getIWApplicationContext());
 	}
 
-	public CreditCardMerchant getCreditCardMerchant(String merchantPK, String merchantType) {
-		CreditCardInformation ccInfo = getCreditCardInformation(merchantPK, merchantType);
-		return getCreditCardMerchant(ccInfo);
+	public CreditCardMerchant getDebitCardMerchant(String merchantPK, String merchantType) {
+		DebitCardInformation ccInfo = getDebitCardInformation(merchantPK, merchantType);
+		return getDebitCardMerchant(ccInfo);
 	}
 
-	public CreditCardMerchant getCreditCardMerchant(Supplier supplier, IWTimestamp stamp) {
-		CreditCardInformation ccInfo = getCreditCardInformation(supplier, stamp);
-		return getCreditCardMerchant(ccInfo);
+	public CreditCardMerchant getDebitCardMerchant(Supplier supplier, IWTimestamp stamp) {
+		DebitCardInformation ccInfo = getDebitCardInformation(supplier, stamp);
+		return getDebitCardMerchant(ccInfo);
 	}
 
-	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, IWTimestamp stamp) {
-		CreditCardInformation ccInfo = getCreditCardInformation(supplierManager, stamp);
-		return getCreditCardMerchant(ccInfo);
+	public CreditCardMerchant getDebitCardMerchant(Group supplierManager, IWTimestamp stamp) {
+		DebitCardInformation ccInfo = getDebitCardInformation(supplierManager, stamp);
+		return getDebitCardMerchant(ccInfo);
 	}
 
-	public CreditCardMerchant getCreditCardMerchant(com.idega.block.trade.data.CreditCardInformation ccInfo) {
+	public CreditCardMerchant getDebitCardMerchant(DebitCardInformation ccInfo) {
 		if (ccInfo != null) {
-			CreditCardInformationDAO cciDAO = ELUtil.getInstance().getBean(CreditCardInformationDAO.BEAN_NAME);
-			CreditCardInformation info = cciDAO.findByPrimaryKey((Integer) ccInfo.getPrimaryKey());
-			if (info != null) {
-				return getCreditCardMerchantDAO(info).findById(Integer.parseInt(info.getMerchantPK()));
-			}
+			return getDebitCardMerchantDAO(ccInfo).findById(Integer.parseInt(ccInfo.getMerchantPK()));
 		}
 		return null;
 	}
 
-	public CreditCardMerchant getCreditCardMerchant(CreditCardInformation ccInfo) {
-		if (ccInfo != null) {
-			return getCreditCardMerchantDAO(ccInfo).findById(Integer.parseInt(ccInfo.getMerchantPK()));
-		}
-		return null;
-	}
-
-	public CreditCardInformation getCreditCardInformation(String merchantPK, String merchantType) {
-		CreditCardInformationDAO ccInfoHome = ELUtil.getInstance().getBean(CreditCardInformationDAO.BEAN_NAME);
+	public DebitCardInformation getDebitCardInformation(String merchantPK, String merchantType) {
+		DebitCardInformationDAO ccInfoHome = ELUtil.getInstance().getBean(DebitCardInformationDAO.BEAN_NAME);
 		return ccInfoHome.findByMerchant(merchantPK, merchantType);
 	}
 
-	public CreditCardInformation getCreditCardInformation(Supplier supplier, IWTimestamp stamp) {
+	public DebitCardInformation getDebitCardInformation(Supplier supplier, IWTimestamp stamp) {
 		try {
 			Timestamp toCheck = null;
 			if (stamp != null) {
@@ -345,13 +333,13 @@ public class CreditCardBusiness {
 				toCheck = IWTimestamp.getTimestampRightNow();
 			}
 
-			CreditCardInformation ccInfo = null;
+			DebitCardInformation ccInfo = null;
 
 			// Checking for merchants configured to this supplier
-			List<CreditCardInformation> coll = this.getCreditCardInformations(supplier);
+			List<DebitCardInformation> coll = this.getDebitCardInformations(supplier);
 			if (coll != null) {
-				Iterator<CreditCardInformation> iter = coll.iterator();
-				ccInfo = getCreditCardInformationInUse(iter, toCheck);
+				Iterator<DebitCardInformation> iter = coll.iterator();
+				ccInfo = getDebitCardInformationInUse(iter, toCheck);
 			}
 
 			// Checking for merchants configured to this supplier's
@@ -359,7 +347,7 @@ public class CreditCardBusiness {
 			if (ccInfo == null) {
 				GroupDAO grpDAO = ELUtil.getInstance().getBean("groupDAO");
 				Group group = grpDAO.findGroup((Integer) supplier.getSupplierManager().getPrimaryKey());
-				ccInfo = getCreditCardInformation(group, stamp);
+				ccInfo = getDebitCardInformation(group, stamp);
 			}
 
 			return ccInfo;
@@ -379,7 +367,7 @@ public class CreditCardBusiness {
 	 * @throws IDOLookupException
 	 */
 
-	public CreditCardInformation getCreditCardInformation(Group supplierManager, IWTimestamp stamp) {
+	public DebitCardInformation getDebitCardInformation(Group supplierManager, IWTimestamp stamp) {
 		Timestamp toCheck = null;
 		if (stamp != null) {
 			toCheck = stamp.getTimestamp();
@@ -387,12 +375,12 @@ public class CreditCardBusiness {
 			toCheck = IWTimestamp.getTimestampRightNow();
 		}
 
-		CreditCardInformation ccInfo = null;
+		DebitCardInformation ccInfo = null;
 		try {
-			List<CreditCardInformation> coll;
-			coll = getCreditCardInformations(supplierManager);
-			Iterator<CreditCardInformation> iter = coll.iterator();
-			ccInfo = getCreditCardInformationInUse(iter, toCheck);
+			List<DebitCardInformation> coll;
+			coll = getDebitCardInformations(supplierManager);
+			Iterator<DebitCardInformation> iter = coll.iterator();
+			ccInfo = getDebitCardInformationInUse(iter, toCheck);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -400,15 +388,15 @@ public class CreditCardBusiness {
 		return ccInfo;
 	}
 
-	private CreditCardInformation getCreditCardInformationInUse(Iterator<CreditCardInformation> iter,
+	private DebitCardInformation getDebitCardInformationInUse(Iterator<DebitCardInformation> iter,
 			Timestamp toCheck) {
 		Timestamp starts = null;
 		Timestamp ends = null;
-		CreditCardInformation info;
+		DebitCardInformation info;
 		CreditCardMerchant merchant;
 		while (iter.hasNext()) {
 			info = iter.next();
-			merchant = getCreditCardMerchant(info);
+			merchant = getDebitCardMerchant(info);
 			if (merchant != null && !merchant.getIsDeleted()) {
 				if (merchant.getStartDate() != null)
 					starts = new Timestamp(merchant.getStartDate().getTime());
@@ -427,11 +415,10 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
-	public CreditCardMerchant getCreditCardMerchant(Supplier supplier, Object PK) {
+	public CreditCardMerchant getDebitCardMerchant(Group supplierManager, Object PK) {
 		try {
-			Collection<com.idega.block.trade.data.CreditCardInformation> coll = supplier.getCreditCardInformation();
-			CreditCardMerchant returner = getCreditCardMerchant(PK, coll);
+			List<DebitCardInformation> coll = getDebitCardInformations(supplierManager);
+			CreditCardMerchant returner = getDebitCardMerchant(PK, coll);
 			return returner;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -439,31 +426,9 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, Object PK) {
-		try {
-			List<CreditCardInformation> coll = getCreditCardInformations(supplierManager);
-			CreditCardMerchant returner = getCreditCardMerchant(PK, coll);
-			return returner;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	/**
-	 * @param PK
-	 * @param creditcardInformations
-	 * @param returner
-	 * @return
-	 */
-	private CreditCardMerchant getCreditCardMerchant(Object PK,
-			Collection<com.idega.block.trade.data.CreditCardInformation> creditcardInformations) {
-		return getCreditCardMerchant(PK, getCreditCardInformationEntityList(creditcardInformations));
-	}
-
-	private CreditCardMerchant getCreditCardMerchant(Object PK, List<CreditCardInformation> creditcardInformations) {
-		for (CreditCardInformation info : creditcardInformations) {
-			CreditCardMerchant merchant = getCreditCardMerchant(info);
+	private CreditCardMerchant getDebitCardMerchant(Object PK, List<DebitCardInformation> creditcardInformations) {
+		for (DebitCardInformation info : creditcardInformations) {
+			CreditCardMerchant merchant = getDebitCardMerchant(info);
 			if (merchant != null && merchant.getPrimaryKey().toString().equals(PK.toString())) {
 				return merchant;
 			}
@@ -471,7 +436,7 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	public CreditCardMerchant createCreditCardMerchant(String type) {
+	public CreditCardMerchant createDebitCardMerchant(String type) {
 		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
 			return new TPosMerchant();
 		} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
@@ -486,15 +451,15 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	public void addCreditCardMerchant(Group supplierManager, CreditCardMerchant merchant) throws CreateException {
-		addCreditCardMerchant((Object) supplierManager, merchant);
+	public void addDebitCardMerchant(Group supplierManager, CreditCardMerchant merchant) throws CreateException {
+		addDebitCardMerchant((Object) supplierManager, merchant);
 	}
 
-	public void addCreditCardMerchant(Supplier supplier, CreditCardMerchant merchant) throws CreateException {
-		addCreditCardMerchant((Object) supplier, merchant);
+	public void addDebitCardMerchant(Supplier supplier, CreditCardMerchant merchant) throws CreateException {
+		addDebitCardMerchant((Object) supplier, merchant);
 	}
 
-	private void addCreditCardMerchant(Object merchantType, CreditCardMerchant merchant) throws CreateException {
+	private void addDebitCardMerchant(Object merchantType, CreditCardMerchant merchant) throws CreateException {
 		TransactionManager t = IdegaTransactionManager.getInstance();
 		try {
 			t.begin();
@@ -502,44 +467,38 @@ public class CreditCardBusiness {
 			boolean isSupplierManager = (merchantType instanceof Group);
 
 			// Setting other merchants to deleted
-			List<CreditCardInformation> coll = null;
+			List<DebitCardInformation> coll = null;
 			if (isSupplier) {
-				coll = getCreditCardInformations(((Supplier) merchantType));
+				coll = getDebitCardInformations(((Supplier) merchantType));
 			} else if (isSupplierManager) {
-				coll = getCreditCardInformations((Group) merchantType);
+				coll = getDebitCardInformations((Group) merchantType);
 			}
 
 			if (coll != null) {
-				Iterator<CreditCardInformation> iter = coll.iterator();
-				CreditCardInformation info;
+				Iterator<DebitCardInformation> iter = coll.iterator();
+				DebitCardInformation info;
 				CreditCardMerchant tmpMerchant = null;
 				while (iter.hasNext()) {
 					info = iter.next();
 
-					if (isSupplier) {
-						tmpMerchant = getCreditCardMerchant((Supplier) merchantType, new Integer(info.getMerchantPK()));
-					} else if (isSupplierManager) {
-						tmpMerchant = getCreditCardMerchant((Group) merchantType, new Integer(info.getMerchantPK()));
+					if (isSupplierManager) {
+						tmpMerchant = getDebitCardMerchant((Group) merchantType, new Integer(info.getMerchantPK()));
 					}
 					if (tmpMerchant != null && !tmpMerchant.getIsDeleted()) {
-						MerchantDAO merchantDAO = getCreditCardMerchantDAO(tmpMerchant.getType());
+						MerchantDAO merchantDAO = getDebitCardMerchantDAO(tmpMerchant.getType());
 						merchantDAO.removeMerchant(tmpMerchant);
 					}
 				}
 			}
 
-			CreditCardInformation info = new CreditCardInformation();
+			DebitCardInformation info = new DebitCardInformation();
 			info.setType(merchant.getType());
 			info.setMerchantPK(merchant.getPrimaryKey().toString());
 			if (isSupplierManager) {
 				info.setSupplierManager((Group) merchantType);
 			}
 
-			getCreditCardInformationDAO().store(info);
-
-			if (isSupplier) {
-				((Supplier) merchantType).addCreditCardInformationPK(info.getId());
-			}
+			getDebitCardInformationDAO().store(info);
 
 			t.commit();
 		} catch (Exception e) {
@@ -553,45 +512,14 @@ public class CreditCardBusiness {
 		}
 	}
 
-	private List<CreditCardInformation> getCreditCardInformationEntityList(
-			Collection<com.idega.block.trade.data.CreditCardInformation> coll) {
-		List<CreditCardInformation> result = new ArrayList<CreditCardInformation>();
-		CreditCardInformationDAO ccInfoHome = ELUtil.getInstance().getBean(CreditCardInformationDAO.BEAN_NAME);
-		if (coll != null) {
-			Iterator<com.idega.block.trade.data.CreditCardInformation> iter = coll.iterator();
-			com.idega.block.trade.data.CreditCardInformation info;
-			while (iter.hasNext()) {
-				info = iter.next();
-				result.add(ccInfoHome.findByPrimaryKey((Integer) info.getPrimaryKey()));
-			}
-		}
-		return ListUtil.isEmpty(result) ? null : result;
+
+	public List<DebitCardInformation> getDebitCardInformations(Supplier supplier) throws IDORelationshipException {
+		DebitCardInformationDAO ccInfoHome = ELUtil.getInstance().getBean(DebitCardInformationDAO.BEAN_NAME);
+		return ccInfoHome.findBySupplierManager(supplier.getGroupId());
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<CreditCardInformation> getCreditCardInformations(Supplier supplier) throws IDORelationshipException {
-		Collection<com.idega.block.trade.data.CreditCardInformation> coll = supplier.getCreditCardInformation();
-		if (coll == null || coll.isEmpty()) {
-			int TPosID = supplier.getTPosMerchantId();
-			if (TPosID > 0) {
-				try {
-					System.out.println("---- Starting backwards.... -----");
-					System.out.println("---- ... TPosID = " + TPosID + " -----");
-
-					TPosMerchant merchant = (TPosMerchant) getTposMerchantDao().findById(new Integer(TPosID));
-					addCreditCardMerchant(supplier, merchant);
-					log("CreditCardBusiness : backwards compatability fix for CreditCard merchant");
-					return getCreditCardInformations(supplier);
-				} catch (Exception e) {
-					e.printStackTrace(System.err);
-				}
-			}
-		}
-		return getCreditCardInformationEntityList(coll);
-	}
-
-	public List<CreditCardInformation> getCreditCardInformations(Group supplierManager) {
-		CreditCardInformationDAO ccInfoHome = ELUtil.getInstance().getBean(CreditCardInformationDAO.BEAN_NAME);
+	public List<DebitCardInformation> getDebitCardInformations(Group supplierManager) {
+		DebitCardInformationDAO ccInfoHome = ELUtil.getInstance().getBean(DebitCardInformationDAO.BEAN_NAME);
 		return ccInfoHome.findBySupplierManager(supplierManager);
 	}
 
@@ -645,13 +573,13 @@ public class CreditCardBusiness {
 
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Group supplierManager, String authorizationCode,
 			IWTimestamp stamp) {
-		CreditCardInformation info = getCreditCardInformation(supplierManager, stamp);
+		DebitCardInformation info = getDebitCardInformation(supplierManager, stamp);
 		return getAuthorizationEntry(info, authorizationCode, stamp);
 	}
 
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Supplier supplier, String authorizationCode,
 			IWTimestamp stamp) {
-		CreditCardInformation info = getCreditCardInformation(supplier, stamp);
+		DebitCardInformation info = getDebitCardInformation(supplier, stamp);
 		CreditCardAuthorizationEntry entry = getAuthorizationEntry(info, authorizationCode, stamp);
 		if (entry == null) {
 			Group group = null;
@@ -667,7 +595,7 @@ public class CreditCardBusiness {
 		return entry;
 	}
 
-	public CreditCardAuthorizationEntry getAuthorizationEntry(CreditCardInformation info, String authorizationCode,
+	public CreditCardAuthorizationEntry getAuthorizationEntry(DebitCardInformation info, String authorizationCode,
 			IWTimestamp stamp) {
 		return getAuthorisationEntriesDAO(info).findByAuthorizationCode(authorizationCode, stamp.getSQLDate());
 	}
@@ -684,7 +612,7 @@ public class CreditCardBusiness {
 	}
 
 	public boolean getUseCVC(Supplier supplier, IWTimestamp stamp) {
-		return getUseCVC(getCreditCardMerchant(supplier, stamp));
+		return getUseCVC(getDebitCardMerchant(supplier, stamp));
 	}
 
 	public List<CreditCardAuthorizationEntry> getAllRefunds(IWTimestamp from, IWTimestamp to, int clientType)
