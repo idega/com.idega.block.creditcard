@@ -263,8 +263,14 @@ public class DebitCardBusiness {
 			// supplierManager
 			if (ccInfo == null) {
 				GroupDAO grpDAO = ELUtil.getInstance().getBean("groupDAO");
-				Group group = grpDAO.findGroup((Integer) supplier.getSupplierManager().getPrimaryKey());
-				ccInfo = getDebitCardInformation(group, stamp);
+				Group group;
+				if (supplier.getSupplierManager()!=null){
+					group = grpDAO.findGroup((Integer) supplier.getSupplierManager().getPrimaryKey());
+					ccInfo = getDebitCardInformation(group, stamp);
+				} else if (supplier.getGroupId()>0) {
+					group = grpDAO.findGroup(supplier.getGroupId());
+					ccInfo = getDebitCardInformation(group, stamp);
+				}
 			}
 
 			return ccInfo;
@@ -407,7 +413,11 @@ public class DebitCardBusiness {
 				info.setSupplierManager((Group) merchantType);
 			}
 			if (isSupplier) {
-				info.setSupplierManager(getGroupDAO().findGroup(((Supplier) merchantType).getGroupId()));
+				if (((Supplier) merchantType).getSupplierManager()!=null){
+					info.setSupplierManager(getGroupDAO().findGroup(((Supplier) merchantType).getSupplierManagerID()));
+				} else {
+					info.setSupplierManager(getGroupDAO().findGroup(((Supplier) merchantType).getGroupId()));
+				}
 			}
 
 			getDebitCardInformationDAO().store(info);
