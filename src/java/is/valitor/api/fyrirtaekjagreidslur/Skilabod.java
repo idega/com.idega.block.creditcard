@@ -1,6 +1,8 @@
 
 package is.valitor.api.fyrirtaekjagreidslur;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -10,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for Skilabod complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="Skilabod">
  *   &lt;complexContent>
@@ -26,8 +28,8 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Skilabod", propOrder = {
@@ -40,9 +42,13 @@ import javax.xml.bind.annotation.XmlType;
     SyndarkortnumerSkilabod.class,
     KortnumerUtFraSyndarkortnumeriSkilabod.class
 })
-public class Skilabod {
+public class Skilabod implements Serializable{
 
-    @XmlElement(name = "Villunumer")
+    /**
+	 *
+	 */
+	private static final long serialVersionUID = -6365911442230504990L;
+	@XmlElement(name = "Villunumer")
     protected int villunumer;
     @XmlElement(name = "Villuskilabod")
     protected String villuskilabod;
@@ -51,7 +57,7 @@ public class Skilabod {
 
     /**
      * Gets the value of the villunumer property.
-     * 
+     *
      */
     public int getVillunumer() {
         return villunumer;
@@ -59,7 +65,7 @@ public class Skilabod {
 
     /**
      * Sets the value of the villunumer property.
-     * 
+     *
      */
     public void setVillunumer(int value) {
         this.villunumer = value;
@@ -67,11 +73,11 @@ public class Skilabod {
 
     /**
      * Gets the value of the villuskilabod property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getVilluskilabod() {
         return villuskilabod;
@@ -79,11 +85,11 @@ public class Skilabod {
 
     /**
      * Sets the value of the villuskilabod property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setVilluskilabod(String value) {
         this.villuskilabod = value;
@@ -91,7 +97,7 @@ public class Skilabod {
 
     /**
      * Gets the value of the villuLogID property.
-     * 
+     *
      */
     public long getVilluLogID() {
         return villuLogID;
@@ -99,7 +105,7 @@ public class Skilabod {
 
     /**
      * Sets the value of the villuLogID property.
-     * 
+     *
      */
     public void setVilluLogID(long value) {
         this.villuLogID = value;

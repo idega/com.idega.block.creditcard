@@ -100,6 +100,8 @@ public class ValitorDebitCardClient implements CreditCardClient {
 	public static final String ACTION_CODE_SUSPECTED_FORGERY = "102";
 	public static final String ACTION_CODE_MERCHANT_CALL_ACQUIRER = "103";
 	public static final String ACTION_CODE_RESTRICTED_CARD = "104";
+	public static final String DEFAULT_URL = "https://api-acquiring.valitor.is/fyrirtaekjagreidslur/1_1/fyrirtaekjagreidslur.asmx";
+
 
 	private static Long lastAuth = null;
 	private static final Object LOCK = new Object() {
@@ -111,7 +113,7 @@ public class ValitorDebitCardClient implements CreditCardClient {
 		if (CreditCardMerchant.MERCHANT_TYPE_VALITOR_DEBIT.equals(merchant.getType())) {
 			this.login = ((ValitorDebitMerchant) merchant).getUser();
 			this.password = ((ValitorDebitMerchant) merchant).getPassword();
-			this.url = ((ValitorDebitMerchant) merchant).getMerchantUrl();
+			this.url = ((ValitorDebitMerchant) merchant).getMerchantUrl() == null ? ValitorDebitCardClient.DEFAULT_URL : ((ValitorDebitMerchant) merchant).getMerchantUrl();
 			this.merchant = merchant;
 		}
 	}
@@ -265,7 +267,7 @@ public class ValitorDebitCardClient implements CreditCardClient {
 	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires,
 			String ccVerifyNumber, double amount, String currency, String referenceNumber)
 					throws CreditCardAuthorizationException {
-
+		TegundKorts cardType = TegundKorts.fromValue(ccVerifyNumber);
 		try {
 
 			if (monthExpires!=null && ccVerifyNumber!=null && yearExpires!=null){
@@ -276,15 +278,21 @@ public class ValitorDebitCardClient implements CreditCardClient {
 			FyrirtaekjagreidslurSoap port = service.getFyrirtaekjagreidslurSoap();
 			Map<String, Object> req_ctx = ((BindingProvider) port).getRequestContext();
 			req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, this.url);
-			DebitSvar result = port.greidaMedDebetkorti(merchant.getUser(), merchant.getPassword(), merchant.getExtraInfo(), merchant.getMerchantID(), Integer.parseInt(merchant.getTerminalID()), TegundKorts.valueOf(ccVerifyNumber), cardnumber, nameOnCard, amount);
+			DebitSvar result = port.greidaMedDebetkorti(merchant.getUser(), merchant.getPassword(), merchant.getExtraInfo(), merchant.getMerchantID(), Integer.parseInt(merchant.getTerminalID()), cardType, cardnumber, nameOnCard, amount);
 
 
 			ValitorDebitAuthorisationEntry auth = new ValitorDebitAuthorisationEntry();
 			auth.setAmount(amount);
 			auth.setCardNumber(cardnumber);
 			auth.setCurrency(currency);
-			auth.setServerResponse(result);
+			auth.setServerResponse(result.getKvittun().getFaerslunumer());
+			auth.setCardNumber(result.getKvittun().getKortnumer());
 			auth.setAuthCode(result.getKvittun().getHeimildarnumer());
+			if (result.getVillunumer()!=0){
+				auth.setErrorNumber(result.getVillunumer()+"");
+				auth.setErrorText(result.getVilluskilabod());
+			}
+			auth.setMerchant((ValitorDebitMerchant) merchant);
 			getAuthDAO().store(auth);
 
 			if (result.getVillunumer()==0){
@@ -316,19 +324,25 @@ public class ValitorDebitCardClient implements CreditCardClient {
 		try {
 
 			ValitorDebitAuthorisationEntry authEnt = (ValitorDebitAuthorisationEntry) getAuthDAO().findByAuthorizationCode(properties, null);
-			DebitSvar resp = (DebitSvar)authEnt.getServerResponse();
+			String resp = authEnt.getServerResponse();
 			Fyrirtaekjagreidslur service = new Fyrirtaekjagreidslur();
 			FyrirtaekjagreidslurSoap port = service.getFyrirtaekjagreidslurSoap();
 			Map<String, Object> req_ctx = ((BindingProvider) port).getRequestContext();
 			req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, this.url);
-			HeimildSkilabod result = port.ogildaDebetFaerslu(merchant.getUser(), merchant.getPassword(), merchant.getTerminalID(), resp.getKvittun().getKortnumer().substring(resp.getKvittun().getKortnumer().length()-4, resp.getKvittun().getKortnumer().length()), resp.getKvittun().getFaerslunumer(), null);
+			HeimildSkilabod result = port.ogildaDebetFaerslu(merchant.getUser(), merchant.getPassword(), merchant.getTerminalID(), authEnt.getCardNumber().substring(authEnt.getCardNumber().length()-4, authEnt.getCardNumber().length()), resp, null);
 
 			ValitorDebitAuthorisationEntry auth = new ValitorDebitAuthorisationEntry();
 			auth.setAmount(authEnt.getAmount());
 			auth.setCardNumber(authEnt.getCardNumber());
 			auth.setCurrency(authEnt.getCurrency());
-			auth.setServerResponse(result);
+			auth.setServerResponse(result.getKvittun().getFaerslunumer());
+			auth.setCardNumber(result.getKvittun().getKortnumer());
 			auth.setAuthCode(result.getKvittun().getHeimildarnumer());
+			if (result.getVillunumer()!=0){
+				auth.setErrorNumber(result.getVillunumer()+"");
+				auth.setErrorText(result.getVilluskilabod());
+			}
+			auth.setMerchant((ValitorDebitMerchant) merchant);
 			getAuthDAO().store(auth);
 
 			if (result.getVillunumer()==0){

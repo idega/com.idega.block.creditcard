@@ -22,6 +22,7 @@ import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
+import com.idega.util.StringUtil;
 import com.idega.util.expression.ELUtil;
 
 import is.valitor.api.fyrirtaekjagreidslur.Fyrirtaekjagreidslur;
@@ -94,6 +95,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	public static final String ACTION_CODE_SUSPECTED_FORGERY = "102";
 	public static final String ACTION_CODE_MERCHANT_CALL_ACQUIRER = "103";
 	public static final String ACTION_CODE_RESTRICTED_CARD = "104";
+	public static final String DEFAULT_URL = "https://api-acquiring.valitor.is/fyrirtaekjagreidslur/1_1/fyrirtaekjagreidslur.asmx";
 
 	private static Long lastAuth = null;
 	private static final Object LOCK = new Object() {
@@ -105,7 +107,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(merchant.getType())) {
 			this.login = ((ValitorMerchant) merchant).getUser();
 			this.password = ((ValitorMerchant) merchant).getPassword();
-			this.url = ((ValitorMerchant) merchant).getMerchantUrl();
+			this.url = ((ValitorMerchant) merchant).getMerchantUrl() == null ? ValitorCreditCardClient.DEFAULT_URL : ((ValitorMerchant) merchant).getMerchantUrl();
 			this.merchant = merchant;
 		}
 	}
@@ -247,8 +249,15 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			auth.setAmount(amount);
 			auth.setCardNumber(cardnumber);
 			auth.setCurrency(currency);
-			auth.setServerResponse(result);
+			auth.setServerResponse(result.getKvittun().getFaerslunumer());
+			auth.setCardNumber(result.getKvittun().getKortnumer());
+			auth.setAuthCode(result.getKvittun().getHeimildarnumer());
+			if (result.getVillunumer()!=0){
+				auth.setErrorNumber(result.getVillunumer()+"");
+				auth.setErrorText(result.getVilluskilabod());
+			}
 			auth.setParent((ValitorAuthorisationEntry)parentDataPK);
+			auth.setMerchant((ValitorMerchant) merchant);
 			getAuthDAO().store(auth);
 
 			if (result.getVillunumer()==0){
@@ -289,23 +298,32 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 		try {
 
-			if (monthExpires!=null && ccVerifyNumber!=null && yearExpires!=null){
+			if (monthExpires!=null && ccVerifyNumber!=null && yearExpires!=null && !StringUtil.isEmpty(monthExpires) && !StringUtil.isEmpty(ccVerifyNumber) && !StringUtil.isEmpty(yearExpires) && !"null".equals(monthExpires) && !"null".equals(ccVerifyNumber) && !"null".equals(yearExpires) ){
 				cardnumber = getVirtualCardNumber(cardnumber, monthExpires+yearExpires, ccVerifyNumber);
 			}
+
+			Double amt = amount;
+			String amt2 =  amt.toString();
+			String amountToPay = String.valueOf(amt.intValue());
 
 			Fyrirtaekjagreidslur service = new Fyrirtaekjagreidslur();
 			FyrirtaekjagreidslurSoap port = service.getFyrirtaekjagreidslurSoap();
 			Map<String, Object> req_ctx = ((BindingProvider) port).getRequestContext();
 			req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, this.url);
-			HeimildSkilabod result = port.faHeimild(merchant.getUser(), merchant.getPassword(), merchant.getExtraInfo(), merchant.getMerchantID(), merchant.getTerminalID(), cardnumber, amount+"", currency, null);
-
+			HeimildSkilabod result = port.faHeimild(merchant.getUser(), merchant.getPassword(), merchant.getExtraInfo(), merchant.getMerchantID(), merchant.getTerminalID(), cardnumber, amountToPay, currency, null);
 
 			ValitorAuthorisationEntry auth = new ValitorAuthorisationEntry();
 			auth.setAmount(amount);
 			auth.setCardNumber(cardnumber);
 			auth.setCurrency(currency);
-			auth.setServerResponse(result);
+			auth.setServerResponse(result.getKvittun().getFaerslunumer());
+			auth.setCardNumber(result.getKvittun().getKortnumer());
 			auth.setAuthCode(result.getKvittun().getHeimildarnumer());
+			if (result.getVillunumer()!=0){
+				auth.setErrorNumber(result.getVillunumer()+"");
+				auth.setErrorText(result.getVilluskilabod());
+			}
+			auth.setMerchant((ValitorMerchant) merchant);
 			getAuthDAO().store(auth);
 
 			if (result.getVillunumer()==0){
@@ -337,19 +355,24 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		try {
 
 			ValitorAuthorisationEntry authEnt = (ValitorAuthorisationEntry) getAuthDAO().findByAuthorizationCode(properties, null);
-			HeimildSkilabod resp = (HeimildSkilabod)authEnt.getServerResponse();
+			String resp = authEnt.getServerResponse();
 			Fyrirtaekjagreidslur service = new Fyrirtaekjagreidslur();
 			FyrirtaekjagreidslurSoap port = service.getFyrirtaekjagreidslurSoap();
 			Map<String, Object> req_ctx = ((BindingProvider) port).getRequestContext();
 			req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, this.url);
-			HeimildSkilabod result = port.faOgildingu(merchant.getUser(), merchant.getPassword(), merchant.getExtraInfo(), merchant.getMerchantID(), merchant.getTerminalID(), authEnt.getCardNumber(), authEnt.getCurrency(), String.valueOf(authEnt.getAmount()), resp.getKvittun().getFaerslunumer());
+			HeimildSkilabod result = port.faOgildingu(merchant.getUser(), merchant.getPassword(), merchant.getExtraInfo(), merchant.getMerchantID(), merchant.getTerminalID(), authEnt.getCardNumber(), authEnt.getCurrency(), String.valueOf(authEnt.getAmount()), resp);
 
 			ValitorAuthorisationEntry auth = new ValitorAuthorisationEntry();
 			auth.setAmount(authEnt.getAmount());
 			auth.setCardNumber(authEnt.getCardNumber());
 			auth.setCurrency(authEnt.getCurrency());
-			auth.setServerResponse(result);
+			auth.setServerResponse(result.getKvittun().getFaerslunumer());
 			auth.setAuthCode(result.getKvittun().getHeimildarnumer());
+			if (result.getVillunumer()!=0){
+				auth.setErrorNumber(result.getVillunumer()+"");
+				auth.setErrorText(result.getVilluskilabod());
+			}
+			auth.setMerchant((ValitorMerchant) merchant);
 			getAuthDAO().store(auth);
 
 			if (result.getVillunumer()==0){

@@ -20,23 +20,11 @@ import org.springframework.stereotype.Service;
 import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
-import com.idega.block.creditcard2.data.beans.BorgunMerchant;
-import com.idega.block.creditcard2.data.beans.DummyMerchant;
-import com.idega.block.creditcard2.data.beans.KortathjonustanMerchant;
-import com.idega.block.creditcard2.data.beans.TPosMerchant;
-import com.idega.block.creditcard2.data.beans.ValitorMerchant;
+import com.idega.block.creditcard2.data.beans.ValitorDebitMerchant;
 import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.block.creditcard2.data.dao.MerchantDAO;
-import com.idega.block.creditcard2.data.dao.impl.BorgunAuthorisationEntryDAO;
-import com.idega.block.creditcard2.data.dao.impl.BorgunMerchantDAO;
-import com.idega.block.creditcard2.data.dao.impl.DummyAuthorisationEntryDAO;
-import com.idega.block.creditcard2.data.dao.impl.DummyMerchantDAO;
-import com.idega.block.creditcard2.data.dao.impl.KortathjonustanAuthorisationEntryDAO;
-import com.idega.block.creditcard2.data.dao.impl.KortathjonustanMerchantDAO;
-import com.idega.block.creditcard2.data.dao.impl.TPosAuthorisationEntryDAO;
-import com.idega.block.creditcard2.data.dao.impl.TPosMerchantDAO;
-import com.idega.block.creditcard2.data.dao.impl.ValitorAuthorisationEntryDAO;
-import com.idega.block.creditcard2.data.dao.impl.ValitorMerchantDAO;
+import com.idega.block.creditcard2.data.dao.impl.ValitorDebitAuthorisationEntryDAO;
+import com.idega.block.creditcard2.data.dao.impl.ValitorDebitMerchantDAO;
 import com.idega.block.trade.data.bean.DebitCardInformation;
 import com.idega.block.trade.data.dao.DebitCardInformationDAO;
 import com.idega.block.trade.stockroom.data.Supplier;
@@ -78,13 +66,12 @@ public class DebitCardBusiness {
 	private final static String PROPERTY_KORTATHJONUSTAN_KEYSTORE = "kortathjonustan_keystore";
 	private final static String PROPERTY_KORTATHJONUSTAN_KEYSTORE_PASS = "kortathjonustan_keystore_pass";
 
-	public final static int CLIENT_TYPE_TPOS = 1;
-	public final static int CLIENT_TYPE_KORTATHJONUSTAN = 2;
-	public final static int CLIENT_TYPE_DUMMY = 3;
-	public final static int CLIENT_TYPE_BORGUN = 4;
-	public final static int CLIENT_TYPE_VALITOR = 5;
+	public final static int CLIENT_TYPE_VALITOR = 1;
 
 	public static final String BEAN_NAME = "DebitCardBusiness";
+
+	@Autowired
+	private GroupDAO groupDAO;
 
 	public DebitCardInformationDAO getDebitCardInformationDAO() {
 		if (debitCardInformationDAO == null)
@@ -96,98 +83,42 @@ public class DebitCardBusiness {
 		this.debitCardInformationDAO = debitCardInformationDAO;
 	}
 
-	public MerchantDAO<TPosMerchant> getTposMerchantDao() {
-		return ELUtil.getInstance().getBean(TPosMerchantDAO.BEAN_NAME);
+	public MerchantDAO<ValitorDebitMerchant> getValitorDebitMerchantDao() {
+		return ELUtil.getInstance().getBean(ValitorDebitMerchantDAO.BEAN_NAME);
 	}
 
-	public MerchantDAO<KortathjonustanMerchant> getKortathjonustanMerchantDao() {
-		return ELUtil.getInstance().getBean(KortathjonustanMerchantDAO.BEAN_NAME);
-	}
-
-	public MerchantDAO<DummyMerchant> getDummyMerchantDao() {
-		return ELUtil.getInstance().getBean(DummyMerchantDAO.BEAN_NAME);
-	}
-
-	public MerchantDAO<ValitorMerchant> getValitorMerchantDao() {
-		return ELUtil.getInstance().getBean(ValitorMerchantDAO.BEAN_NAME);
-	}
-
-	public TPosAuthorisationEntryDAO getTposAuthorisationEntryDAO() {
-		return ELUtil.getInstance().getBean(TPosAuthorisationEntryDAO.BEAN_NAME);
-	}
-
-	public KortathjonustanAuthorisationEntryDAO getKortathjonustanAuthorisationEntryDAO() {
-		return ELUtil.getInstance().getBean(KortathjonustanAuthorisationEntryDAO.BEAN_NAME);
-	}
-
-	public DummyAuthorisationEntryDAO getDummyAuthorisationEntryDAO() {
-		return ELUtil.getInstance().getBean(DummyAuthorisationEntryDAO.BEAN_NAME);
-	}
-
-	public ValitorAuthorisationEntryDAO getValitorAuthorisationEntryDAO() {
-		return ELUtil.getInstance().getBean(ValitorAuthorisationEntryDAO.BEAN_NAME);
+	public ValitorDebitAuthorisationEntryDAO getValitorDebitAuthorisationEntryDAO() {
+		return ELUtil.getInstance().getBean(ValitorDebitAuthorisationEntryDAO.BEAN_NAME);
 	}
 
 	public AuthorisationEntriesDAO<?> getAuthorisationEntriesDAO(int clientType) {
 		if (clientType > 0) {
-			if (clientType == CLIENT_TYPE_KORTATHJONUSTAN) {
-				return getKortathjonustanAuthorisationEntryDAO();
-			} else if (clientType == CLIENT_TYPE_TPOS) {
-				return getTposAuthorisationEntryDAO();
-			} else if (clientType == CLIENT_TYPE_DUMMY) {
-				return getDummyAuthorisationEntryDAO();
-			} else if (clientType == CLIENT_TYPE_BORGUN) {
-				return getBorgunAuthorisationEntryDAO();
-			} else if (clientType == CLIENT_TYPE_VALITOR) {
-				return getValitorAuthorisationEntryDAO();
+			if (clientType == CLIENT_TYPE_VALITOR) {
+				return getValitorDebitAuthorisationEntryDAO();
 			}
 		}
 		return null;
 	}
 
 	public AuthorisationEntriesDAO<?> getAuthorisationEntriesDAO(DebitCardInformation info) {
-		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(info.getType())) {
-			return getTposAuthorisationEntryDAO();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(info.getType())) {
-			return getKortathjonustanAuthorisationEntryDAO();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(info.getType())) {
-			return getDummyAuthorisationEntryDAO();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(info.getType())) {
-			return getBorgunAuthorisationEntryDAO();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(info.getType())) {
-			return getValitorAuthorisationEntryDAO();
+		if  (CreditCardMerchant.MERCHANT_TYPE_VALITOR_DEBIT.equals(info.getType())) {
+			return getValitorDebitAuthorisationEntryDAO();
 		}
 		return null;
 	}
 
 	public MerchantDAO<?> getDebitCardMerchantDAO(DebitCardInformation ccInfo) {
 		String type = ccInfo.getType();
-		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
-			return getTposMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
-			return getKortathjonustanMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(type)) {
-			return getDummyMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(type)) {
-			return getBorgunMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(type)) {
-			return getValitorMerchantDao();
+		if (CreditCardMerchant.MERCHANT_TYPE_VALITOR_DEBIT.equals(type)) {
+			return getValitorDebitMerchantDao();
 		}
 
 		return null;
 	}
 
 	public MerchantDAO<?> getDebitCardMerchantDAO(String type) {
-		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
-			return getTposMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
-			return getKortathjonustanMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(type)) {
-			return getDummyMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(type)) {
-			return getBorgunMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(type)) {
-			return getValitorMerchantDao();
+		if (CreditCardMerchant.MERCHANT_TYPE_VALITOR_DEBIT.equals(type)) {
+			return getValitorDebitMerchantDao();
 		}
 		return null;
 	}
@@ -274,22 +205,8 @@ public class DebitCardBusiness {
 
 	public CreditCardClient getDebitCardClient(CreditCardMerchant merchant) throws Exception {
 		if (merchant != null && merchant.getType() != null) {
-			if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(merchant.getType())) {
-				return new TPosClient(getIWApplicationContext(), merchant);
-			} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(merchant.getType())) {
-				String hostName = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_HOST_NAME);
-				String hostPort = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_HOST_PORT);
-				String keystore = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_KEYSTORE);
-				String keystorePass = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_KEYSTORE_PASS);
-
-				return new KortathjonustanCreditCardClient(getIWApplicationContext(), hostName,
-						Integer.parseInt(hostPort), keystore, keystorePass, merchant);
-			} else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(merchant.getType())) {
-				return new DummyCreditCardClient(getIWApplicationContext());
-			} else if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(merchant.getType())) {
-				return new BorgunCreditCardClient(merchant);
-			} else if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(merchant.getType())) {
-				return new ValitorCreditCardClient(merchant);
+			if (CreditCardMerchant.MERCHANT_TYPE_VALITOR_DEBIT.equals(merchant.getType())) {
+				return new ValitorDebitCardClient(merchant);
 			}
 		}
 		return null;
@@ -437,16 +354,8 @@ public class DebitCardBusiness {
 	}
 
 	public CreditCardMerchant createDebitCardMerchant(String type) {
-		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
-			return new TPosMerchant();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
-			return new KortathjonustanMerchant();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(type)) {
-			return new DummyMerchant();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(type)) {
-			return new BorgunMerchant();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(type)) {
-			return new ValitorMerchant();
+		if (CreditCardMerchant.MERCHANT_TYPE_VALITOR_DEBIT.equals(type)) {
+			return new ValitorDebitMerchant();
 		}
 		return null;
 	}
@@ -496,6 +405,9 @@ public class DebitCardBusiness {
 			info.setMerchantPK(merchant.getPrimaryKey().toString());
 			if (isSupplierManager) {
 				info.setSupplierManager((Group) merchantType);
+			}
+			if (isSupplier) {
+				info.setSupplierManager(getGroupDAO().findGroup(((Supplier) merchantType).getGroupId()));
 			}
 
 			getDebitCardInformationDAO().store(info);
@@ -638,12 +550,13 @@ public class DebitCardBusiness {
 		return this.iwac;
 	}
 
-	public MerchantDAO<BorgunMerchant> getBorgunMerchantDao() {
-		return ELUtil.getInstance().getBean(BorgunMerchantDAO.BEAN_NAME);
+	public GroupDAO getGroupDAO() {
+		if (groupDAO == null) ELUtil.getInstance().autowire(this);
+		return groupDAO;
 	}
 
-	public BorgunAuthorisationEntryDAO getBorgunAuthorisationEntryDAO() {
-		return ELUtil.getInstance().getBean(BorgunAuthorisationEntryDAO.BEAN_NAME);
+	public void setGroupDAO(GroupDAO groupDAO) {
+		this.groupDAO = groupDAO;
 	}
 
 }

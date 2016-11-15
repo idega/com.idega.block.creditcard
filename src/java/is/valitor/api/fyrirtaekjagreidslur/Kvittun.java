@@ -1,6 +1,8 @@
 
 package is.valitor.api.fyrirtaekjagreidslur;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -9,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for Kvittun complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="Kvittun">
  *   &lt;complexContent>
@@ -55,8 +57,8 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Kvittun", propOrder = {
@@ -94,9 +96,13 @@ import javax.xml.bind.annotation.XmlType;
     "faerslunumerUpphafleguFaerslu",
     "terminalID"
 })
-public class Kvittun {
+public class Kvittun implements Serializable{
 
-    @XmlElement(name = "VerslunNafn")
+    /**
+	 *
+	 */
+	private static final long serialVersionUID = 2424389207793808025L;
+	@XmlElement(name = "VerslunNafn")
     protected String verslunNafn;
     @XmlElement(name = "VerslunHeimilisfang")
     protected String verslunHeimilisfang;
@@ -165,11 +171,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the verslunNafn property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getVerslunNafn() {
         return verslunNafn;
@@ -177,11 +183,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the verslunNafn property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setVerslunNafn(String value) {
         this.verslunNafn = value;
@@ -189,11 +195,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the verslunHeimilisfang property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getVerslunHeimilisfang() {
         return verslunHeimilisfang;
@@ -201,11 +207,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the verslunHeimilisfang property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setVerslunHeimilisfang(String value) {
         this.verslunHeimilisfang = value;
@@ -213,11 +219,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the verslunStadur property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getVerslunStadur() {
         return verslunStadur;
@@ -225,11 +231,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the verslunStadur property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setVerslunStadur(String value) {
         this.verslunStadur = value;
@@ -237,11 +243,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the tegundKorts property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getTegundKorts() {
         return tegundKorts;
@@ -249,11 +255,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the tegundKorts property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setTegundKorts(String value) {
         this.tegundKorts = value;
@@ -261,11 +267,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the dagsetning property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getDagsetning() {
         return dagsetning;
@@ -273,11 +279,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the dagsetning property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setDagsetning(String value) {
         this.dagsetning = value;
@@ -285,11 +291,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the timi property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getTimi() {
         return timi;
@@ -297,11 +303,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the timi property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setTimi(String value) {
         this.timi = value;
@@ -309,11 +315,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the kortnumer property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getKortnumer() {
         return kortnumer;
@@ -321,11 +327,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the kortnumer property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setKortnumer(String value) {
         this.kortnumer = value;
@@ -333,11 +339,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the kortnumerObrenglad property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getKortnumerObrenglad() {
         return kortnumerObrenglad;
@@ -345,11 +351,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the kortnumerObrenglad property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setKortnumerObrenglad(String value) {
         this.kortnumerObrenglad = value;
@@ -357,11 +363,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the upphaed property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getUpphaed() {
         return upphaed;
@@ -369,11 +375,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the upphaed property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setUpphaed(String value) {
         this.upphaed = value;
@@ -381,11 +387,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the gjaldmidill property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getGjaldmidill() {
         return gjaldmidill;
@@ -393,11 +399,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the gjaldmidill property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setGjaldmidill(String value) {
         this.gjaldmidill = value;
@@ -405,11 +411,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the tilvisunarnumer property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getTilvisunarnumer() {
         return tilvisunarnumer;
@@ -417,11 +423,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the tilvisunarnumer property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setTilvisunarnumer(String value) {
         this.tilvisunarnumer = value;
@@ -429,11 +435,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the faerslunumer property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getFaerslunumer() {
         return faerslunumer;
@@ -441,11 +447,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the faerslunumer property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setFaerslunumer(String value) {
         this.faerslunumer = value;
@@ -453,11 +459,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the faersluhirdir property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getFaersluhirdir() {
         return faersluhirdir;
@@ -465,11 +471,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the faersluhirdir property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setFaersluhirdir(String value) {
         this.faersluhirdir = value;
@@ -477,11 +483,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the heimildarnumer property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getHeimildarnumer() {
         return heimildarnumer;
@@ -489,11 +495,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the heimildarnumer property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setHeimildarnumer(String value) {
         this.heimildarnumer = value;
@@ -501,11 +507,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the stadsetningNumer property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getStadsetningNumer() {
         return stadsetningNumer;
@@ -513,11 +519,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the stadsetningNumer property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setStadsetningNumer(String value) {
         this.stadsetningNumer = value;
@@ -525,11 +531,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the utstodNumer property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getUtstodNumer() {
         return utstodNumer;
@@ -537,11 +543,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the utstodNumer property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setUtstodNumer(String value) {
         this.utstodNumer = value;
@@ -549,7 +555,7 @@ public class Kvittun {
 
     /**
      * Gets the value of the buidAdOgilda property.
-     * 
+     *
      */
     public boolean isBuidAdOgilda() {
         return buidAdOgilda;
@@ -557,7 +563,7 @@ public class Kvittun {
 
     /**
      * Sets the value of the buidAdOgilda property.
-     * 
+     *
      */
     public void setBuidAdOgilda(boolean value) {
         this.buidAdOgilda = value;
@@ -565,11 +571,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the bunkanumer property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getBunkanumer() {
         return bunkanumer;
@@ -577,11 +583,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the bunkanumer property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setBunkanumer(String value) {
         this.bunkanumer = value;
@@ -589,11 +595,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the soluadilinumer property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getSoluadilinumer() {
         return soluadilinumer;
@@ -601,11 +607,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the soluadilinumer property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setSoluadilinumer(String value) {
         this.soluadilinumer = value;
@@ -613,11 +619,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the hugbunadarnumer property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getHugbunadarnumer() {
         return hugbunadarnumer;
@@ -625,11 +631,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the hugbunadarnumer property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setHugbunadarnumer(String value) {
         this.hugbunadarnumer = value;
@@ -637,11 +643,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the posiId property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getPosiId() {
         return posiId;
@@ -649,11 +655,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the posiId property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setPosiId(String value) {
         this.posiId = value;
@@ -661,11 +667,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the pinSkilabod property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getPinSkilabod() {
         return pinSkilabod;
@@ -673,11 +679,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the pinSkilabod property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setPinSkilabod(String value) {
         this.pinSkilabod = value;
@@ -685,11 +691,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the vidskiptaskilabod property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getVidskiptaskilabod() {
         return vidskiptaskilabod;
@@ -697,11 +703,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the vidskiptaskilabod property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setVidskiptaskilabod(String value) {
         this.vidskiptaskilabod = value;
@@ -709,11 +715,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the f221Til4 property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getF221Til4() {
         return f221Til4;
@@ -721,11 +727,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the f221Til4 property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setF221Til4(String value) {
         this.f221Til4 = value;
@@ -733,11 +739,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the linaC1 property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getLinaC1() {
         return linaC1;
@@ -745,11 +751,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the linaC1 property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setLinaC1(String value) {
         this.linaC1 = value;
@@ -757,11 +763,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the linaC2 property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getLinaC2() {
         return linaC2;
@@ -769,11 +775,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the linaC2 property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setLinaC2(String value) {
         this.linaC2 = value;
@@ -781,11 +787,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the linaC3 property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getLinaC3() {
         return linaC3;
@@ -793,11 +799,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the linaC3 property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setLinaC3(String value) {
         this.linaC3 = value;
@@ -805,11 +811,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the linaC4 property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getLinaC4() {
         return linaC4;
@@ -817,11 +823,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the linaC4 property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setLinaC4(String value) {
         this.linaC4 = value;
@@ -829,11 +835,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the linaD1 property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getLinaD1() {
         return linaD1;
@@ -841,11 +847,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the linaD1 property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setLinaD1(String value) {
         this.linaD1 = value;
@@ -853,11 +859,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the linaD2 property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getLinaD2() {
         return linaD2;
@@ -865,11 +871,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the linaD2 property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setLinaD2(String value) {
         this.linaD2 = value;
@@ -877,11 +883,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the tegundAdgerd property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getTegundAdgerd() {
         return tegundAdgerd;
@@ -889,11 +895,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the tegundAdgerd property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setTegundAdgerd(String value) {
         this.tegundAdgerd = value;
@@ -901,11 +907,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the faerslunumerUpphafleguFaerslu property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getFaerslunumerUpphafleguFaerslu() {
         return faerslunumerUpphafleguFaerslu;
@@ -913,11 +919,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the faerslunumerUpphafleguFaerslu property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setFaerslunumerUpphafleguFaerslu(String value) {
         this.faerslunumerUpphafleguFaerslu = value;
@@ -925,11 +931,11 @@ public class Kvittun {
 
     /**
      * Gets the value of the terminalID property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getTerminalID() {
         return terminalID;
@@ -937,11 +943,11 @@ public class Kvittun {
 
     /**
      * Sets the value of the terminalID property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setTerminalID(String value) {
         this.terminalID = value;

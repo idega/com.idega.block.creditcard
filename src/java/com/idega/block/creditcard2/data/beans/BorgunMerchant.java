@@ -250,7 +250,7 @@ public class BorgunMerchant implements CreditCardMerchant {
 
 	@Override
 	public void setMerchantID(String id) {
-		setMerchantId(merchantId);
+		setMerchantId(id);
 	}
 
 	@Override

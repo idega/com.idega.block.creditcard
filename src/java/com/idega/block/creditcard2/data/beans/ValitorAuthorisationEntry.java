@@ -14,7 +14,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
@@ -97,9 +96,8 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "transaction_type")
 	private String transactionType;
 
-	@Lob
 	@Column(name = "server_response")
-	private Object serverResponse;
+	private String serverResponse;
 
 	@Column(name = "rrn")
 	private String rrn;
@@ -227,11 +225,11 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 		this.transactionType = transactionType;
 	}
 
-	public Object getServerResponse() {
+	public String getServerResponse() {
 		return serverResponse;
 	}
 
-	public void setServerResponse(Object serverResponse) {
+	public void setServerResponse(String serverResponse) {
 		this.serverResponse = serverResponse;
 	}
 

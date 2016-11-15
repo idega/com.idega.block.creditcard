@@ -162,7 +162,7 @@ public class ValitorDebitMerchant implements CreditCardMerchant {
 
 	@Override
 	public String getType() {
-		return CreditCardMerchant.MERCHANT_TYPE_BORGUN;
+		return CreditCardMerchant.MERCHANT_TYPE_VALITOR_DEBIT;
 	}
 
 	@Override
@@ -250,7 +250,7 @@ public class ValitorDebitMerchant implements CreditCardMerchant {
 
 	@Override
 	public void setMerchantID(String id) {
-		setMerchantId(merchantId);
+		setMerchantId(id);
 	}
 
 	@Override

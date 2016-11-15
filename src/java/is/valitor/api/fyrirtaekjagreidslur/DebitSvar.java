@@ -1,6 +1,8 @@
 
 package is.valitor.api.fyrirtaekjagreidslur;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -9,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for DebitSvar complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="DebitSvar">
  *   &lt;complexContent>
@@ -25,8 +27,8 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DebitSvar", propOrder = {
@@ -34,9 +36,13 @@ import javax.xml.bind.annotation.XmlType;
     "villuskilabod",
     "kvittun"
 })
-public class DebitSvar {
+public class DebitSvar implements Serializable{
 
-    @XmlElement(name = "Villunumer")
+    /**
+	 *
+	 */
+	private static final long serialVersionUID = -1039763736148095769L;
+	@XmlElement(name = "Villunumer")
     protected int villunumer;
     @XmlElement(name = "Villuskilabod")
     protected String villuskilabod;
@@ -45,7 +51,7 @@ public class DebitSvar {
 
     /**
      * Gets the value of the villunumer property.
-     * 
+     *
      */
     public int getVillunumer() {
         return villunumer;
@@ -53,7 +59,7 @@ public class DebitSvar {
 
     /**
      * Sets the value of the villunumer property.
-     * 
+     *
      */
     public void setVillunumer(int value) {
         this.villunumer = value;
@@ -61,11 +67,11 @@ public class DebitSvar {
 
     /**
      * Gets the value of the villuskilabod property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link String }
-     *     
+     *
      */
     public String getVilluskilabod() {
         return villuskilabod;
@@ -73,11 +79,11 @@ public class DebitSvar {
 
     /**
      * Sets the value of the villuskilabod property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link String }
-     *     
+     *
      */
     public void setVilluskilabod(String value) {
         this.villuskilabod = value;
@@ -85,11 +91,11 @@ public class DebitSvar {
 
     /**
      * Gets the value of the kvittun property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link Kvittun }
-     *     
+     *
      */
     public Kvittun getKvittun() {
         return kvittun;
@@ -97,11 +103,11 @@ public class DebitSvar {
 
     /**
      * Sets the value of the kvittun property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link Kvittun }
-     *     
+     *
      */
     public void setKvittun(Kvittun value) {
         this.kvittun = value;

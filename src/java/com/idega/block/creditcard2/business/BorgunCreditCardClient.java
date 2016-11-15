@@ -103,6 +103,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	public static final String ACTION_CODE_SUSPECTED_FORGERY = "102";
 	public static final String ACTION_CODE_MERCHANT_CALL_ACQUIRER = "103";
 	public static final String ACTION_CODE_RESTRICTED_CARD = "104";
+	public static final String DEFAULT_URL ="https://gateway01.borgun.is/ws/Heimir.pub.ws:Authorization";
 
 	private static Long lastAuth = null;
 	private static final Object LOCK = new Object() {
@@ -114,7 +115,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 		if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(merchant.getType())) {
 			this.login = ((BorgunMerchant) merchant).getUser();
 			this.password = ((BorgunMerchant) merchant).getPassword();
-			this.url = ((BorgunMerchant) merchant).getMerchantUrl();
+			this.url = ((BorgunMerchant) merchant).getMerchantUrl() == null? BorgunCreditCardClient.DEFAULT_URL :((BorgunMerchant) merchant).getMerchantUrl();
 			this.merchant = merchant;
 		}
 	}
