@@ -1,12 +1,6 @@
 package com.idega.block.creditcard.business;
 
-/*
- * Q&D java demo for communicating with kortathjonustan's RPCS
- *
- * Gunnar Mar Gunnarsson 9. Dec 2003
- */
-
-import java.io.IOException;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
@@ -28,8 +22,13 @@ import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
+import com.idega.idegaweb.IWMainApplication;
+import com.idega.servlet.filter.IWBundleResourceFilter;
+import com.idega.util.CoreConstants;
+import com.idega.util.CoreUtil;
 import com.idega.util.FileUtil;
 import com.idega.util.IWTimestamp;
+import com.idega.util.StringHandler;
 
 public class KortathjonustanCreditCardClient implements CreditCardClient {
 
@@ -764,10 +763,30 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 
 	}
 
+	private static final File getKeyStoreFile(String path, IWBundle bundle) {
+		String virtualFile = null;
+		try {
+			if (path.startsWith("resources/")) {
+				path = StringHandler.replace(path, "resources/", CoreConstants.EMPTY);
+			} else if (path.startsWith("properties/")) {
+				path = StringHandler.replace(path, "properties/", CoreConstants.EMPTY);
+			}
+			virtualFile = bundle.getVirtualPathWithFileNameString(path);
+			return IWBundleResourceFilter.copyResourceFromJarToWebapp(IWMainApplication.getDefaultIWMainApplication(), virtualFile);
+		} catch (Exception e) {
+			String message = "Error copying file '" + virtualFile + "' from JAR to web app";
+			Logger.getLogger(SSLClient.class.getName()).log(Level.WARNING, virtualFile, e);
+			CoreUtil.sendExceptionNotification(message, e);
+		}
+		return null;
+	}
+
 	/**
 	 * @return @throws IOException
 	 */
 	private SSLClient getSSLClient() throws KortathjonustanAuthorizationException {
+
+		getKeyStoreFile(this.strKeystore, this.bundle);
 
 		SSLClient client;
 		try {
@@ -778,7 +797,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 				tmp = this.bundle.getBundleBaseRealPath() + "/" + this.strKeystore;
 			}
 			client = new SSLClient(this.HOST_NAME, this.HOST_PORT, tmp, this.strKeystorePass, this.USER, this.PASSWORD);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			KortathjonustanAuthorizationException cce = new KortathjonustanAuthorizationException();
 			cce.setDisplayError("Cannot connect to Central Payment Server");
 			cce.setErrorMessage("Cannot get SSLClient instance");

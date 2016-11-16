@@ -79,19 +79,23 @@ public class SSLClient {
 		private TrustManager[] getTrustManager() {
 			TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
 
+				@Override
 				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
 					return null;
 				}
 
+				@Override
 				public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
 				}
 
+				@Override
 				public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
 				}
 			} };
 			return trustAllCerts;
 		}
 
+		@Override
 		public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
 			// Create the socket
 			SSLSocket socket = (SSLSocket) this.m_oSSLCtx.getSocketFactory().createSocket(host, port);
@@ -101,6 +105,7 @@ public class SSLClient {
 			return socket;
 		}
 
+		@Override
 		public Socket createSocket(Socket socket, String host, int port, boolean flag) throws IOException, UnknownHostException {
 			SSLSocket socket2 = (SSLSocket) this.m_oSSLCtx.getSocketFactory().createSocket(host, port);
 			// Do the SSL handshake
@@ -109,6 +114,7 @@ public class SSLClient {
 			return socket;
 		}
 
+		@Override
 		public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort) throws IOException, UnknownHostException {
 			SSLSocket socket = (SSLSocket) this.m_oSSLCtx.getSocketFactory().createSocket(host, port, clientHost, clientPort);
 			// Do the SSL handshake
@@ -117,6 +123,7 @@ public class SSLClient {
 			return socket;
 		}
 
+		@Override
 		public Socket createSocket(String arg0, int arg1, InetAddress arg2,	int arg3, HttpConnectionParams arg4) throws IOException, UnknownHostException, ConnectTimeoutException {
 			SSLSocket socket = (SSLSocket) this.m_oSSLCtx.getSocketFactory().createSocket(arg0, arg1, arg2, arg3);
 			// Do the SSL handshake
