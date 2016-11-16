@@ -17,6 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
@@ -328,5 +329,10 @@ public class ValitorDebitAuthorisationEntry implements CreditCardAuthorizationEn
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	 @PrePersist
+	  protected void onCreate() {
+	    this.date = new Date(System.currentTimeMillis());
+	  }
 
 }
