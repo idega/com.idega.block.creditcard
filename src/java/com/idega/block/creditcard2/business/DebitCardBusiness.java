@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.ejb.CreateException;
 import javax.ejb.FinderException;
@@ -30,9 +28,7 @@ import com.idega.block.trade.data.dao.DebitCardInformationDAO;
 import com.idega.block.trade.stockroom.data.Supplier;
 import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
-import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
-import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Image;
@@ -127,13 +123,10 @@ public class DebitCardBusiness {
 		VISA, ELECTRON, DINERS, DANKORT, MASTERCARD, JCB, AMERICAN_EXRESS;
 	}
 
-	private IWApplicationContext iwac;
-
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<CreditCardAuthorizationEntry> getAuthorizationEntries(int clientType, String merchantID,
 			IWTimestamp from, IWTimestamp to) {
 		return getAuthorisationEntriesDAO(clientType).findByDates(from.getSQLDate(), to.getSQLDate());
@@ -543,21 +536,6 @@ public class DebitCardBusiness {
 			return getAuthorisationEntriesDAO(clientType).findRefunds(from.getSQLDate(), to.getSQLDate());
 		}
 		return null;
-	}
-
-	private Logger getLogger() {
-		return Logger.getLogger(getClass().getName());
-	}
-
-	private void log(String msg) {
-		getLogger().log(Level.INFO, msg);
-	}
-
-	private IWApplicationContext getIWApplicationContext() {
-		if (this.iwac == null) {
-			return IWMainApplication.getDefaultIWApplicationContext();
-		}
-		return this.iwac;
 	}
 
 	public GroupDAO getGroupDAO() {
