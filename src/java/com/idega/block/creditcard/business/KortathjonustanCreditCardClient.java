@@ -785,8 +785,10 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	 * @return @throws IOException
 	 */
 	private SSLClient getSSLClient() throws KortathjonustanAuthorizationException {
-
-		getKeyStoreFile(this.strKeystore, this.bundle);
+		File keystore = getKeyStoreFile(this.strKeystore, this.bundle);
+		if (keystore == null) {
+			Logger.getLogger(SSLClient.class.getName()).warning("Unable to copy file " + strKeystore + " from " + bundle.getBundleIdentifier());
+		}
 
 		SSLClient client;
 		try {
