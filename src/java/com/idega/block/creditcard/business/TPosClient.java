@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
@@ -34,6 +36,8 @@ import com.tpos.client.TPOS3Client;
  * @version 1.0
  */
 public class TPosClient implements CreditCardClient {
+
+	private static final Logger LOGGER = Logger.getLogger(TPosClient.class.getName());
 
 	public final static String TPOS_USER_ID = "tpos_userid";
 	public final static String TPOS_PASSWD = "tpos_passwd";
@@ -81,9 +85,7 @@ public class TPosClient implements CreditCardClient {
 
 	protected void init(IWApplicationContext iwc) throws Exception {
 		this._iwb = iwc.getIWMainApplication().getBundle(IW_BUNDLE_IDENTIFIER);
-		// if (this._iwb != null) {
-		// _iwrb = this._iwb.getResourceBundle(iwc);
-		// }
+
 		String path = iwc.getIWMainApplication().getSettings().getProperty("TPOSCLIENT_PROPERTIES_FILE");
 		if (path == null) {
 			path = this._iwb.getPropertiesRealPath();
@@ -98,7 +100,7 @@ public class TPosClient implements CreditCardClient {
 				path = path + this._iwb.getProperty("properties_file");
 			}
 		} else {
-			System.out.println("TposClient : Found path in application");
+			LOGGER.info("TposClient : Found path in application");
 		}
 
 		try {
@@ -107,7 +109,7 @@ public class TPosClient implements CreditCardClient {
 			this._client.setIPSet(Integer.parseInt(ipset));
 
 			if (this._merchant == null) {
-				System.out.println("TPosClient : Using default TPosMerchant, ipset = " + ipset);
+				LOGGER.info("TPosClient : Using default TPosMerchant, ipset = " + ipset);
 				this._userId = this._iwb.getProperty(TPOS_USER_ID);
 				this._passwd = this._iwb.getProperty(TPOS_PASSWD);
 				this._merchantId = this._iwb.getProperty(TPOS_MERCHANT_ID);
@@ -115,8 +117,7 @@ public class TPosClient implements CreditCardClient {
 				this._posId = this._iwb.getProperty(TPOS_POS_ID);
 				this._receivePasswd = this._iwb.getProperty(TPOS_KEY_RECEIVE_PASSWD);
 			} else {
-				System.out
-						.println("TPosClient : Using TPosMerchant " + this._merchant.getName() + ", ipset = " + ipset);
+				LOGGER.info("TPosClient : Using TPosMerchant " + this._merchant.getName() + ", ipset = " + ipset);
 				this._userId = this._merchant.getUser();
 				this._passwd = this._merchant.getPassword();
 				this._merchantId = this._merchant.getMerchantID();
@@ -124,11 +125,8 @@ public class TPosClient implements CreditCardClient {
 				this._posId = this._merchant.getTerminalID();
 				this._receivePasswd = this._merchant.getExtraInfo();
 			}
-		}
-
-		catch (Exception e) {
-			System.out.println("Got an exception trying to create client");
-			e.printStackTrace();
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Got an exception trying to create client", e);
 		}
 	}
 
@@ -315,7 +313,7 @@ public class TPosClient implements CreditCardClient {
 	@Override
 	public String doRefund(String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber,
 			double amount, String currency, Object parentDataPK, String captureProperties) throws TPosException {
-		// System.out.println("Warning : TPosClient is NOT using CVC number");
+		// LOGGER.info("Warning : TPosClient is NOT using CVC number");
 		return doAuth(cardnumber, monthExpires, yearExpires, ccVerifyNumber, amount, currency, "3", parentDataPK, null,
 				null);
 	}
@@ -372,14 +370,14 @@ public class TPosClient implements CreditCardClient {
 			if (tmpString.indexOf("=") > -1) {
 				key = tmpString.substring(0, tmpString.indexOf("="));
 				value = tmpString.substring(tmpString.indexOf("=") + 1, tmpString.length());
-				// System.out.println(tmpString+" ("+key+","+value+")");
+				// LOGGER.info(tmpString+" ("+key+","+value+")");
 				responseElements.put(key, value);
 			}
 		}
 		if (response.indexOf("=") > -1) {
 			key = response.substring(0, response.indexOf("="));
 			value = response.substring(response.indexOf("=") + 1, response.length());
-			// System.out.println(response + " (" + key + "," + value + ")");
+			// LOGGER.info(response + " (" + key + "," + value + ")");
 			responseElements.put(key, value);
 		}
 		return responseElements;
@@ -532,7 +530,7 @@ public class TPosClient implements CreditCardClient {
 					try {
 						entry.setParentID(((Integer) parentDataPK).intValue());
 					} catch (Exception e) {
-						System.out.println("TPosClient : could not set parentID : " + parentDataPK);
+						LOGGER.info("TPosClient : could not set parentID : " + parentDataPK);
 					}
 				}
 				entry.store();
