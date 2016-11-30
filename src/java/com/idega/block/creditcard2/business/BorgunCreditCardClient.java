@@ -103,7 +103,8 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	public static final String ACTION_CODE_SUSPECTED_FORGERY = "102";
 	public static final String ACTION_CODE_MERCHANT_CALL_ACQUIRER = "103";
 	public static final String ACTION_CODE_RESTRICTED_CARD = "104";
-	public static final String DEFAULT_URL ="https://gateway01.borgun.is/ws/Heimir.pub.ws:Authorization";
+	public static final String DEFAULT_URL ="https://gateway01.borgun.is/ws/Heimir.pub.ws:Authorization",
+								BORGUN_ACTION_NAME = "BorgunActionName";
 
 	private static Long lastAuth = null;
 	private static final Object LOCK = new Object() {
@@ -220,7 +221,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 			Authorization service = new Authorization();
 			AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
 			HashMap<String, String> params = new HashMap<String, String>();
-			params.put("BurgunActionName", "getVirtualCard");
+			params.put(BORGUN_ACTION_NAME, "getVirtualCard");
 			params.put(BorgunCreditCardClient.MERCHANT_CONTRACT_NUMBER,
 					((BorgunMerchant) this.merchant).getMerchantContractNumber());
 			params.put(BorgunCreditCardClient.CARD_NUMBER, cardnumber);
@@ -271,7 +272,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 			Authorization service = new Authorization();
 			AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
 			HashMap<String, String> params = new HashMap<String, String>();
-			params.put("BurgunActionName", "getAuthorization");
+			params.put(BORGUN_ACTION_NAME, "getAuthorization");
 			params.put(BorgunCreditCardClient.VERSION, BorgunCreditCardClient.CURRENT_VERSION);
 			params.put(BorgunCreditCardClient.PROCESSOR, ((BorgunMerchant) this.merchant).getMerchantProcessor());
 			params.put(BorgunCreditCardClient.MERCHANT_ID, this.merchant.getMerchantID());
@@ -352,7 +353,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 		Authorization service = new Authorization();
 		AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
 		HashMap<String, String> params = new HashMap<String, String>();
-		params.put("BurgunActionName", "getAuthorization");
+		params.put(BORGUN_ACTION_NAME, "getAuthorization");
 		params.put(BorgunCreditCardClient.VERSION, BorgunCreditCardClient.CURRENT_VERSION);
 		params.put(BorgunCreditCardClient.PROCESSOR, ((BorgunMerchant) this.merchant).getMerchantProcessor());
 		params.put(BorgunCreditCardClient.MERCHANT_ID, this.merchant.getMerchantID());
@@ -469,7 +470,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 		Authorization service = new Authorization();
 		AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
 		HashMap<String, String> params = new HashMap<String, String>();
-		params.put("BurgunActionName", "getAuthorization");
+		params.put(BORGUN_ACTION_NAME, "getAuthorization");
 		params.put(BorgunCreditCardClient.VERSION, BorgunCreditCardClient.CURRENT_VERSION);
 		params.put(BorgunCreditCardClient.PROCESSOR, ((BorgunMerchant) this.merchant).getMerchantProcessor());
 		params.put(BorgunCreditCardClient.MERCHANT_ID, this.merchant.getMerchantID());
@@ -520,7 +521,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 		HashMap<String, String> params = new HashMap<String, String>();
 		try {
 			BorgunDocument prevAuth = new BorgunDocument(properties);
-			params.put("BurgunActionName", "getAuthorization");
+			params.put(BORGUN_ACTION_NAME, "getAuthorization");
 			params.put(BorgunCreditCardClient.VERSION, BorgunCreditCardClient.CURRENT_VERSION);
 			params.put(BorgunCreditCardClient.PROCESSOR, ((BorgunMerchant) this.merchant).getMerchantProcessor());
 			params.put(BorgunCreditCardClient.MERCHANT_ID, this.merchant.getMerchantID());
@@ -576,7 +577,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 		HashMap<String, String> params = new HashMap<String, String>();
 		try {
 			BorgunDocument prevAuth = new BorgunDocument(properties);
-			params.put("BurgunActionName", "cancelAuthorization");
+			params.put(BORGUN_ACTION_NAME, "cancelAuthorization");
 			params.put(BorgunCreditCardClient.VERSION, BorgunCreditCardClient.CURRENT_VERSION);
 			params.put(BorgunCreditCardClient.PROCESSOR, ((BorgunMerchant) this.merchant).getMerchantProcessor());
 			params.put(BorgunCreditCardClient.MERCHANT_ID, this.merchant.getMerchantID());
