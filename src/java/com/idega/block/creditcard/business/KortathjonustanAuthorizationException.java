@@ -6,7 +6,10 @@
  */
 package com.idega.block.creditcard.business;
 
+import java.util.logging.Logger;
+
 import com.idega.idegaweb.IWResourceBundle;
+import com.idega.util.CoreUtil;
 
 /**
  * @author gimmi
@@ -15,6 +18,8 @@ import com.idega.idegaweb.IWResourceBundle;
  * Window - Preferences - Java - Code Generation - Code and Comments
  */
 public class KortathjonustanAuthorizationException extends CreditCardAuthorizationException {
+
+	private static final long serialVersionUID = 9220074687799919515L;
 
 	public KortathjonustanAuthorizationException() {
 		super();
@@ -31,16 +36,18 @@ public class KortathjonustanAuthorizationException extends CreditCardAuthorizati
 	public KortathjonustanAuthorizationException(Throwable arg0) {
 		super(arg0);
 	}
-	
+
+	@Override
 	public String getLocalizedMessage(IWResourceBundle iwrb) {
-		System.out.println("Kortathjonustan errormessage = " + this.getErrorMessage());
-		System.out.println("number = " + this.getErrorNumber());
-		System.out.println("display = " + this.getDisplayError());
+		String message = "Kortathjonustan errormessage = " + this.getErrorMessage() + ", number = " + this.getErrorNumber() + ", display = " + this.getDisplayError();
+		Logger.getLogger(getClass().getName()).warning(message);
+		CoreUtil.sendExceptionNotification(message, this);
+
 		int number = -2;
 		try {
 			number = Integer.parseInt(this.getErrorNumber());
 		} catch (NumberFormatException ignore) {}
-		
+
 		switch (number) {
 			case 946 :
 				return (iwrb.getLocalizedString("cc.system_failure_retry","System failure - Retry"));
@@ -52,5 +59,5 @@ public class KortathjonustanAuthorizationException extends CreditCardAuthorizati
 				return (iwrb.getLocalizedString("cc.cannot_connect","Cannot communicate with server"));
 		}
 
-	}	
+	}
 }

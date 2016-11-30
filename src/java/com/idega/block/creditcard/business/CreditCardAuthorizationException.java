@@ -6,7 +6,10 @@
  */
 package com.idega.block.creditcard.business;
 
+import java.util.logging.Logger;
+
 import com.idega.idegaweb.IWResourceBundle;
+import com.idega.util.CoreUtil;
 
 /**
  * @author gimmi
@@ -27,40 +30,58 @@ public class CreditCardAuthorizationException extends Exception {
 	 */
 	public CreditCardAuthorizationException() {
 		super();
+
+		sendExceptionNotification();
 	}
 
 	/**
-	 * @param arg0
+	 * @param message
 	 */
-	public CreditCardAuthorizationException(String arg0) {
-		super(arg0);
+	public CreditCardAuthorizationException(String message) {
+		super(message);
+
+		sendExceptionNotification();
 	}
 
-	public CreditCardAuthorizationException(String arg0, String errorNumber) {
-		super(arg0);
+	public CreditCardAuthorizationException(String message, String errorNumber) {
+		super(message);
 		this._errorNumber = errorNumber;
+
+		sendExceptionNotification();
 	}
 
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * @param message
+	 * @param cause
 	 */
-	public CreditCardAuthorizationException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
+	public CreditCardAuthorizationException(String message, Throwable cause) {
+		super(message, cause);
+
+		sendExceptionNotification();
 	}
 
 	/**
-	 * @param arg0
+	 * @param cause
 	 */
-	public CreditCardAuthorizationException(Throwable arg0) {
-		super(arg0);
+	public CreditCardAuthorizationException(Throwable cause) {
+		super(cause);
+
+		sendExceptionNotification();
 	}
 
-	public CreditCardAuthorizationException(Throwable arg0, String errorMessage, String errorNumber) {
-		super(arg0);
+	public CreditCardAuthorizationException(Throwable cause, String errorMessage, String errorNumber) {
+		super(cause);
 
 		this._errorMessage = errorMessage;
 		this._errorNumber = errorNumber;
+
+		sendExceptionNotification();
+	}
+
+	private void sendExceptionNotification() {
+		String message = "Message: " + _errorMessage + ", error number: " + _errorNumber + ", display error: " + _displayError;
+		Logger.getLogger(getClass().getName()).warning(message);
+		CoreUtil.sendExceptionNotification(message, this);
 	}
 
 	/**

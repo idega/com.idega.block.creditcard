@@ -9,47 +9,48 @@
  */
 package com.idega.block.creditcard.business;
 
+import java.util.logging.Logger;
+
 import com.idega.idegaweb.IWResourceBundle;
+import com.idega.util.CoreUtil;
 
 /**
  * @author <a href="mail:palli@idega.is">Pall Helgason</a>
  * @version 1.0
  */
 public class TPosException extends CreditCardAuthorizationException {
-  /**
-   *
-   */
+
+	private static final long serialVersionUID = 4365805472197877086L;
+
   public TPosException() {
     super();
   }
 
-  /**
-   *
-   */
   public TPosException(String message) {
     super(message);
   }
 
-  
   /**
-   * @param arg0
-   * @param arg1
+   * @param message
+   * @param cause
    */
-  public TPosException(String message, Throwable arg1) {
-  	super(message, arg1);
+  public TPosException(String message, Throwable cause) {
+  	super(message, cause);
   }
 
   /**
-   * @param arg0
+   * @param cause
    */
-  public TPosException(Throwable arg0) {
-  	super(arg0);
+  public TPosException(Throwable cause) {
+  	super(cause);
   }
 
-  public String getLocalizedMessage(IWResourceBundle iwrb) {
-		System.out.println("TPOS errormessage = " + this.getErrorMessage());
-		System.out.println("number = " + this.getErrorNumber());
-		System.out.println("display = " + this.getDisplayError());
+  @Override
+public String getLocalizedMessage(IWResourceBundle iwrb) {
+		String message = "TPOS errormessage = " + this.getErrorMessage() + ", number = " + this.getErrorNumber() + ", display = " + this.getDisplayError();
+		Logger.getLogger(getClass().getName()).warning(message);
+		CoreUtil.sendExceptionNotification(message, this);
+
 		int number = Integer.parseInt(this.getErrorNumber());
 		switch (number) {
 			case 6:
@@ -87,7 +88,5 @@ public class TPosException extends CreditCardAuthorizationException {
 			default:
 				return (iwrb.getLocalizedString("travel.error_communicating","Error communicating with Central Payment Server"));
 		}
-
-
   }
 }
