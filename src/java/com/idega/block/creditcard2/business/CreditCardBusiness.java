@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.ejb.CreateException;
 import javax.ejb.FinderException;
@@ -40,11 +39,10 @@ import com.idega.block.creditcard2.data.dao.impl.ValitorMerchantDAO;
 import com.idega.block.trade.data.bean.CreditCardInformation;
 import com.idega.block.trade.data.dao.CreditCardInformationDAO;
 import com.idega.block.trade.stockroom.data.Supplier;
+import com.idega.core.business.DefaultSpringBean;
 import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
-import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
-import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Image;
@@ -59,7 +57,7 @@ import com.idega.util.expression.ELUtil;
 
 @Service(CreditCardBusiness.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class CreditCardBusiness {
+public class CreditCardBusiness extends DefaultSpringBean implements CardBusiness {
 
 	@Autowired
 	private CreditCardInformationDAO creditCardInformationDAO;
@@ -197,13 +195,10 @@ public class CreditCardBusiness {
 		VISA, ELECTRON, DINERS, DANKORT, MASTERCARD, JCB, AMERICAN_EXRESS;
 	}
 
-	private IWApplicationContext iwac;
-
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<CreditCardAuthorizationEntry> getAuthorizationEntries(int clientType, String merchantID,
 			IWTimestamp from, IWTimestamp to) {
 		return getAuthorisationEntriesDAO(clientType).findByDates(from.getSQLDate(), to.getSQLDate());
@@ -357,7 +352,7 @@ public class CreditCardBusiness {
 			// Checking for merchants configured to this supplier's
 			// supplierManager
 			if (ccInfo == null) {
-				GroupDAO grpDAO = ELUtil.getInstance().getBean("groupDAO");
+				GroupDAO grpDAO = ELUtil.getInstance().getBean(GroupDAO.class);
 				Group group = grpDAO.findGroup((Integer) supplier.getSupplierManager().getPrimaryKey());
 				ccInfo = getCreditCardInformation(group, stamp);
 			}
@@ -365,7 +360,7 @@ public class CreditCardBusiness {
 			return ccInfo;
 
 		} catch (Exception e) {
-			e.printStackTrace(System.err);
+			getLogger().log(Level.WARNING, "Error getting credit card information. Supplier: " + supplier + ", stamp: " + stamp, e);
 		}
 		return null;
 	}
@@ -394,7 +389,7 @@ public class CreditCardBusiness {
 			Iterator<CreditCardInformation> iter = coll.iterator();
 			ccInfo = getCreditCardInformationInUse(iter, toCheck);
 		} catch (Exception e) {
-			e.printStackTrace();
+			getLogger().log(Level.WARNING, "Error getting credit card information. Supplier manager group: " + supplierManager + ", stamp: " + stamp, e);
 		}
 
 		return ccInfo;
@@ -427,25 +422,24 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
-	public CreditCardMerchant getCreditCardMerchant(Supplier supplier, Object PK) {
+	public CreditCardMerchant getCreditCardMerchant(Supplier supplier, Object id) {
 		try {
 			Collection<com.idega.block.trade.data.CreditCardInformation> coll = supplier.getCreditCardInformation();
-			CreditCardMerchant returner = getCreditCardMerchant(PK, coll);
+			CreditCardMerchant returner = getCreditCardMerchant(id, coll);
 			return returner;
 		} catch (Exception e) {
-			e.printStackTrace();
+			getLogger().log(Level.WARNING, "Error getting credit card merchant. Supplier: " + supplier + ", object ID: " + id, e);
 		}
 		return null;
 	}
 
-	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, Object PK) {
+	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, Object id) {
 		try {
 			List<CreditCardInformation> coll = getCreditCardInformations(supplierManager);
-			CreditCardMerchant returner = getCreditCardMerchant(PK, coll);
+			CreditCardMerchant returner = getCreditCardMerchant(id, coll);
 			return returner;
 		} catch (Exception e) {
-			e.printStackTrace();
+			getLogger().log(Level.WARNING, "Error getting credit card merchant. Supplier manager group: " + supplierManager + ", object ID: " + id, e);
 		}
 		return null;
 	}
@@ -546,7 +540,7 @@ public class CreditCardBusiness {
 			try {
 				t.rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				getLogger().log(Level.WARNING, "Error rolling back transaction. Merchant type: " + merchantType + ", merchant: " + merchant, e1);
 				throw new CreateException(e.getMessage());
 			}
 			throw new CreateException(e.getMessage());
@@ -568,7 +562,6 @@ public class CreditCardBusiness {
 		return ListUtil.isEmpty(result) ? null : result;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<CreditCardInformation> getCreditCardInformations(Supplier supplier) throws IDORelationshipException {
 		Collection<com.idega.block.trade.data.CreditCardInformation> coll = supplier.getCreditCardInformation();
 		if (coll == null || coll.isEmpty()) {
@@ -583,7 +576,7 @@ public class CreditCardBusiness {
 					log("CreditCardBusiness : backwards compatability fix for CreditCard merchant");
 					return getCreditCardInformations(supplier);
 				} catch (Exception e) {
-					e.printStackTrace(System.err);
+					getLogger().log(Level.WARNING, "Error getting credit card info for supplier " + supplier, e);
 				}
 			}
 		}
@@ -625,7 +618,7 @@ public class CreditCardBusiness {
 
 			return str;
 		} catch (Exception ex) {
-			ex.printStackTrace(System.err);
+			getLogger(CreditCardBusiness.class).log(Level.WARNING, "Error getting hex for " + enc, ex);
 			return null;
 		}
 	}
@@ -658,7 +651,7 @@ public class CreditCardBusiness {
 			if ((supplier != null) && (supplier.getSupplierManager() != null)
 					&& (supplier.getSupplierManager().getPrimaryKey() != null)) {
 				if (supplier.getSupplierManager().getPrimaryKey() instanceof Integer) {
-					GroupDAO grpDAO = ELUtil.getInstance().getBean("groupDAO");
+					GroupDAO grpDAO = ELUtil.getInstance().getBean(GroupDAO.class);
 					group = grpDAO.findGroup((Integer) supplier.getSupplierManager().getPrimaryKey());
 				}
 				entry = getAuthorizationEntry(group, authorizationCode, stamp);
@@ -695,19 +688,8 @@ public class CreditCardBusiness {
 		return null;
 	}
 
-	private Logger getLogger() {
-		return Logger.getLogger(getClass().getName());
-	}
-
 	private void log(String msg) {
 		getLogger().log(Level.INFO, msg);
-	}
-
-	private IWApplicationContext getIWApplicationContext() {
-		if (this.iwac == null) {
-			return IWMainApplication.getDefaultIWApplicationContext();
-		}
-		return this.iwac;
 	}
 
 	public MerchantDAO<BorgunMerchant> getBorgunMerchantDao() {
@@ -716,6 +698,11 @@ public class CreditCardBusiness {
 
 	public BorgunAuthorisationEntryDAO getBorgunAuthorisationEntryDAO() {
 		return ELUtil.getInstance().getBean(BorgunAuthorisationEntryDAO.BEAN_NAME);
+	}
+
+	@Override
+	public CreditCardClient getCardClient(Supplier supplier, IWTimestamp timestamp) throws Exception {
+		return getCreditCardClient(supplier, timestamp);
 	}
 
 }

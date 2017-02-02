@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.ejb.CreateException;
 import javax.ejb.FinderException;
@@ -26,6 +27,7 @@ import com.idega.block.creditcard2.data.dao.impl.ValitorDebitMerchantDAO;
 import com.idega.block.trade.data.bean.DebitCardInformation;
 import com.idega.block.trade.data.dao.DebitCardInformationDAO;
 import com.idega.block.trade.stockroom.data.Supplier;
+import com.idega.core.business.DefaultSpringBean;
 import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
 import com.idega.idegaweb.IWBundle;
@@ -42,7 +44,7 @@ import com.idega.util.expression.ELUtil;
 
 @Service(DebitCardBusiness.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
-public class DebitCardBusiness {
+public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness {
 
 	@Autowired
 	private DebitCardInformationDAO debitCardInformationDAO;
@@ -255,7 +257,7 @@ public class DebitCardBusiness {
 			// Checking for merchants configured to this supplier's
 			// supplierManager
 			if (ccInfo == null) {
-				GroupDAO grpDAO = ELUtil.getInstance().getBean("groupDAO");
+				GroupDAO grpDAO = getGroupDAO();
 				Group group;
 				if (supplier.getSupplierManager()!=null){
 					group = grpDAO.findGroup((Integer) supplier.getSupplierManager().getPrimaryKey());
@@ -269,7 +271,7 @@ public class DebitCardBusiness {
 			return ccInfo;
 
 		} catch (Exception e) {
-			e.printStackTrace(System.err);
+			getLogger().log(Level.WARNING, "Error getting debit card information. Supplier: " + supplier + ", stamp: " + stamp, e);
 		}
 		return null;
 	}
@@ -298,7 +300,7 @@ public class DebitCardBusiness {
 			Iterator<DebitCardInformation> iter = coll.iterator();
 			ccInfo = getDebitCardInformationInUse(iter, toCheck);
 		} catch (Exception e) {
-			e.printStackTrace();
+			getLogger().log(Level.WARNING, "Error getting debit card information. Supplier manager group: " + supplierManager + ", stamp: " + stamp, e);
 		}
 
 		return ccInfo;
@@ -331,13 +333,13 @@ public class DebitCardBusiness {
 		return null;
 	}
 
-	public CreditCardMerchant getDebitCardMerchant(Group supplierManager, Object PK) {
+	public CreditCardMerchant getDebitCardMerchant(Group supplierManager, Object id) {
 		try {
 			List<DebitCardInformation> coll = getDebitCardInformations(supplierManager);
-			CreditCardMerchant returner = getDebitCardMerchant(PK, coll);
+			CreditCardMerchant returner = getDebitCardMerchant(id, coll);
 			return returner;
 		} catch (Exception e) {
-			e.printStackTrace();
+			getLogger().log(Level.WARNING, "Error getting card merchant. Supplier manager group: " + supplierManager + ", object ID: " + id, e);
 		}
 		return null;
 	}
@@ -420,7 +422,7 @@ public class DebitCardBusiness {
 			try {
 				t.rollback();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				getLogger().log(Level.WARNING, "Error rolling back transaction. Merchant type: " + merchantType + ", merchant: " + merchant, e1);
 				throw new CreateException(e.getMessage());
 			}
 			throw new CreateException(e.getMessage());
@@ -468,7 +470,7 @@ public class DebitCardBusiness {
 
 			return str;
 		} catch (Exception ex) {
-			ex.printStackTrace(System.err);
+			getLogger(DebitCardBusiness.class).log(Level.WARNING, "Error getting hex from " + enc, ex);
 			return null;
 		}
 	}
@@ -501,7 +503,7 @@ public class DebitCardBusiness {
 			if ((supplier != null) && (supplier.getSupplierManager() != null)
 					&& (supplier.getSupplierManager().getPrimaryKey() != null)) {
 				if (supplier.getSupplierManager().getPrimaryKey() instanceof Integer) {
-					GroupDAO grpDAO = ELUtil.getInstance().getBean("groupDAO");
+					GroupDAO grpDAO = getGroupDAO();
 					group = grpDAO.findGroup((Integer) supplier.getSupplierManager().getPrimaryKey());
 				}
 				entry = getAuthorizationEntry(group, authorizationCode, stamp);
@@ -545,6 +547,11 @@ public class DebitCardBusiness {
 
 	public void setGroupDAO(GroupDAO groupDAO) {
 		this.groupDAO = groupDAO;
+	}
+
+	@Override
+	public CreditCardClient getCardClient(Supplier supplier, IWTimestamp timestamp) throws Exception {
+		return getDebitCardClient(supplier, timestamp);
 	}
 
 }
