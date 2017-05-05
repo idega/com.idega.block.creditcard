@@ -8,6 +8,7 @@ package com.idega.block.creditcard.business;
 
 import java.util.logging.Logger;
 
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.util.CoreUtil;
 
@@ -41,7 +42,9 @@ public class KortathjonustanAuthorizationException extends CreditCardAuthorizati
 	public String getLocalizedMessage(IWResourceBundle iwrb) {
 		String message = "Kortathjonustan errormessage = " + this.getErrorMessage() + ", number = " + this.getErrorNumber() + ", display = " + this.getDisplayError();
 		Logger.getLogger(getClass().getName()).warning(message);
-		CoreUtil.sendExceptionNotification(message, this);
+		if (IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("credit_card.report_exceptions", false)) {
+			CoreUtil.sendExceptionNotification(message, this);
+		}
 
 		int number = -2;
 		try {

@@ -11,6 +11,7 @@ package com.idega.block.creditcard.business;
 
 import java.util.logging.Logger;
 
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.util.CoreUtil;
 
@@ -49,7 +50,9 @@ public class TPosException extends CreditCardAuthorizationException {
 public String getLocalizedMessage(IWResourceBundle iwrb) {
 		String message = "TPOS errormessage = " + this.getErrorMessage() + ", number = " + this.getErrorNumber() + ", display = " + this.getDisplayError();
 		Logger.getLogger(getClass().getName()).warning(message);
-		CoreUtil.sendExceptionNotification(message, this);
+		if (IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("credit_card.report_exceptions", false)) {
+			CoreUtil.sendExceptionNotification(message, this);
+		}
 
 		int number = Integer.parseInt(this.getErrorNumber());
 		switch (number) {

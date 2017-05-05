@@ -8,6 +8,7 @@ package com.idega.block.creditcard.business;
 
 import java.util.logging.Logger;
 
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.util.CoreUtil;
 
@@ -81,7 +82,9 @@ public class CreditCardAuthorizationException extends Exception {
 	private void sendExceptionNotification() {
 		String message = "Message: " + _errorMessage + ", error number: " + _errorNumber + ", display error: " + _displayError;
 		Logger.getLogger(getClass().getName()).warning(message);
-		CoreUtil.sendExceptionNotification(message, this);
+		if (IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("credit_card.report_exceptions", false)) {
+			CoreUtil.sendExceptionNotification(message, this);
+		}
 	}
 
 	/**
