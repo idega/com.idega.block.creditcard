@@ -147,6 +147,16 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		//return this.idoFindOnePKByColumnBySQL(COLUMN_AUTHORIZATION_CODE, code);
 	}
 	
+	public Collection ejbFindByDate(IWTimestamp stamp) throws FinderException {
+		Table table = new Table(this);
+		Column date = new Column(table, COLUMN_DATE);
+		SelectQuery query = new SelectQuery(table);
+		query.addColumn(new WildCardColumn(table));
+
+		query.addCriteria(new MatchCriteria(date, MatchCriteria.EQUALS, stamp.getDate().toString()));
+		return this.idoFindPKsByQuery(query);
+	}
+	
 	public Collection ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 		

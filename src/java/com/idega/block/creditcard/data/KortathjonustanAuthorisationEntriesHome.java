@@ -35,6 +35,11 @@ public interface KortathjonustanAuthorisationEntriesHome extends IDOHome {
 			throws FinderException;
 
 	/**
+	 * @see com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesBMPBean#ejbFindByDate
+	 */
+	public Collection findByDate(IWTimestamp stamp) throws FinderException;
+	
+	/**
 	 * @see com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesBMPBean#ejbFindByDates
 	 */
 	public Collection findByDates(IWTimestamp from, IWTimestamp to) throws FinderException;

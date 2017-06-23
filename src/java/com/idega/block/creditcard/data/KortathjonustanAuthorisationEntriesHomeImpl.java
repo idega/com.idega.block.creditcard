@@ -45,6 +45,13 @@ public class KortathjonustanAuthorisationEntriesHomeImpl extends IDOFactory impl
 		return this.findByPrimaryKey(pk);
 	}
 
+	public Collection findByDate(IWTimestamp stamp) throws FinderException {
+		com.idega.data.IDOEntity entity = this.idoCheckOutPooledEntity();
+		java.util.Collection ids = ((KortathjonustanAuthorisationEntriesBMPBean) entity).ejbFindByDate(stamp);
+		this.idoCheckInPooledEntity(entity);
+		return this.getEntityCollectionForPrimaryKeys(ids);
+	}
+	
 	public Collection findByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
 		com.idega.data.IDOEntity entity = this.idoCheckOutPooledEntity();
 		java.util.Collection ids = ((KortathjonustanAuthorisationEntriesBMPBean) entity).ejbFindByDates(from, to);
