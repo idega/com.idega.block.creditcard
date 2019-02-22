@@ -16,6 +16,7 @@ import javax.xml.ws.BindingProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.SAXException;
 
+import com.idega.block.creditcard.CreditCardUtil;
 import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
@@ -38,6 +39,8 @@ import borgun.heimir.pub.ws.authorization.GetAuthorizationInput;
 import borgun.heimir.pub.ws.authorization.GetVirtualCard;
 
 public class BorgunCreditCardClient implements CreditCardClient {
+
+	private static final Logger LOGGER = Logger.getLogger(BorgunCreditCardClient.class.getName());
 
 	private String login;
 	private String password;
@@ -218,6 +221,11 @@ public class BorgunCreditCardClient implements CreditCardClient {
 
 	public String getVirtualCardNumber(String cardnumber) throws CreditCardAuthorizationException {
 		try {
+			if (StringUtil.isEmpty(cardnumber)) {
+				LOGGER.warning("Credit card number not provided");
+				return null;
+			}
+
 			Authorization service = new Authorization();
 			AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
 			HashMap<String, String> params = new HashMap<String, String>();
@@ -241,8 +249,8 @@ public class BorgunCreditCardClient implements CreditCardClient {
 			} else {
 				throw new CreditCardAuthorizationException("ERROR: no card number returned", "UNKNOWN");
 			}
-
 		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Error while making a virtual number for card number " + CreditCardUtil.getMaskedCreditCardNumber(cardnumber), e);
 			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(e);
 			ex.setErrorNumber("UNKNOWN");
 			throw ex;
@@ -307,12 +315,14 @@ public class BorgunCreditCardClient implements CreditCardClient {
 				throw new CreditCardAuthorizationException("ERROR: no authorization code", "UNKNOWN");
 			}
 
-			if (resultData.containsKey(BorgunCreditCardClient.AUTHORISATION_CODE))
+			if (resultData.containsKey(BorgunCreditCardClient.AUTHORISATION_CODE)) {
 				return resultData.get(BorgunCreditCardClient.AUTHORISATION_CODE);
+			}
 
 		} catch (CreditCardAuthorizationException ccae) {
 			throw ccae;
 		} catch (Throwable e) {
+			LOGGER.log(Level.WARNING, "Failed to refund credit card " + CreditCardUtil.getMaskedCreditCardNumber(cardnumber), e);
 			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(e);
 			ex.setErrorNumber("UNKNOWN");
 			throw ex;
@@ -334,8 +344,9 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	private IWBundle getBundle() {
 		IWMainApplication iwma = IWMainApplication.getDefaultIWMainApplication();
 		IWBundle bundle = iwma.getBundle("com.idega.block.creditcard");
-		if (bundle == null)
+		if (bundle == null) {
 			bundle = iwma.getBundle("com.idega.block.creditcard", true);
+		}
 		return bundle;
 	}
 
@@ -395,7 +406,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 		} catch (CreditCardAuthorizationException ccae) {
 			throw ccae;
 		} catch (Throwable e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "doSale method failed", e);
+			LOGGER.log(Level.WARNING, "doSale method failed for credit card: " + CreditCardUtil.getMaskedCreditCardNumber(cardnumber), e);
 			throw new CreditCardAuthorizationException(e, "ERROR: no authorization code", "UNKNOWN");
 		}
 
@@ -421,15 +432,16 @@ public class BorgunCreditCardClient implements CreditCardClient {
 
 			return true;
 		} catch (Throwable e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Error checking result: " + resultData, e);
+			LOGGER.log(Level.WARNING, "Error checking result: " + resultData, e);
 			throw new CreditCardAuthorizationException(e, actionCode == null ? "ERROR: no authorization code" : "CCERROR_" + actionCode, actionCode == null ? "UNKNOWN" : actionCode);
 		}
 	}
 
 	private void storeAuthorizationEntry(Map<String, String> resultData, String result, BorgunAuthorisationEntry authEnt) {
 		auth = new BorgunAuthorisationEntry();
-		if (authEnt != null)
+		if (authEnt != null) {
 			auth.setParent(authEnt);
+		}
 		auth.setMerchant((BorgunMerchant) merchant);
 		auth.setAmount(Double.valueOf(resultData.get(BorgunCreditCardClient.TRANSACTOIN_AMOUNT)));
 		auth.setAuthCode(resultData.get(BorgunCreditCardClient.AUTHORISATION_CODE));
@@ -509,7 +521,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 		} catch (CreditCardAuthorizationException ccae) {
 			throw ccae;
 		} catch (Throwable e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "creditcardAuthorization method failed", e);
+			LOGGER.log(Level.WARNING, "creditcard authorization method failed for card number " + CreditCardUtil.getMaskedCreditCardNumber(cardnumber), e);
 			throw new CreditCardAuthorizationException(e, "ERROR: no authorization code", "UNKNOWN");
 		}
 	}
@@ -554,8 +566,9 @@ public class BorgunCreditCardClient implements CreditCardClient {
 				throw new CreditCardAuthorizationException("ERROR: no authorization code", "UNKNOWN");
 			}
 
-			if (resultData.containsKey(BorgunCreditCardClient.AUTHORISATION_CODE))
+			if (resultData.containsKey(BorgunCreditCardClient.AUTHORISATION_CODE)) {
 				return resultData.get(BorgunCreditCardClient.AUTHORISATION_CODE);
+			}
 
 		} catch (CreditCardAuthorizationException ccae) {
 			throw ccae;
@@ -611,8 +624,9 @@ public class BorgunCreditCardClient implements CreditCardClient {
 				throw new CreditCardAuthorizationException("ERROR: no authorization code", "UNKNOWN");
 			}
 
-			if (resultData.containsKey(BorgunCreditCardClient.AUTHORISATION_CODE))
+			if (resultData.containsKey(BorgunCreditCardClient.AUTHORISATION_CODE)) {
 				return resultData.get(BorgunCreditCardClient.AUTHORISATION_CODE);
+			}
 
 		} catch (CreditCardAuthorizationException ccae) {
 			throw ccae;
@@ -640,8 +654,9 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	public String getAuthorizationNumber(String properties) {
 		try {
 			BorgunDocument data = new BorgunDocument(properties);
-			if (!data.getData().containsKey("AuthCode"))
+			if (!data.getData().containsKey("AuthCode")) {
 				return null;
+			}
 			return data.getData().get("AuthCode");
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			return null;
@@ -650,8 +665,9 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	}
 
 	public BorgunAuthorisationEntryDAO getAuthDAO() {
-		if (authDAO == null)
+		if (authDAO == null) {
 			ELUtil.getInstance().autowire(this);
+		}
 		return authDAO;
 	}
 
