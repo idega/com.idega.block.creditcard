@@ -1,5 +1,6 @@
 package com.idega.block.creditcard2.business;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -284,8 +285,9 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	private IWBundle getBundle() {
 		IWMainApplication iwma = IWMainApplication.getDefaultIWMainApplication();
 		IWBundle bundle = iwma.getBundle("com.idega.block.creditcard");
-		if (bundle == null)
+		if (bundle == null) {
 			bundle = iwma.getBundle("com.idega.block.creditcard", true);
+		}
 		return bundle;
 	}
 
@@ -312,7 +314,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, this.url);
 			HeimildSkilabod result = port.faHeimild(merchant.getUser(), merchant.getPassword(), merchant.getExtraInfo(), merchant.getMerchantID(), merchant.getTerminalID(), cardnumber, amountToPay, currency, null);
 
-			ValitorAuthorisationEntry auth = new ValitorAuthorisationEntry();
+			ValitorAuthorisationEntry auth = this.auth == null ? new ValitorAuthorisationEntry() : this.auth;
 			auth.setAmount(amount);
 			auth.setCardNumber(cardnumber);
 			auth.setCurrency(currency);
@@ -398,13 +400,21 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
+	public void setAuthorizationEntry(CreditCardAuthorizationEntry entry) {
+		if (entry instanceof ValitorAuthorisationEntry) {
+			this.auth = (ValitorAuthorisationEntry) entry;
+		}
+	}
+
+	@Override
 	public String getAuthorizationNumber(String properties) {
 		return properties;
 	}
 
 	public ValitorAuthorisationEntryDAO getAuthDAO() {
-		if (authDAO == null)
+		if (authDAO == null) {
 			ELUtil.getInstance().autowire(this);
+		}
 		return authDAO;
 	}
 
@@ -432,4 +442,15 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		}
 		return null;
 	}
+
+	@Override
+	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public String getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
 }

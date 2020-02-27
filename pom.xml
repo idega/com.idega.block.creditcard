@@ -31,6 +31,10 @@
       <artifactId>com.idega.block.trade</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.idega.block.addon</groupId>
+      <artifactId>com.idega.restful</artifactId>
+    </dependency>
+    <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
       <version>${commons-httpclient-commons-httpclient-version}</version>

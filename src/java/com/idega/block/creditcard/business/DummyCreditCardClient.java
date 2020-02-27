@@ -1,18 +1,7 @@
 package com.idega.block.creditcard.business;
 
-/*
- * Q&D java demo for communicating with kortathjonustan's RPCS
- *
- * Gunnar Mar Gunnarsson 9. Dec 2003
- */
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.sql.Timestamp;
 import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -25,8 +14,6 @@ import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.data.DummyAuthorisationEntries;
 import com.idega.block.creditcard.data.DummyAuthorisationEntriesHome;
-import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
-import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesHome;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
 import com.idega.idegaweb.IWApplicationContext;
@@ -50,8 +37,8 @@ public class DummyCreditCardClient implements CreditCardClient {
 
 	private String strCurrencyExponent = null;
 	private String strReferenceNumber = null;//Integer.toString((int)
-																												
-	DummyAuthorisationEntries auth = null;			
+
+	DummyAuthorisationEntries auth = null;
 	private CreditCardMerchant ccMerchant = null;
 	private IWBundle bundle = null;
 
@@ -200,7 +187,6 @@ public class DummyCreditCardClient implements CreditCardClient {
 		return null;
 	}
 
-
 	@Override
 	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, String referenceNumber) throws CreditCardAuthorizationException {
 		try {
@@ -304,24 +290,25 @@ public class DummyCreditCardClient implements CreditCardClient {
 	 * @throws CreateException
 	 */
 	private void storeAuthorizationEntry(String encodedCardnumber, Double amount, String authorizationCode, String brandName, String cardExpires, String currency, String errorNumber, String errorText, String authorizationType, Object parentDataPK) throws IDOLookupException, CreateException {
-		DummyAuthorisationEntriesHome authHome = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntries.class);
-		auth = authHome.create();
+		if (auth == null) {
+			DummyAuthorisationEntriesHome authHome = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntries.class);
+			auth = authHome.create();
+		}
 
-		
 			auth.setAmount(amount);//Double.parseDouble(strAmount));
-		
+
 			auth.setAuthorizationCode(authorizationCode);//authCode);
-		
+
 			auth.setBrandName(brandName);
-	
+
 			auth.setCardExpires(cardExpires);//monthExpires+yearExpires);
-		
+
 			auth.setCurrency(currency);//currency);
-		
+
 			auth.setErrorNumber(errorNumber);
-		
+
 			auth.setErrorText(errorText);
-		
+
 			auth.setServerResponse("dummy responce");
 
 		auth.setTransactionType(authorizationType);
@@ -384,8 +371,25 @@ public class DummyCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
+	public void setAuthorizationEntry(CreditCardAuthorizationEntry entry) {
+		if (entry instanceof DummyAuthorisationEntries) {
+			this.auth = (DummyAuthorisationEntries) entry;
+		}
+	}
+
+	@Override
 	public String voidTransaction(String properties)
 			throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public String getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 

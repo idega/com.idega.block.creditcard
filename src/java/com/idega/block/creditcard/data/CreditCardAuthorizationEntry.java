@@ -4,15 +4,20 @@
 package com.idega.block.creditcard.data;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 import javax.ejb.FinderException;
 
 import com.idega.data.IDOEntity;
+import com.idega.data.MetaDataCapable;
+import com.idega.data.UniqueIDCapable;
 
 /**
  * @author gimmi
  */
-public interface CreditCardAuthorizationEntry extends IDOEntity {
+public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable, MetaDataCapable {
+
+	public static final String COLUMN_TIMESTAMP = "timestamp";
 
 	public static float amountMultiplier = 100;
 
@@ -27,7 +32,7 @@ public interface CreditCardAuthorizationEntry extends IDOEntity {
 
 	/**
 	 * Get the card expire date
-	 * 
+	 *
 	 * @return Exiredate for card MMYY
 	 */
 	public String getCardExpires();
@@ -49,5 +54,17 @@ public interface CreditCardAuthorizationEntry extends IDOEntity {
 	public CreditCardAuthorizationEntry getParent();
 
 	public CreditCardAuthorizationEntry getChild() throws FinderException;
+
+	public void setReference(String reference);
+
+	public String getReference();
+
+	public void setAuthorizationCode(String authCode);
+
+	public void setDate(Timestamp date);
+
+	public Timestamp getTimestamp();
+
+	public void setTimestamp(Timestamp timestamp);
 
 }

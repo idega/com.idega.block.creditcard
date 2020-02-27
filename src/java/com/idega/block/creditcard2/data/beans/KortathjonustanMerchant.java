@@ -80,6 +80,9 @@ public class KortathjonustanMerchant implements CreditCardMerchant {
 	@Column(name = "IS_DELETED")
 	private Boolean deleted;
 
+	@Column(name = COLUMN_SHARED_SECRET)
+	private String secret;
+
 	/**
 	 * Not implemented
 	 */
@@ -327,4 +330,15 @@ public class KortathjonustanMerchant implements CreditCardMerchant {
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void setSharedSecret(String secret) {
+		this.secret = secret;
+	}
+
+	@Override
+	public String getSharedSecret() {
+		return secret;
+	}
+
 }

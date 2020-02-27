@@ -1,19 +1,28 @@
 package com.idega.block.creditcard2.data.beans;
 
 import java.sql.Date;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.ejb.EJBException;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.FinderException;
 import javax.ejb.RemoveException;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
@@ -25,9 +34,11 @@ import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.data.IDOEntity;
 import com.idega.data.IDOEntityDefinition;
 import com.idega.data.IDOStoreException;
+import com.idega.data.bean.Metadata;
+import com.idega.util.DBUtil;
 
 @Entity
-@Table(name = "BORGUN_AUTHORISATION_ENTRIES")
+@Table(name = BorgunAuthorisationEntry.TABLE_NAME)
 @NamedQueries({
 		@NamedQuery(name = BorgunAuthorisationEntry.GET_BY_ID, query = "from BorgunAuthorisationEntry bae where bae."
 				+ BorgunAuthorisationEntry.idProp + " = :" + BorgunAuthorisationEntry.idProp),
@@ -43,6 +54,8 @@ import com.idega.data.IDOStoreException;
 				+ " >= :" + BorgunAuthorisationEntry.dateFromProp + " and " + BorgunAuthorisationEntry.dateProp + " <=:"
 				+ BorgunAuthorisationEntry.dateToProp) })
 public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
+
+	public static final String TABLE_NAME = "BORGUN_AUTHORISATION_ENTRIES";
 
 	public static final String GET_BY_ID = "BorgunAuthorisationEntry.getByID";
 	public static final String GET_BY_PARENT_ID = "BorgunAuthorisationEntry.getByParentID";
@@ -100,8 +113,28 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Type(type="text")
 	private String serverResponse;
 
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE }, targetEntity = Metadata.class)
+	@JoinTable(name = TABLE_NAME + "_" + Metadata.ENTITY_NAME, joinColumns = { @JoinColumn(name = "ID") }, inverseJoinColumns = { @JoinColumn(name = Metadata.COLUMN_METADATA_ID) })
+	private Set<Metadata> metadata;
+
 	@Column(name = "rrn")
 	private String rrn;
+
+	@Column(name = "reference")
+	private String reference;
+
+	@Column(name = COLUMN_TIMESTAMP)
+	private Timestamp timestamp;
+
+	@Override
+	public Timestamp getTimestamp() {
+		return timestamp;
+	}
+
+	@Override
+	public void setTimestamp(Timestamp timestamp) {
+		this.timestamp = timestamp;
+	}
 
 	public String getRrn() {
 		return rrn;
@@ -122,6 +155,9 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@OneToOne
 	@JoinColumn(name = "merchant", nullable = false)
 	private BorgunMerchant merchant;
+
+	@Column(name = "UNIQUE_ID")
+	private String uniqueId;
 
 	public BorgunMerchant getMerchant() {
 		return merchant;
@@ -328,6 +364,162 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	public CreditCardAuthorizationEntry getChild() throws FinderException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String getUniqueId() {
+		return uniqueId;
+	}
+
+	@Override
+	public void setUniqueId(String uniqueId) {
+		this.uniqueId = uniqueId;
+	}
+
+	private Metadata getMetadata(String key) {
+		Set<Metadata> list = getMetadata();
+		for (Metadata metaData : list) {
+			if (metaData.getKey().equals(key)) {
+				return metaData;
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	public String getMetaData(String metaDataKey) {
+		Set<Metadata> list = getMetadata();
+		for (Metadata metaData : list) {
+			if (metaData.getKey().equals(metaDataKey)) {
+				return metaData.getValue();
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getMetaDataAttributes() {
+		Map<String, String> map = new HashMap<String, String>();
+
+		Set<Metadata> list = getMetadata();
+		for (Metadata metaData : list) {
+			map.put(metaData.getKey(), metaData.getValue());
+		}
+
+		return map;
+	}
+
+	@Override
+	public Map<String, String> getMetaDataTypes() {
+		Map<String, String> map = new HashMap<String, String>();
+
+		Set<Metadata> list = getMetadata();
+		for (Metadata metaData : list) {
+			map.put(metaData.getKey(), metaData.getType());
+		}
+
+		return map;
+	}
+
+	@Override
+	public boolean removeMetaData(String metaDataKey) {
+		Metadata metadata = getMetadata(metaDataKey);
+		if (metadata != null) {
+			getMetadata().remove(metadata);
+		}
+
+		return false;
+	}
+
+	@Override
+	public void renameMetaData(String oldKeyName, String newKeyName, String value) {
+		Metadata metadata = getMetadata(oldKeyName);
+		if (metadata != null) {
+			metadata.setKey(newKeyName);
+			if (value != null) {
+				metadata.setValue(value);
+			}
+		}
+	}
+
+	@Override
+	public void renameMetaData(String oldKeyName, String newKeyName) {
+		renameMetaData(oldKeyName, newKeyName, null);
+	}
+
+	@Override
+	public void setMetaData(String metaDataKey, String value, String type) {
+		Metadata metadata = getMetadata(metaDataKey);
+		if (metadata == null) {
+			metadata = new Metadata();
+			metadata.setKey(metaDataKey);
+		}
+		metadata.setValue(value);
+		if (type != null) {
+			metadata.setType(type);
+		}
+
+		getMetadata().add(metadata);
+
+	}
+
+	@Override
+	public void setMetaData(String metaDataKey, String value) {
+		setMetaData(metaDataKey, value, null);
+	}
+
+	@Override
+	public void setMetaDataAttributes(Map<String, String> map) {
+		for (String key : map.keySet()) {
+			String value = map.get(key);
+
+			Metadata metadata = getMetadata(key);
+			if (metadata == null) {
+				metadata = new Metadata();
+				metadata.setKey(key);
+			}
+			metadata.setValue(value);
+
+			getMetadata().add(metadata);
+		}
+	}
+
+	@Override
+	public void updateMetaData() throws SQLException {
+		// Does nothing...
+	}
+
+	public Set<Metadata> getMetadata() {
+		metadata = DBUtil.getInstance().lazyLoad(metadata);
+		return this.metadata;
+	}
+
+	public void setMetadata(Set<Metadata> metadata) {
+		this.metadata = metadata;
+	}
+
+	@Override
+	public void setReference(String reference) {
+		this.reference = reference;
+	}
+
+	@Override
+	public String getReference() {
+		return reference;
+	}
+
+	@Override
+	public void setAuthorizationCode(String authCode) {
+		setAuthCode(authCode);
+	}
+
+	@Override
+	public void setDate(Timestamp date) {
+		if (date != null) {
+			setDate(new Date(date.getTime()));
+		}
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.idega.block.creditcard.business;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
@@ -12,7 +13,6 @@ import com.idega.block.creditcard.data.CreditCardMerchant;
  * @author gimmi
  */
 public interface CreditCardClient {
-
 
 	/**
 	 * Returns the datestring as it is used by the client.
@@ -108,8 +108,14 @@ public interface CreditCardClient {
 	 */
 	public boolean supportsDelayedTransactions();
 
-
 	public CreditCardAuthorizationEntry getAuthorizationEntry();
-	
-	public String getAuthorizationNumber(String properties);
+
+	public void setAuthorizationEntry(CreditCardAuthorizationEntry entry);
+
+	public String getAuthorizationNumber(String properties) throws CreditCardAuthorizationException;
+
+	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException;
+
+	public String getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException;
+
 }

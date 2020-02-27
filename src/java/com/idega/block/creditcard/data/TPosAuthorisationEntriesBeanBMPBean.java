@@ -12,8 +12,11 @@ package com.idega.block.creditcard.data;
 
 import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Collection;
+
 import javax.ejb.FinderException;
+
 import com.idega.data.GenericEntity;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
@@ -23,6 +26,7 @@ import com.idega.data.query.SelectQuery;
 import com.idega.data.query.Table;
 import com.idega.data.query.WildCardColumn;
 import com.idega.util.IWTimestamp;
+import com.idega.util.ListUtil;
 
 /**
  * @author    <a href="mail:palli@idega.is">Pall Helgason</a>
@@ -67,6 +71,7 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
   private final static String XML_ATTACHMENT = "xml";
   private final static String CARD_NUMBER = "card_number";
   private final static String PARENT_ID = "parent_id";
+  private static final String COLUMN_REFERENCE = "reference";
 
   /**
    * Constructor for the TPosAuthorisationEntriesBean object
@@ -90,7 +95,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
   /**
    * Description of the Method
    */
-  public void initializeAttributes() {
+  @Override
+public void initializeAttributes() {
     addAttribute(getIDColumnName());
     addAttribute(getAuthorisationAmountColumnName(), "", true, true, java.lang.String.class, 20);
     addAttribute(getAuthorisationCurrencyColumnName(), "", true, true, java.lang.String.class, 6);
@@ -126,16 +132,31 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
     addAttribute(getVoidedTransactionNrColumnName(), "", true, true, java.lang.String.class);
     addAttribute(getXMLAttachmentColumnName(), "", true, true, java.lang.String.class);
     addAttribute(CARD_NUMBER, "card_number", true, true, String.class, 50);
-    
+    addAttribute(COLUMN_REFERENCE, "Reference", true, true, String.class);
+    addAttribute(COLUMN_TIMESTAMP, "timestamp", true, true, Timestamp.class);
+    addUniqueIDColumn();
+	addMetaDataRelationship();
+
     this.addOneToOneRelationship(PARENT_ID, TPosAuthorisationEntriesBean.class);
   }
+
+  	@Override
+	public Timestamp getTimestamp() {
+		return getTimestampColumnValue(COLUMN_TIMESTAMP);
+	}
+
+	@Override
+	public void setTimestamp(Timestamp timestamp) {
+		setColumn(COLUMN_TIMESTAMP, timestamp);
+	}
 
   /**
    * Gets the entityName attribute of the TPosAuthorisationEntriesBean object
    *
    * @return   The entityName value
    */
-  public String getEntityName() {
+  @Override
+public String getEntityName() {
     return ENTITY_NAME;
   }
 
@@ -474,7 +495,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The authorisationAmount value
    */
-  public String getAuthorisationAmount() {
+  @Override
+public String getAuthorisationAmount() {
     return getStringColumnValue(getAuthorisationAmountColumnName());
   }
 
@@ -484,7 +506,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The authorisationCurrency value
    */
-  public String getAuthorisationCurrency() {
+  @Override
+public String getAuthorisationCurrency() {
     return getStringColumnValue(getAuthorisationCurrencyColumnName());
   }
 
@@ -494,7 +517,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The authorisationCode value
    */
-  public String getAuthorisationCode() {
+  @Override
+public String getAuthorisationCode() {
     return getStringColumnValue(getAuthorisationCodeColumnName());
   }
 
@@ -504,7 +528,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The authorisationIdRsp value
    */
-  public String getAuthorisationIdRsp() {
+  @Override
+public String getAuthorisationIdRsp() {
     return getStringColumnValue(getAuthorisationIdRspColumnName());
   }
 
@@ -514,7 +539,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The authorisationPathReasonCode value
    */
-  public String getAuthorisationPathReasonCode() {
+  @Override
+public String getAuthorisationPathReasonCode() {
     return getStringColumnValue(getAuthorisationPathReasonCodeColumnName());
   }
 
@@ -523,7 +549,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The batchNumber value
    */
-  public String getBatchNumber() {
+  @Override
+public String getBatchNumber() {
     return getStringColumnValue(getBatchNumberColumnName());
   }
 
@@ -532,7 +559,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The brandId value
    */
-  public String getBrandId() {
+  @Override
+public String getBrandId() {
     return getStringColumnValue(getBrandIdColumnName());
   }
 
@@ -541,7 +569,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The brandName value
    */
-  public String getBrandName() {
+  @Override
+public String getBrandName() {
     return getStringColumnValue(getBrandNameColumnName());
   }
 
@@ -551,7 +580,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The cardCharacteristics value
    */
-  public String getCardCharacteristics() {
+  @Override
+public String getCardCharacteristics() {
     return getStringColumnValue(getCardCharacteristicsColumnName());
   }
 
@@ -560,7 +590,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The cardType value
    */
-  public String getCardType() {
+  @Override
+public String getCardType() {
     return getStringColumnValue(getCardTypeColumnName());
   }
 
@@ -569,7 +600,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The cardName value
    */
-  public String getCardName() {
+  @Override
+public String getCardName() {
     return getStringColumnValue(getCardNameColumnName());
   }
 
@@ -578,7 +610,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The entryDate value
    */
-  public String getEntryDate() {
+  @Override
+public String getEntryDate() {
     return getStringColumnValue(getEntryDateColumnName());
   }
 
@@ -588,7 +621,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The detailExpected value
    */
-  public String getDetailExpected() {
+  @Override
+public String getDetailExpected() {
     return getStringColumnValue(getDetailExpectedColumnName());
   }
 
@@ -597,7 +631,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The errorNo value
    */
-  public String getErrorNo() {
+  @Override
+public String getErrorNo() {
     return getStringColumnValue(getErrorNoColumnName());
   }
 
@@ -606,7 +641,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The errorText value
    */
-  public String getErrorText() {
+  @Override
+public String getErrorText() {
     return getStringColumnValue(getErrorTextColumnName());
   }
 
@@ -615,7 +651,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The cardExpires value
    */
-  public String getCardExpires() {
+  @Override
+public String getCardExpires() {
     return getStringColumnValue(getCardExpiresColumnName());
   }
 
@@ -624,7 +661,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The locationNr value
    */
-  public String getLocationNr() {
+  @Override
+public String getLocationNr() {
     return getStringColumnValue(getLocationNrColumnName());
   }
 
@@ -634,7 +672,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The merchantNrAuthorisation value
    */
-  public String getMerchantNrAuthorisation() {
+  @Override
+public String getMerchantNrAuthorisation() {
     return getStringColumnValue(getMerchantNrAuthorisationColumnName());
   }
 
@@ -644,7 +683,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The merchantNrOtherServices value
    */
-  public String getMerchantNrOtherServices() {
+  @Override
+public String getMerchantNrOtherServices() {
     return getStringColumnValue(getMerchantNrOtherServicesColumnName());
   }
 
@@ -654,7 +694,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The merchantNrSubmission value
    */
-  public String getMerchantNrSubmission() {
+  @Override
+public String getMerchantNrSubmission() {
     return getStringColumnValue(getMerchantNrSubmissionColumnName());
   }
 
@@ -664,7 +705,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The attachmentCount value
    */
-  public String getAttachmentCount() {
+  @Override
+public String getAttachmentCount() {
     return getStringColumnValue(getAttachmentCountColumnName());
   }
 
@@ -673,7 +715,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The pan value
    */
-  public String getPan() {
+  @Override
+public String getPan() {
     return getStringColumnValue(getPanColumnName());
   }
 
@@ -682,7 +725,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The posNr value
    */
-  public String getPosNr() {
+  @Override
+public String getPosNr() {
     return getStringColumnValue(getPosNrColumnName());
   }
 
@@ -691,7 +735,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The posSerialNr value
    */
-  public String getPosSerialNr() {
+  @Override
+public String getPosSerialNr() {
     return getStringColumnValue(getPosSerialNrColumnName());
   }
 
@@ -700,7 +745,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The printData value
    */
-  public String getPrintData() {
+  @Override
+public String getPrintData() {
     return getStringColumnValue(getPrintDataColumnName());
   }
 
@@ -710,7 +756,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The submissionAmount value
    */
-  public String getSubmissionAmount() {
+  @Override
+public String getSubmissionAmount() {
     return getStringColumnValue(getSubmissionAmountColumnName());
   }
 
@@ -720,7 +767,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The submissionCurrency value
    */
-  public String getSubmissionCurrency() {
+  @Override
+public String getSubmissionCurrency() {
     return getStringColumnValue(getSubmissionCurrencyColumnName());
   }
 
@@ -729,7 +777,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The entryTime value
    */
-  public String getEntryTime() {
+  @Override
+public String getEntryTime() {
     return getStringColumnValue(getEntryTimeColumnName());
   }
 
@@ -739,7 +788,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The totalResponseCode value
    */
-  public String getTotalResponseCode() {
+  @Override
+public String getTotalResponseCode() {
     return getStringColumnValue(getTotalResponseCodeColumnName());
   }
 
@@ -748,7 +798,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The transactionNr value
    */
-  public String getTransactionNr() {
+  @Override
+public String getTransactionNr() {
     return getStringColumnValue(getTransactionNrColumnName());
   }
 
@@ -758,7 +809,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The voidedAuthorisationIdResponse value
    */
-  public String getVoidedAuthorisationIdResponse() {
+  @Override
+public String getVoidedAuthorisationIdResponse() {
     return getStringColumnValue(getVoidedAuthorisationIdResponseColumnName());
   }
 
@@ -768,7 +820,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The voidedTransactionNr value
    */
-  public String getVoidedTransactionNr() {
+  @Override
+public String getVoidedTransactionNr() {
     return getStringColumnValue(getVoidedTransactionNrColumnName());
   }
 
@@ -777,7 +830,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @return   The xMLAttachment value
    */
-  public String getXMLAttachment() {
+  @Override
+public String getXMLAttachment() {
     return getStringColumnValue(getXMLAttachmentColumnName());
   }
 
@@ -787,7 +841,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param amount  The new authorisationAmount value
    */
-  public void setAuthorisationAmount(String amount) {
+  @Override
+public void setAuthorisationAmount(String amount) {
     setColumn(getAuthorisationAmountColumnName(), amount);
   }
 
@@ -797,7 +852,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param currency  The new authorisationCurrency value
    */
-  public void setAuthorisationCurrency(String currency) {
+  @Override
+public void setAuthorisationCurrency(String currency) {
     setColumn(getAuthorisationCurrencyColumnName(), currency);
   }
 
@@ -807,7 +863,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param code  The new authorisationCode value
    */
-  public void setAuthorisationCode(String code) {
+  @Override
+public void setAuthorisationCode(String code) {
     setColumn(getAuthorisationCodeColumnName(), code);
   }
 
@@ -817,7 +874,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param rsp  The new authorisationIdRsp value
    */
-  public void setAuthorisationIdRsp(String rsp) {
+  @Override
+public void setAuthorisationIdRsp(String rsp) {
     setColumn(getAuthorisationIdRspColumnName(), rsp);
   }
 
@@ -827,7 +885,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param code  The new authorisationPathReasonCode value
    */
-  public void setAuthorisationPathReasonCode(String code) {
+  @Override
+public void setAuthorisationPathReasonCode(String code) {
     setColumn(getAuthorisationPathReasonCodeColumnName(), code);
   }
 
@@ -836,7 +895,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param number  The new batchNumber value
    */
-  public void setBatchNumber(String number) {
+  @Override
+public void setBatchNumber(String number) {
     setColumn(getBatchNumberColumnName(), number);
   }
 
@@ -845,7 +905,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param id  The new brandId value
    */
-  public void setBrandId(String id) {
+  @Override
+public void setBrandId(String id) {
     setColumn(getBrandIdColumnName(), id);
   }
 
@@ -854,7 +915,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param name  The new brandName value
    */
-  public void setBrandName(String name) {
+  @Override
+public void setBrandName(String name) {
     setColumn(getBrandNameColumnName(), name);
   }
 
@@ -864,7 +926,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param characteristics  The new cardCharacteristics value
    */
-  public void setCardCharacteristics(String characteristics) {
+  @Override
+public void setCardCharacteristics(String characteristics) {
     setColumn(getCardCharacteristicsColumnName(), characteristics);
   }
 
@@ -873,7 +936,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param type  The new cardType value
    */
-  public void setCardType(String type) {
+  @Override
+public void setCardType(String type) {
     setColumn(getCardTypeColumnName(), type);
   }
 
@@ -882,7 +946,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param name  The new cardName value
    */
-  public void setCardName(String name) {
+  @Override
+public void setCardName(String name) {
     setColumn(getCardNameColumnName(), name);
   }
 
@@ -891,7 +956,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param date  The new entryDate value
    */
-  public void setEntryDate(String date) {
+  @Override
+public void setEntryDate(String date) {
     setColumn(getEntryDateColumnName(), date);
   }
 
@@ -901,7 +967,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param expected  The new detailExpected value
    */
-  public void setDetailExpected(String expected) {
+  @Override
+public void setDetailExpected(String expected) {
     setColumn(getDetailExpectedColumnName(), expected);
   }
 
@@ -910,7 +977,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param no  The new errorNo value
    */
-  public void setErrorNo(String no) {
+  @Override
+public void setErrorNo(String no) {
     setColumn(getErrorNoColumnName(), no);
   }
 
@@ -919,7 +987,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param text  The new errorText value
    */
-  public void setErrorText(String text) {
+  @Override
+public void setErrorText(String text) {
     setColumn(getErrorTextColumnName(), text);
   }
 
@@ -928,7 +997,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param expires  The new cardExpires value
    */
-  public void setCardExpires(String expires) {
+  @Override
+public void setCardExpires(String expires) {
     setColumn(getCardExpiresColumnName(), expires);
   }
 
@@ -937,7 +1007,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param location  The new locationNr value
    */
-  public void setLocationNr(String location) {
+  @Override
+public void setLocationNr(String location) {
     setColumn(getLocationNrColumnName(), location);
   }
 
@@ -947,7 +1018,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param nr  The new merchantNrAuthorisation value
    */
-  public void setMerchantNrAuthorisation(String nr) {
+  @Override
+public void setMerchantNrAuthorisation(String nr) {
     setColumn(getMerchantNrAuthorisationColumnName(), nr);
   }
 
@@ -957,7 +1029,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param nr  The new merchantNrOtherServices value
    */
-  public void setMerchantNrOtherServices(String nr) {
+  @Override
+public void setMerchantNrOtherServices(String nr) {
     setColumn(getMerchantNrOtherServicesColumnName(), nr);
   }
 
@@ -967,7 +1040,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param nr  The new merchantNrSubmission value
    */
-  public void setMerchantNrSubmission(String nr) {
+  @Override
+public void setMerchantNrSubmission(String nr) {
     setColumn(getMerchantNrSubmissionColumnName(), nr);
   }
 
@@ -977,7 +1051,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param count  The new attachmentCount value
    */
-  public void setAttachmentCount(String count) {
+  @Override
+public void setAttachmentCount(String count) {
     setColumn(getAttachmentCountColumnName(), count);
   }
 
@@ -986,7 +1061,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param pan  The new pan value
    */
-  public void setPan(String pan) {
+  @Override
+public void setPan(String pan) {
     setColumn(getPanColumnName(), pan);
   }
 
@@ -995,7 +1071,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param nr  The new posNr value
    */
-  public void setPosNr(String nr) {
+  @Override
+public void setPosNr(String nr) {
     setColumn(getPosNrColumnName(), nr);
   }
 
@@ -1004,7 +1081,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param nr  The new posSerialNr value
    */
-  public void setPosSerialNr(String nr) {
+  @Override
+public void setPosSerialNr(String nr) {
     setColumn(getPosSerialNrColumnName(), nr);
   }
 
@@ -1013,7 +1091,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param data  The new printData value
    */
-  public void setPrintData(String data) {
+  @Override
+public void setPrintData(String data) {
     setColumn(getPrintDataColumnName(), data);
   }
 
@@ -1023,7 +1102,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param amount  The new submissionAmount value
    */
-  public void setSubmissionAmount(String amount) {
+  @Override
+public void setSubmissionAmount(String amount) {
     setColumn(getSubmissionAmountColumnName(), amount);
   }
 
@@ -1033,7 +1113,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param currency  The new submissionCurrency value
    */
-  public void setSubmissionCurrency(String currency) {
+  @Override
+public void setSubmissionCurrency(String currency) {
     setColumn(getSubmissionCurrencyColumnName(), currency);
   }
 
@@ -1042,7 +1123,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param time  The new entryTime value
    */
-  public void setEntryTime(String time) {
+  @Override
+public void setEntryTime(String time) {
     setColumn(getEntryTimeColumnName(), time);
   }
 
@@ -1052,7 +1134,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param code  The new totalResponseCode value
    */
-  public void setTotalResponseCode(String code) {
+  @Override
+public void setTotalResponseCode(String code) {
     setColumn(getTotalResponseCodeColumnName(), code);
   }
 
@@ -1061,7 +1144,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param nr  The new transactionNr value
    */
-  public void setTransactionNr(String nr) {
+  @Override
+public void setTransactionNr(String nr) {
     setColumn(getTransactionNrColumnName(), nr);
   }
 
@@ -1071,7 +1155,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param response  The new voidedAuthorisationIdResponse value
    */
-  public void setVoidedAuthorisationIdResponse(String response) {
+  @Override
+public void setVoidedAuthorisationIdResponse(String response) {
     setColumn(getVoidedAuthorisationIdResponseColumnName(), response);
   }
 
@@ -1081,7 +1166,8 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param nr  The new voidedTransactionNr value
    */
-  public void setVoidedTransactionNr(String nr) {
+  @Override
+public void setVoidedTransactionNr(String nr) {
     setColumn(getVoidedTransactionNrColumnName(), nr);
   }
 
@@ -1090,10 +1176,12 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
    *
    * @param xml  The new xMLAttachment value
    */
-  public void setXMLAttachment(String xml) {
+  @Override
+public void setXMLAttachment(String xml) {
     setColumn(getXMLAttachmentColumnName(), xml);
   }
-  
+
+	@Override
 	public double getAmount() {
 		String amount = getAuthorisationAmount();
 		try {
@@ -1102,13 +1190,15 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
 			return -1;
 		}
 	}
+	@Override
 	public String getCurrency() {
 		return this.getAuthorisationCurrency();
 	}
+	@Override
 	public Date getDate() {
 		String date = this.getEntryDate();
 		String time = this.getEntryTime();
-		
+
 		// Trying to make a string like this : yyyy-mm-dd hh:mm:ss
 		try {
 			StringBuffer sqlString = new StringBuffer();
@@ -1116,14 +1206,15 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
 			if (time != null) {
 				sqlString.append(" ").append(time.substring(0, 2)).append(":").append(time.substring(2, 4)).append(":").append(time.substring(4, 6));
 			}
-			
+
 			IWTimestamp stamp = new IWTimestamp(sqlString.toString());
 			return stamp.getDate();
 		} catch (Exception e) {
 			return null;
 		}
 	}
-	
+
+	@Override
 	public String getAuthorizationCode() {
 		return getAuthorisationIdRsp();
 	}
@@ -1145,36 +1236,43 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
 	/**
 	 * Set the creditcard number, which should be encrypted FIRST
    * @param cardNumber  The new cardNumber value	 */
+	@Override
 	public void setCardNumber(String cardNumber) {
 		setColumn(CARD_NUMBER, cardNumber);
 	}
-	
+
   /**
    * Gets the creditCard value
    * TPosAuthorisationEntriesBean object
    *
    * @return   The creditCard value
    */
+	@Override
 	public String getCardNumber() {
 		return getStringColumnValue(CARD_NUMBER);
 	}
 
+	@Override
 	public int getParentID() {
 		return getIntColumnValue(PARENT_ID);
 	}
 
+	@Override
 	public CreditCardAuthorizationEntry getParent() {
 		return (TPosAuthorisationEntriesBean) getColumnValue(PARENT_ID);
 	}
-	
+
+	@Override
 	public void setParentID(int id) {
 		setColumn(PARENT_ID, id);
 	}
 
+	@Override
 	public String getErrorNumber() {
 		return getErrorNo();
 	}
-	
+
+	@Override
 	public CreditCardAuthorizationEntry getChild() throws FinderException {
 		Object obj = this.idoFindOnePKByColumnBySQL(PARENT_ID, this.getPrimaryKey().toString());
 		if (obj != null) {
@@ -1189,12 +1287,13 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
 		}
 		return null;
 	}
-	
+
+	@Override
 	public String getExtraField() {
 		// NOT USED
 		return null;
 	}
-	
+
 	public Collection ejbFindRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
@@ -1204,16 +1303,16 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
 		Table table = new Table(this);
 		Column date = new Column(ENTRY_DATE);
 		Column code = new Column(AUTHORISATION_CODE);
-		
+
 		SelectQuery query = new SelectQuery(table);
 		query.addColumn(new WildCardColumn(table));
 		query.addCriteria(new MatchCriteria(code, MatchCriteria.EQUALS, "T5"));
 		query.addCriteria(new MatchCriteria(date, MatchCriteria.GREATEREQUAL, fromDate));
 		query.addCriteria(new MatchCriteria(date, MatchCriteria.LESSEQUAL, toDate));
-		
+
 		return this.idoFindPKsByQuery (query);
 	}
-	
+
 	public Collection ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
@@ -1222,13 +1321,54 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
 
 		Table table = new Table(this);
 		Column date = new Column(ENTRY_DATE);
-		
+
 		SelectQuery query = new SelectQuery(table);
 		query.addColumn(new WildCardColumn(table));
 		query.addCriteria(new MatchCriteria(date, MatchCriteria.GREATEREQUAL, fromDate));
 		query.addCriteria(new MatchCriteria(date, MatchCriteria.LESSEQUAL, toDate));
-		
+
 		return this.idoFindPKsByQuery (query);
 	}
-	
+
+	public Object ejbFindByUniqueId(String uniqueId) throws FinderException {
+		Table table = new Table(this);
+		Column unique = new Column(table, UNIQUE_ID_COLUMN_NAME);
+		SelectQuery query = new SelectQuery(table);
+		query.addColumn(new WildCardColumn(table));
+		query.addCriteria(new MatchCriteria(unique, MatchCriteria.EQUALS, uniqueId));
+		return this.idoFindOnePKBySQL(query.toString());
+	}
+
+	public Integer ejbFindByMetaData(String key, String value) throws FinderException {
+		Collection<?> entries = super.idoFindPKsByMetaData(key, value);
+		if (ListUtil.isEmpty(entries)) {
+			return null;
+		}
+
+		Object entryId = entries.iterator().next();
+		return entryId instanceof Integer ? (Integer) entryId : null;
+	}
+
+	@Override
+	public void setReference(String reference) {
+		setColumn(COLUMN_REFERENCE, reference);
+	}
+
+	@Override
+	public String getReference() {
+		return getStringColumnValue(COLUMN_REFERENCE);
+	}
+
+	@Override
+	public void setDate(Timestamp date) {
+		if (date != null) {
+			setEntryDate(new IWTimestamp(date).getDateString("yyyyMMdd"));
+		}
+	}
+
+	@Override
+	public void setAuthorizationCode(String code) {
+		setAuthorisationCode(code);
+	}
+
 }

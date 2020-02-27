@@ -1,6 +1,7 @@
 package com.idega.block.creditcard2.business;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -255,8 +256,9 @@ public class ValitorDebitCardClient implements CreditCardClient {
 	private IWBundle getBundle() {
 		IWMainApplication iwma = IWMainApplication.getDefaultIWMainApplication();
 		IWBundle bundle = iwma.getBundle("com.idega.block.creditcard");
-		if (bundle == null)
+		if (bundle == null) {
 			bundle = iwma.getBundle("com.idega.block.creditcard", true);
+		}
 		return bundle;
 	}
 
@@ -281,7 +283,7 @@ public class ValitorDebitCardClient implements CreditCardClient {
 			DebitSvar result = port.greidaMedDebetkorti(merchant.getUser(), merchant.getPassword(), merchant.getExtraInfo(), merchant.getMerchantID(), Integer.parseInt(merchant.getTerminalID()), cardType, cardnumber, nameOnCard, amount);
 
 
-			ValitorDebitAuthorisationEntry auth = new ValitorDebitAuthorisationEntry();
+			ValitorDebitAuthorisationEntry auth = this.auth == null ? new ValitorDebitAuthorisationEntry() : this.auth;
 			auth.setAmount(amount);
 			auth.setCardNumber(cardnumber);
 			auth.setCurrency(currency);
@@ -368,11 +370,19 @@ public class ValitorDebitCardClient implements CreditCardClient {
 	}
 
 	@Override
+	public void setAuthorizationEntry(CreditCardAuthorizationEntry entry) {
+		if (entry instanceof ValitorDebitAuthorisationEntry) {
+			this.auth = (ValitorDebitAuthorisationEntry) entry;
+		}
+	}
+
+	@Override
 	public String getAuthorizationNumber(String properties) {
 		try {
 			BorgunDocument data = new BorgunDocument(properties);
-			if (!data.getData().containsKey("AuthCode"))
+			if (!data.getData().containsKey("AuthCode")) {
 				return null;
+			}
 			return data.getData().get("AuthCode");
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			return null;
@@ -381,8 +391,9 @@ public class ValitorDebitCardClient implements CreditCardClient {
 	}
 
 	public ValitorDebitAuthorisationEntryDAO getAuthDAO() {
-		if (authDAO == null)
+		if (authDAO == null) {
 			ELUtil.getInstance().autowire(this);
+		}
 		return authDAO;
 	}
 
@@ -410,4 +421,15 @@ public class ValitorDebitCardClient implements CreditCardClient {
 		}
 		return null;
 	}
+
+	@Override
+	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public String getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
 }

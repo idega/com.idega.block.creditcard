@@ -1,6 +1,7 @@
 package com.idega.block.creditcard2.business;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -438,7 +439,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	}
 
 	private void storeAuthorizationEntry(Map<String, String> resultData, String result, BorgunAuthorisationEntry authEnt) {
-		auth = new BorgunAuthorisationEntry();
+		auth = this.auth == null ? new BorgunAuthorisationEntry() : this.auth;
 		if (authEnt != null) {
 			auth.setParent(authEnt);
 		}
@@ -651,6 +652,13 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
+	public void setAuthorizationEntry(CreditCardAuthorizationEntry entry) {
+		if (entry instanceof BorgunAuthorisationEntry) {
+			this.auth = (BorgunAuthorisationEntry) entry;
+		}
+	}
+
+	@Override
 	public String getAuthorizationNumber(String properties) {
 		try {
 			BorgunDocument data = new BorgunDocument(properties);
@@ -695,4 +703,15 @@ public class BorgunCreditCardClient implements CreditCardClient {
 		}
 		return null;
 	}
+
+	@Override
+	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public String getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
 }

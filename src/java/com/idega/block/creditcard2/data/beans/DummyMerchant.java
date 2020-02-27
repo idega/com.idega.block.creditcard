@@ -63,6 +63,9 @@ public class DummyMerchant implements CreditCardMerchant {
 	@Column(name = "IS_DELETED")
 	private Boolean deleted;
 
+	@Column(name = COLUMN_SHARED_SECRET)
+	private String secret;
+
 	@Override
 	public String getType() {
 		return MERCHANT_TYPE_DUMMY;
@@ -279,4 +282,15 @@ public class DummyMerchant implements CreditCardMerchant {
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void setSharedSecret(String secret) {
+		this.secret = secret;
+	}
+
+	@Override
+	public String getSharedSecret() {
+		return secret;
+	}
+
 }

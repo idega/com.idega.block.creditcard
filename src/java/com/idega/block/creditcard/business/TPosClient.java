@@ -9,6 +9,7 @@
  */
 package com.idega.block.creditcard.business;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -487,9 +488,11 @@ public class TPosClient implements CreditCardClient {
 			boolean inserted = false;
 
 			try {
-				TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup
-						.getHome(TPosAuthorisationEntriesBean.class);
-				entry = home.create();
+				if (entry == null) {
+					TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup
+							.getHome(TPosAuthorisationEntriesBean.class);
+					entry = home.create();
+				}
 				// entry =
 				// TPosAuthorisationEntriesHome.getInstance().getNewElement();
 				// entry.setAttachmentCount(_client.getProperty(TPOS3Client.pn));
@@ -788,4 +791,22 @@ public class TPosClient implements CreditCardClient {
 	public CreditCardAuthorizationEntry getAuthorizationEntry() {
 		return entry;
 	}
+
+	@Override
+	public void setAuthorizationEntry(CreditCardAuthorizationEntry entry) {
+		if (entry instanceof TPosAuthorisationEntriesBean) {
+			this.entry = (TPosAuthorisationEntriesBean) entry;
+		}
+	}
+
+	@Override
+	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
+		throw new TPosException("Not implemented");
+	}
+
+	@Override
+	public String getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
 }

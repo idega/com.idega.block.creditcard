@@ -74,6 +74,9 @@ public class TPosMerchant implements CreditCardMerchant {
 	@Column(name = "IS_DELETED")
 	private Boolean deleted;
 
+	@Column(name = COLUMN_SHARED_SECRET)
+	private String secret;
+
 	public Integer getId() {
 		return id;
 	}
@@ -328,6 +331,16 @@ public class TPosMerchant implements CreditCardMerchant {
 	@Override
 	public void remove() throws RemoveException {
 		// TODO Auto-generated method stub
-
 	}
+
+	@Override
+	public void setSharedSecret(String secret) {
+		this.secret = secret;
+	}
+
+	@Override
+	public String getSharedSecret() {
+		return secret;
+	}
+
 }

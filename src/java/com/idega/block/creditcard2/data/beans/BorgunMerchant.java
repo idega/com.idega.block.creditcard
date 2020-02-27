@@ -88,6 +88,9 @@ public class BorgunMerchant implements CreditCardMerchant {
 	@Column(name = "deleted")
 	private Boolean deleted;
 
+	@Column(name = COLUMN_SHARED_SECRET)
+	private String secret;
+
 	public Integer getId() {
 		return id;
 	}
@@ -214,8 +217,9 @@ public class BorgunMerchant implements CreditCardMerchant {
 
 	@Override
 	public boolean getIsDeleted() {
-		if (this.deleted == null)
+		if (this.deleted == null) {
 			return false;
+		}
 		return this.deleted.booleanValue();
 	}
 
@@ -325,22 +329,25 @@ public class BorgunMerchant implements CreditCardMerchant {
 
 	@Override
 	public Timestamp getStartDate() {
-		if (this.startDate == null)
+		if (this.startDate == null) {
 			return null;
+		}
 		return new Timestamp(this.startDate.getTime());
 	}
 
 	@Override
 	public Timestamp getModificationDate() {
-		if (this.modificationDate == null)
+		if (this.modificationDate == null) {
 			return null;
+		}
 		return new Timestamp(this.modificationDate.getTime());
 	}
 
 	@Override
 	public Timestamp getEndDate() {
-		if (this.endDate == null)
+		if (this.endDate == null) {
 			return null;
+		}
 		return new Timestamp(this.endDate.getTime());
 	}
 
@@ -362,6 +369,16 @@ public class BorgunMerchant implements CreditCardMerchant {
 
 	public void setMerchantContractNumber(String merchantContractNumber) {
 		this.merchantContractNumber = merchantContractNumber;
+	}
+
+	@Override
+	public void setSharedSecret(String secret) {
+		this.secret = secret;
+	}
+
+	@Override
+	public String getSharedSecret() {
+		return secret;
 	}
 
 }

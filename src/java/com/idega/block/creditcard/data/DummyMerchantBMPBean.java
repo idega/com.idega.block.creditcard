@@ -19,6 +19,8 @@ import com.idega.util.IWTimestamp;
 
 public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant {
 
+	private static final long serialVersionUID = -8593110250335041804L;
+
 	private static final String ENTITY_NAME = "CC_DUMMY_MERCHANT";
 	private static final String COLUMN_NAME = "MERCHANT_NAME";
 	private static final String COLUMN_ACCEPTOR_TERMINAL_ID = "ACCEPTOR_TERM_ID";
@@ -43,10 +45,11 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 		addAttribute(COLUMN_NAME, "name", true, true, String.class);
 		addAttribute(COLUMN_ACCEPTOR_TERMINAL_ID, "accTermID", true, true, String.class);
 		addAttribute(COLUMN_ACCEPTOR_IDENTIFICATION, "accId", true, true, String.class);
-    addAttribute(COLUMN_START_DATE, "Start date", true, true, Timestamp.class);
-    addAttribute(COLUMN_MODIFICATION_DATE, "Modification date", true, true, Timestamp.class);
-    addAttribute(COLUMN_END_DATE, "End date", true, true, Timestamp.class);
-    addAttribute(COLUMN_IS_DELETED, "Is delted", true, true, Boolean.class);
+	    addAttribute(COLUMN_START_DATE, "Start date", true, true, Timestamp.class);
+	    addAttribute(COLUMN_MODIFICATION_DATE, "Modification date", true, true, Timestamp.class);
+	    addAttribute(COLUMN_END_DATE, "End date", true, true, Timestamp.class);
+	    addAttribute(COLUMN_IS_DELETED, "Is delted", true, true, Boolean.class);
+	    addAttribute(COLUMN_SHARED_SECRET, "Shared secret", true, true, String.class);
 	}
 
 	@Override
@@ -235,6 +238,16 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 			return idoFindOnePKByQuery(query);
 		}
 		return null;
+	}
+
+	@Override
+	public void setSharedSecret(String secret) {
+		setColumn(COLUMN_SHARED_SECRET, secret);
+	}
+
+	@Override
+	public String getSharedSecret() {
+		return getStringColumnValue(COLUMN_SHARED_SECRET);
 	}
 
 }

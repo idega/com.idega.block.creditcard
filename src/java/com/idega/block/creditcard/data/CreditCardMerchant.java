@@ -19,6 +19,7 @@ import com.idega.data.IDOEntity;
  *         Preferences - Java - Code Generation - Code and Comments
  */
 public interface CreditCardMerchant extends IDOEntity {
+
 	public static final String MERCHANT_TYPE_TPOS = "TPOS";
 	public static final String MERCHANT_TYPE_KORTHATHJONUSTAN = "KORTATHJONUSTAN";
 	public static final String MERCHANT_TYPE_DUMMY = "DUMMY";
@@ -27,6 +28,8 @@ public interface CreditCardMerchant extends IDOEntity {
 
 	public static final String COLUMN_IS_DELETED = "IS_DELETED";
 	public static final String MERCHANT_TYPE_VALITOR_DEBIT = "VALITOR_DEBIT";
+
+	public static final String COLUMN_SHARED_SECRET = "shared_secret";
 
 	public String getType();
 
@@ -77,4 +80,9 @@ public interface CreditCardMerchant extends IDOEntity {
 	 */
 	@Override
 	public void remove() throws RemoveException;
+
+	public void setSharedSecret(String secret);
+
+	public String getSharedSecret();
+
 }

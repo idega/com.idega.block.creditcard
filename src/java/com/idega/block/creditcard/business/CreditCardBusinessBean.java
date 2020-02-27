@@ -42,6 +42,7 @@ import com.idega.transaction.IdegaTransactionManager;
 import com.idega.user.data.Group;
 import com.idega.util.Encrypter;
 import com.idega.util.IWTimestamp;
+import com.idega.util.StringUtil;
 
 /**
  * @author gimmi
@@ -78,7 +79,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 				Collection coll = home.findByDates(from, to);
 
 				return coll;
-			} 
+			}
 			else if (clientType == CLIENT_TYPE_DUMMY) {
 				DummyAuthorisationEntriesHome home = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntries.class);
 				Collection coll = home.findByDates(from, to);
@@ -654,6 +655,74 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			coll = home.findRefunds(from, to);
 		}
 		return coll;
+	}
+
+	@Override
+	public CreditCardAuthorizationEntry getAuthorizationEntryByUniqueId(String uniqueId) {
+		if (StringUtil.isEmpty(uniqueId)) {
+			return null;
+		}
+
+		CreditCardAuthorizationEntry entry = null;
+		try {
+			TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);
+			entry = home.getAuthorizationEntryByUniqueId(uniqueId);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			KortathjonustanAuthorisationEntriesHome home = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntriesBMPBean.class);
+			entry = home.getAuthorizationEntryByUniqueId(uniqueId);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			DummyAuthorisationEntriesHome home = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntriesBMPBean.class);
+			entry = home.getAuthorizationEntryByUniqueId(uniqueId);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		return null;
+	}
+
+	@Override
+	public CreditCardAuthorizationEntry getAuthorizationEntryByMetaData(String key, String value) {
+		if (StringUtil.isEmpty(key) || StringUtil.isEmpty(value)) {
+			return null;
+		}
+
+		CreditCardAuthorizationEntry entry = null;
+		try {
+			TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);
+			entry = home.getAuthorizationEntryByMetaData(key, value);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			KortathjonustanAuthorisationEntriesHome home = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntriesBMPBean.class);
+			entry = home.getAuthorizationEntryByMetaData(key, value);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			DummyAuthorisationEntriesHome home = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntriesBMPBean.class);
+			entry = home.getAuthorizationEntryByMetaData(key, value);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		return null;
 	}
 
 }
