@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import javax.ejb.CreateException;
 import javax.ws.rs.core.Response.Status;
 
+import com.idega.block.creditcard.CreditCardUtil;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
@@ -451,6 +452,9 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		if (properties.containsKey(this.PROPERTY_TOTAL_RESPONSE)) {
 			auth.setServerResponse(properties.get(this.PROPERTY_TOTAL_RESPONSE).toString());
 		}
+		if (properties.containsKey(this.PROPERTY_ORIGINAL_DATA_ELEMENT)) {
+			auth.setPaymentId(properties.get(this.PROPERTY_ORIGINAL_DATA_ELEMENT));
+		}
 
 		auth.setTransactionType(authorizationType);
 		auth.setCardNumber(encodedCardnumber);
@@ -651,8 +655,16 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 
 	@Override
 	public String getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
-		this.HOST_NAME = "https://test.kortathjonustan.is";
-		this.HOST_PORT = 8443;
+		if (auth != null && !StringUtil.isEmpty(auth.getPaymentId()) && !StringUtil.isEmpty(auth.getAuthorizationCode())) {
+			LOGGER.info("Payment for " + auth + " (auth. code: " + auth.getAuthorizationCode() + ", payment ID: " + auth.getPaymentId() + ") was already captured");
+			return auth.getAuthorizationCode();
+		}
+
+		boolean test = CreditCardUtil.isTestEnvironment();
+		if (test) {
+			this.HOST_NAME = "https://test.kortathjonustan.is";
+			this.HOST_PORT = 8443;
+		}
 		String url = this.HOST_NAME + CoreConstants.COLON + this.HOST_PORT + REQUEST_TYPE_CAPTURE;
 		Hashtable<String, String> propertiesInHash = parseResponse(properties);
 		if (!MapUtil.isEmpty(propertiesInHash) && !StringUtil.isEmpty(this.USER)) {
@@ -661,8 +673,12 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		if (!MapUtil.isEmpty(propertiesInHash) && !StringUtil.isEmpty(this.PASSWORD)) {
 			propertiesInHash.put(PROPERTY_PASSWORD, this.PASSWORD);
 		}
+		if (test) {
+			propertiesInHash.put(PROPERTY_ACCEPTOR_IDENT, "8180001");
+			propertiesInHash.put(PROPERTY_ACCEPTOR_TERM_ID, "90000001");
+		}
 		String data = getPostData(propertiesInHash);
-		LOGGER.info("Properties: " + properties + ", in hash: " + propertiesInHash + ", data to send: " + data);
+		LOGGER.info("Properties: " + properties + ", in hash: " + propertiesInHash + ", data to send: " + data + " to URL: " + url);
 		Long length = Integer.valueOf(data.length()).longValue();
 		ClientResponse response = null;
 		try {
@@ -699,7 +715,6 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 			throw cce;
 		} else {
 			Hashtable<String, String> captureProperties = parseResponse(strResponse);
-//			captureProperties.put(this.PROPERTY_CARD_BRAND_NAME, propertiesInHash.get(this.PROPERTY_CARD_BRAND_NAME));
 			if (CODE_AUTHORIZATOIN_APPROVED.equals(captureProperties.get(this.PROPERTY_ACTION_CODE))) {
 				String authCode = finishWithCapturedResponse(captureProperties);
 				return authCode;
@@ -711,14 +726,6 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 				throw cce;
 			}
 		}
-
-//		if (StringUtil.isEmpty(responseData)) {
-//			throw new KortathjonustanAuthorizationException("Empty response from " + response);
-//		}
-//
-//		Hashtable<String, String> returnedCaptureProperties = parseResponse(responseData);
-//		String authCode = finishWithCapturedResponse(returnedCaptureProperties);
-//		return authCode;
 	}
 
 	private Hashtable<String, String> finishTransaction(Hashtable<String, String> properties) throws KortathjonustanAuthorizationException {
@@ -793,7 +800,9 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		properties.append(getProperty(this.PROPERTY_AMOUNT, strAmount, true));						//	d4
 		properties.append(getProperty(this.PROPERTY_CURRENCY_EXPONENT, strCurrencyExponent));		//	de4
 
-		properties.append(getProperty(this.PROPERTY_ACCEPTOR_TERM_ID, this.ACCEPTOR_TERM_ID));		//	d41
+		String authTerminal = ccMerchant.getAuthorizationTerminal();
+		authTerminal = StringUtil.isEmpty(authTerminal) ? this.ACCEPTOR_TERM_ID : authTerminal;
+		properties.append(getProperty(this.PROPERTY_ACCEPTOR_TERM_ID, authTerminal));				//	d41
 		properties.append(getProperty(this.PROPERTY_ACCEPTOR_IDENT, this.ACCEPTOR_IDENTIFICATION));	//	d42
 		properties.append(getProperty(this.PROPERTY_CURRENCY_CODE, strCurrencyCode));				//	d49
 

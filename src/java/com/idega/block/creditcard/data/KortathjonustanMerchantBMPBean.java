@@ -50,6 +50,28 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	    addAttribute(COLUMN_END_DATE, "End date", true, true, Timestamp.class);
 	    addAttribute(COLUMN_IS_DELETED, "Is delted", true, true, Boolean.class);
 	    addAttribute(COLUMN_SHARED_SECRET, "Shared secret", true, true, String.class);
+	    addAttribute(COLUMN_SUCCESS_REDIRECT_URL, "Success redirect URL", true, true, String.class);
+	    addAttribute(COLUMN_AUTHORIZATION_TERMINAL, "Authorization terminal", true, true, String.class);
+	}
+
+	@Override
+	public String getAuthorizationTerminal() {
+		return getStringColumnValue(COLUMN_AUTHORIZATION_TERMINAL);
+	}
+
+	@Override
+	public void setAuthorizationTerminal(String authorizationTerminal) {
+		setColumn(COLUMN_AUTHORIZATION_TERMINAL, authorizationTerminal);
+	}
+
+	@Override
+	public String getSuccessRedirectURL() {
+		return getStringColumnValue(COLUMN_SUCCESS_REDIRECT_URL);
+	}
+
+	@Override
+	public void setSuccessRedirectURL(String successRedirectURL) {
+		setColumn(COLUMN_SUCCESS_REDIRECT_URL, successRedirectURL);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.idega.block.creditcard;
 
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.util.CoreConstants;
 import com.idega.util.StringUtil;
 
@@ -24,6 +25,10 @@ public class CreditCardUtil {
 		}
 
 		return masked;
+	}
+
+	public static final boolean isTestEnvironment() {
+		return IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("test_env_credit_card", false);
 	}
 
 }

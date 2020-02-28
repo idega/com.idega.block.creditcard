@@ -23,6 +23,8 @@ import com.idega.util.ListUtil;
  */
 public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity implements KortathjonustanAuthorisationEntries, CreditCardAuthorizationEntry {
 
+	private static final long serialVersionUID = 5094910898141424839L;
+
 	private static final String TABLE_NAME = "CC_KORTTHJ_AUTH_ENTRIES";
 
 	private static final String COLUMN_AMOUNT = "AMOUNT";
@@ -64,6 +66,17 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		addAttribute(COLUMN_TIMESTAMP, "timestamp", true, true, Timestamp.class);
 		addUniqueIDColumn();
 		addMetaDataRelationship();
+		addAttribute(COLUMN_PAYMENT_ID, "Payment ID", true, true, String.class);
+	}
+
+	@Override
+	public String getPaymentId() {
+		return getStringColumnValue(COLUMN_PAYMENT_ID);
+	}
+
+	@Override
+	public void setPaymentId(String paymentId) {
+		setColumn(COLUMN_PAYMENT_ID, paymentId);
 	}
 
 	@Override
@@ -209,7 +222,7 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		return entryId instanceof Integer ? (Integer) entryId : null;
 	}
 
-	public Collection ejbFindByDate(IWTimestamp stamp) throws FinderException {
+	public Collection<?> ejbFindByDate(IWTimestamp stamp) throws FinderException {
 		Table table = new Table(this);
 		Column date = new Column(table, COLUMN_DATE);
 		SelectQuery query = new SelectQuery(table);
@@ -219,7 +232,7 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		return this.idoFindPKsByQuery(query);
 	}
 
-	public Collection ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
+	public Collection<?> ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
 		Table table = new Table(this);
@@ -284,7 +297,7 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		return null;
 	}
 
-	public Collection ejbFindRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
+	public Collection<?> ejbFindRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
 		Table table = new Table(this);

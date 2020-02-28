@@ -29,7 +29,9 @@ public interface CreditCardMerchant extends IDOEntity {
 	public static final String COLUMN_IS_DELETED = "IS_DELETED";
 	public static final String MERCHANT_TYPE_VALITOR_DEBIT = "VALITOR_DEBIT";
 
-	public static final String COLUMN_SHARED_SECRET = "shared_secret";
+	public static final String	COLUMN_SHARED_SECRET = "shared_secret",
+								COLUMN_AUTHORIZATION_TERMINAL = "authorization_terminal",
+								COLUMN_SUCCESS_REDIRECT_URL = "sucess_redirect_url";
 
 	public String getType();
 
@@ -84,5 +86,13 @@ public interface CreditCardMerchant extends IDOEntity {
 	public void setSharedSecret(String secret);
 
 	public String getSharedSecret();
+
+	public String getAuthorizationTerminal();
+
+	public void setAuthorizationTerminal(String authorizationTerminal);
+
+	public String getSuccessRedirectURL();
+
+	public void setSuccessRedirectURL(String successRedirectURL);
 
 }

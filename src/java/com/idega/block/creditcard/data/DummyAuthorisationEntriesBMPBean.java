@@ -22,6 +22,8 @@ import com.idega.util.ListUtil;
  */
 public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements DummyAuthorisationEntries, CreditCardAuthorizationEntry {
 
+	private static final long serialVersionUID = 2820489206755633462L;
+
 	private static final String TABLE_NAME = "CC_DUMMY_AUTH_ENTRIES";
 
 	private static final String COLUMN_AMOUNT = "AMOUNT";
@@ -66,6 +68,17 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 		addAttribute(COLUMN_TIMESTAMP, "timestamp", true, true, Timestamp.class);
 		addUniqueIDColumn();
 		addMetaDataRelationship();
+		addAttribute(COLUMN_PAYMENT_ID, "Payment ID", true, true, String.class);
+	}
+
+	@Override
+	public String getPaymentId() {
+		return getStringColumnValue(COLUMN_PAYMENT_ID);
+	}
+
+	@Override
+	public void setPaymentId(String paymentId) {
+		setColumn(COLUMN_PAYMENT_ID, paymentId);
 	}
 
 	@Override
@@ -182,11 +195,9 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 		query.addCriteria(new MatchCriteria(auth, MatchCriteria.EQUALS, code));
 		query.addCriteria(new MatchCriteria(date, MatchCriteria.EQUALS, stamp.getDate().toString()));
 		return this.idoFindOnePKBySQL(query.toString());
-
-		//return this.idoFindOnePKByColumnBySQL(COLUMN_AUTHORIZATION_CODE, code);
 	}
 
-	public Collection ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
+	public Collection<?> ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
 		Table table = new Table(this);
@@ -198,7 +209,6 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 		query.addCriteria(new MatchCriteria(date, MatchCriteria.LESSEQUAL, to.getDate().toString()));
 		return this.idoFindPKsByQuery(query);
 	}
-
 
 	@Override
 	public void setErrorNumber(String errorNumber) {
@@ -251,7 +261,7 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 		return null;
 	}
 
-	public Collection ejbFindRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
+	public Collection<?> ejbFindRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
 		Table table = new Table(this);

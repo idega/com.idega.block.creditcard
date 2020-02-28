@@ -126,6 +126,19 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = COLUMN_TIMESTAMP)
 	private Timestamp timestamp;
 
+	@Column(name = COLUMN_PAYMENT_ID)
+	private String paymentId;
+
+	@Override
+	public String getPaymentId() {
+		return paymentId;
+	}
+
+	@Override
+	public void setPaymentId(String paymentId) {
+		this.paymentId = paymentId;
+	}
+
 	@Override
 	public Timestamp getTimestamp() {
 		return timestamp;

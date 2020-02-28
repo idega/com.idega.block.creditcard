@@ -77,6 +77,32 @@ public class TPosMerchant implements CreditCardMerchant {
 	@Column(name = COLUMN_SHARED_SECRET)
 	private String secret;
 
+	@Column(name = COLUMN_SUCCESS_REDIRECT_URL)
+	private String successRedirectURL;
+
+	@Column(name = COLUMN_AUTHORIZATION_TERMINAL)
+	private String authorizationTerminal;
+
+	@Override
+	public String getAuthorizationTerminal() {
+		return authorizationTerminal;
+	}
+
+	@Override
+	public void setAuthorizationTerminal(String authorizationTerminal) {
+		this.authorizationTerminal = authorizationTerminal;
+	}
+
+	@Override
+	public String getSuccessRedirectURL() {
+		return successRedirectURL;
+	}
+
+	@Override
+	public void setSuccessRedirectURL(String successRedirectURL) {
+		this.successRedirectURL = successRedirectURL;
+	}
+
 	public Integer getId() {
 		return id;
 	}

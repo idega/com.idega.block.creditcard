@@ -35,7 +35,9 @@ import com.idega.util.ListUtil;
 
 public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implements TPosAuthorisationEntriesBean, CreditCardAuthorizationEntry {
 
-  private final static String ENTITY_NAME = "tpos_auth_entries";
+	private static final long serialVersionUID = -7175925192843413403L;
+
+private final static String ENTITY_NAME = "tpos_auth_entries";
   private final static String AUTHORISATION_AMOUNT = "auth_amount";
   private final static String AUTHORISATION_CURRENCY = "auth_currency";
   private final static String AUTHORISATION_CODE = "auth_code";
@@ -138,7 +140,18 @@ public void initializeAttributes() {
 	addMetaDataRelationship();
 
     this.addOneToOneRelationship(PARENT_ID, TPosAuthorisationEntriesBean.class);
-  }
+    addAttribute(COLUMN_PAYMENT_ID, "Payment ID", true, true, String.class);
+	}
+
+	@Override
+	public String getPaymentId() {
+		return getStringColumnValue(COLUMN_PAYMENT_ID);
+	}
+
+	@Override
+	public void setPaymentId(String paymentId) {
+		setColumn(COLUMN_PAYMENT_ID, paymentId);
+	}
 
   	@Override
 	public Timestamp getTimestamp() {
@@ -1294,7 +1307,7 @@ public void setXMLAttachment(String xml) {
 		return null;
 	}
 
-	public Collection ejbFindRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
+	public Collection<?> ejbFindRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
 		String fromDate = from.getDateString("yyyyMMdd");
@@ -1313,7 +1326,7 @@ public void setXMLAttachment(String xml) {
 		return this.idoFindPKsByQuery (query);
 	}
 
-	public Collection ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
+	public Collection<?> ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
 		String fromDate = from.getDateString("yyyyMMdd");
