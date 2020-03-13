@@ -660,12 +660,16 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 			return auth.getAuthorizationCode();
 		}
 
+		String protocol = "https://";
 		boolean test = CreditCardUtil.isTestEnvironment();
 		if (test) {
-			this.HOST_NAME = "https://test.kortathjonustan.is";
+			this.HOST_NAME = protocol.concat("test.kortathjonustan.is");
 			this.HOST_PORT = 8443;
 		}
 		String url = this.HOST_NAME + CoreConstants.COLON + this.HOST_PORT + REQUEST_TYPE_CAPTURE;
+		if (!url.startsWith(protocol)) {
+			url = protocol.concat(url);
+		}
 		Hashtable<String, String> propertiesInHash = parseResponse(properties);
 		if (!MapUtil.isEmpty(propertiesInHash) && !StringUtil.isEmpty(this.USER)) {
 			propertiesInHash.put(PROPERTY_USER, this.USER);
