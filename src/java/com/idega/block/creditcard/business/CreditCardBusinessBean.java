@@ -658,6 +658,40 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 	}
 
 	@Override
+	public CreditCardAuthorizationEntry getAuthorizationEntry(String authorizationCode, IWTimestamp stamp) throws java.rmi.RemoteException {
+		if (StringUtil.isEmpty(authorizationCode) || stamp == null) {
+			return null;
+		}
+
+		CreditCardAuthorizationEntry entry = null;
+		try {
+			TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);
+			entry = home.findByAuthorisationIdRsp(authorizationCode, stamp);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			KortathjonustanAuthorisationEntriesHome home = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntriesBMPBean.class);
+			entry = home.findByAuthorizationCode(authorizationCode, stamp);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			DummyAuthorisationEntriesHome home = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntriesBMPBean.class);
+			entry = home.findByAuthorizationCode(authorizationCode, stamp);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		return null;
+	}
+
+	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntryByUniqueId(String uniqueId) {
 		if (StringUtil.isEmpty(uniqueId)) {
 			return null;

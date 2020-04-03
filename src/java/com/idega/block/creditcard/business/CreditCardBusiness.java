@@ -160,6 +160,8 @@ public interface CreditCardBusiness extends IBOService {
 	 */
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Supplier supplier, String authorizationCode, IWTimestamp stamp) throws java.rmi.RemoteException;
 
+	public CreditCardAuthorizationEntry getAuthorizationEntry(String authorizationCode, IWTimestamp stamp) throws java.rmi.RemoteException;
+
 	public CreditCardAuthorizationEntry getAuthorizationEntryByUniqueId(String uniqueId);
 
 	public CreditCardAuthorizationEntry getAuthorizationEntryByMetaData(String key, String value);
