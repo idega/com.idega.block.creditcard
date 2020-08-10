@@ -202,17 +202,17 @@ public class KortathjonustanMerchant implements CreditCardMerchant {
 
 	@Override
 	public Timestamp getStartDate() {
-		return new Timestamp(startDate.getTime());
+		return startDate == null ? null : new Timestamp(startDate.getTime());
 	}
 
 	@Override
 	public Timestamp getModificationDate() {
-		return new Timestamp(modificationDate.getTime());
+		return modificationDate == null ? null : new Timestamp(modificationDate.getTime());
 	}
 
 	@Override
 	public Timestamp getEndDate() {
-		return new Timestamp(endDate.getTime());
+		return endDate == null ? null : new Timestamp(endDate.getTime());
 	}
 
 	public void setEndDate(Date endDate) {
