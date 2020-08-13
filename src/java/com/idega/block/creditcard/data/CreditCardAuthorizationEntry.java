@@ -18,7 +18,8 @@ import com.idega.data.UniqueIDCapable;
 public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable, MetaDataCapable {
 
 	public static final String	COLUMN_TIMESTAMP = "timestamp",
-								COLUMN_PAYMENT_ID = "payment_id";
+								COLUMN_PAYMENT_ID = "payment_id",
+								COLUMN_CARD_TOKEN = "card_token";
 
 	public static float amountMultiplier = 100;
 
@@ -34,7 +35,7 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 	/**
 	 * Get the card expire date
 	 *
-	 * @return Exiredate for card MMYY
+	 * @return Expire date for card MMYY
 	 */
 	public String getCardExpires();
 
@@ -71,5 +72,9 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 	public String getPaymentId();
 
 	public void setPaymentId(String paymentId);
+
+	public void setCardToken(String cardToken);
+
+	public String getCardToken();
 
 }

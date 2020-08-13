@@ -40,6 +40,7 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 	private static final String COLUMN_PARENT_ID = "PARENT_ID";
 	private static final String COLUMN_TRANSACTION_TYPE = "TRANSACTION_TYPE"; //sale or refund ?
 	private static final String COLUMN_REFERENCE = "reference";
+	private static final String COLUMN_CARD_TOKEN = "card_token";
 
 	@Override
 	public String getEntityName() {
@@ -67,6 +68,7 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		addUniqueIDColumn();
 		addMetaDataRelationship();
 		addAttribute(COLUMN_PAYMENT_ID, "Payment ID", true, true, String.class);
+		addAttribute(COLUMN_CARD_TOKEN, "Card token", true, true, String.class);
 	}
 
 	@Override
@@ -328,6 +330,16 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		if (date != null) {
 			setDate(new Date(date.getTime()));
 		}
+	}
+
+	@Override
+	public void setCardToken(String cardToken) {
+		setColumn(COLUMN_CARD_TOKEN, cardToken);
+	}
+
+	@Override
+	public String getCardToken() {
+		return getStringColumnValue(COLUMN_CARD_TOKEN);
 	}
 
 }

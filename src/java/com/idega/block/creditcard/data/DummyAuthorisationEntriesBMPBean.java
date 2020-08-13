@@ -42,6 +42,7 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 	private static final String COLUMN_TRANSACTION_TYPE = "TRANSACTION_TYPE"; //sale or refund ?
 
 	private static final String COLUMN_REFERENCE = "reference";
+	private static final String COLUMN_CARD_TOKEN = "card_token";
 
 	@Override
 	public String getEntityName() {
@@ -69,6 +70,7 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 		addUniqueIDColumn();
 		addMetaDataRelationship();
 		addAttribute(COLUMN_PAYMENT_ID, "Payment ID", true, true, String.class);
+		addAttribute(COLUMN_CARD_TOKEN, "Card token", true, true, String.class);
 	}
 
 	@Override
@@ -311,6 +313,16 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 		if (date != null) {
 			setDate(new Date(date.getTime()));
 		}
+	}
+
+	@Override
+	public void setCardToken(String cardToken) {
+		setColumn(COLUMN_CARD_TOKEN, cardToken);
+	}
+
+	@Override
+	public String getCardToken() {
+		return getStringColumnValue(COLUMN_CARD_TOKEN);
 	}
 
 }

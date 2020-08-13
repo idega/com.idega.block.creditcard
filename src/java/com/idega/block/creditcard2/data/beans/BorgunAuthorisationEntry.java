@@ -129,6 +129,19 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = COLUMN_PAYMENT_ID)
 	private String paymentId;
 
+	@Column(name = COLUMN_CARD_TOKEN)
+	private String cardToken;
+
+	@Override
+	public String getCardToken() {
+		return cardToken;
+	}
+
+	@Override
+	public void setCardToken(String cardToken) {
+		this.cardToken = cardToken;
+	}
+
 	@Override
 	public String getPaymentId() {
 		return paymentId;
