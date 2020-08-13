@@ -15,11 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard2.data.beans.ValitorDebitMerchant;
+import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.block.creditcard2.data.dao.MerchantDAO;
 import com.idega.block.creditcard2.data.dao.impl.ValitorDebitAuthorisationEntryDAO;
@@ -28,6 +30,7 @@ import com.idega.block.trade.data.bean.DebitCardInformation;
 import com.idega.block.trade.data.dao.DebitCardInformationDAO;
 import com.idega.block.trade.stockroom.data.Supplier;
 import com.idega.core.business.DefaultSpringBean;
+import com.idega.core.persistence.Param;
 import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
 import com.idega.idegaweb.IWBundle;
@@ -40,6 +43,7 @@ import com.idega.user.dao.GroupDAO;
 import com.idega.user.data.bean.Group;
 import com.idega.util.Encrypter;
 import com.idega.util.IWTimestamp;
+import com.idega.util.StringUtil;
 import com.idega.util.expression.ELUtil;
 
 @Service(DebitCardBusiness.BEAN_NAME)
@@ -72,8 +76,9 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 	private GroupDAO groupDAO;
 
 	public DebitCardInformationDAO getDebitCardInformationDAO() {
-		if (debitCardInformationDAO == null)
+		if (debitCardInformationDAO == null) {
 			ELUtil.getInstance().autowire(this);
+		}
 		return debitCardInformationDAO;
 	}
 
@@ -316,10 +321,12 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 			info = iter.next();
 			merchant = getDebitCardMerchant(info);
 			if (merchant != null && !merchant.getIsDeleted()) {
-				if (merchant.getStartDate() != null)
+				if (merchant.getStartDate() != null) {
 					starts = new Timestamp(merchant.getStartDate().getTime());
-				if (merchant.getEndDate() != null)
+				}
+				if (merchant.getEndDate() != null) {
 					ends = new Timestamp(merchant.getEndDate().getTime());
+				}
 
 				if (ends == null) {
 					return info;
@@ -541,7 +548,9 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 	}
 
 	public GroupDAO getGroupDAO() {
-		if (groupDAO == null) ELUtil.getInstance().autowire(this);
+		if (groupDAO == null) {
+			ELUtil.getInstance().autowire(this);
+		}
 		return groupDAO;
 	}
 
@@ -552,6 +561,35 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 	@Override
 	public CreditCardClient getCardClient(Supplier supplier, IWTimestamp timestamp) throws Exception {
 		return getDebitCardClient(supplier, timestamp);
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public VirtualCard getNewVirtualCard(String identifier) {
+		try {
+			VirtualCard vCard = new VirtualCard(identifier);
+			debitCardInformationDAO.persist(vCard);
+			return vCard.getId() == null ? null : vCard;
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error creating new virtual card with identifier " + identifier, e);
+		}
+
+		return null;
+	}
+
+	@Override
+	public VirtualCard getVirtualCard(String token) {
+		if (StringUtil.isEmpty(token)) {
+			return null;
+		}
+
+		try {
+			return debitCardInformationDAO.getSingleResult(VirtualCard.QUERY_FIND_BY_TOKEN, VirtualCard.class, new Param(VirtualCard.COLUMN_TOKEN, token));
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting virtual card by token " + token, e);
+		}
+
+		return null;
 	}
 
 }
