@@ -14,6 +14,7 @@ import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.data.DummyAuthorisationEntries;
 import com.idega.block.creditcard.data.DummyAuthorisationEntriesHome;
+import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
 import com.idega.idegaweb.IWApplicationContext;
@@ -389,7 +390,12 @@ public class DummyCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
+	public CaptureResult getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public String doSaleWithCardToken(String cardToken, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 

@@ -16,6 +16,7 @@ import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
+import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard2.data.beans.ValitorAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.ValitorMerchant;
 import com.idega.block.creditcard2.data.dao.impl.ValitorAuthorisationEntryDAO;
@@ -449,7 +450,12 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
+	public CaptureResult getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public String doSaleWithCardToken(String cardToken, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 

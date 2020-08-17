@@ -21,6 +21,7 @@ import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesHome;
+import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
 import com.idega.idegaweb.IWApplicationContext;
@@ -73,8 +74,8 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	private String PROPERTY_ACCEPTOR_IDENT = "d42";
 	private String PROPERTY_CC_VERIFY_CODE = "d47";
 	private String PROPERTY_CURRENCY_CODE = "d49";
-	private String PROPERTY_ORIGINAL_DATA_ELEMENT = "d56"; // gotten from
-															// response
+	private String PROPERTY_ORIGINAL_DATA_ELEMENT = "d56"; // gotten from response
+	private String PROPERTY_TRANSACTION_ID = "transactionId";
 
 	private String PROPERTY_AMOUNT_ECHO = "o4"; // Echo from d4
 	private String PROPERTY_CURRENT_DATE_ECHO = "o12"; // Echo from d12
@@ -460,7 +461,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		auth.setCardNumber(encodedCardnumber);
 		auth.setDate(IWTimestamp.RightNow().getDate());
 
-		if (parentDataPK != null) {
+		if (parentDataPK != null && StringHandler.isNumeric(parentDataPK.toString())) {
 			try {
 				auth.setParentID(((Integer) parentDataPK).intValue());
 			} catch (Exception e) {
@@ -637,13 +638,13 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		Hashtable<String, String> propertiesInHash = parseResponse(properties);
 		LOGGER.info("Properties: " + properties + ", in hash: " + propertiesInHash);
 		Hashtable<String, String> returnedCaptureProperties = finishTransaction(propertiesInHash);
-		return finishWithCapturedResponse(returnedCaptureProperties);
+		return finishWithCapturedResponse(returnedCaptureProperties, null);
 	}
 
-	private String finishWithCapturedResponse(Hashtable<String, String> returnedCaptureProperties) throws KortathjonustanAuthorizationException {
+	private String finishWithCapturedResponse(Hashtable<String, String> returnedCaptureProperties, Object mainPaymentPK) throws KortathjonustanAuthorizationException {
 		LOGGER.info("Captured properties: " + returnedCaptureProperties);
 		try {
-			this.storeAuthorizationEntry(null, null, returnedCaptureProperties, KortathjonustanAuthorisationEntries.AUTHORIZATION_TYPE_DELAYED_TRANSACTION);
+			this.storeAuthorizationEntry(null, mainPaymentPK, returnedCaptureProperties, KortathjonustanAuthorisationEntries.AUTHORIZATION_TYPE_DELAYED_TRANSACTION);
 			return MapUtil.isEmpty(returnedCaptureProperties) || !returnedCaptureProperties.containsKey(this.PROPERTY_APPROVAL_CODE) ?
 					null :
 					returnedCaptureProperties.get(this.PROPERTY_APPROVAL_CODE).toString();
@@ -654,10 +655,10 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
+	public CaptureResult getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
 		if (auth != null && !StringUtil.isEmpty(auth.getPaymentId()) && !StringUtil.isEmpty(auth.getAuthorizationCode())) {
 			LOGGER.info("Payment for " + auth + " (auth. code: " + auth.getAuthorizationCode() + ", payment ID: " + auth.getPaymentId() + ") was already captured");
-			return auth.getAuthorizationCode();
+			return new CaptureResult(auth.getAuthorizationCode(), null, null);
 		}
 
 		String protocol = "https://";
@@ -720,8 +721,10 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		} else {
 			Hashtable<String, String> captureProperties = parseResponse(strResponse);
 			if (CODE_AUTHORIZATOIN_APPROVED.equals(captureProperties.get(this.PROPERTY_ACTION_CODE))) {
-				String authCode = finishWithCapturedResponse(captureProperties);
-				return authCode;
+				String authCode = finishWithCapturedResponse(captureProperties, null);
+				String transactionId = captureProperties.get(PROPERTY_ORIGINAL_DATA_ELEMENT);
+				transactionId = StringUtil.isEmpty(transactionId) ? captureProperties.get(PROPERTY_TRANSACTION_ID) : transactionId;
+				return new CaptureResult(authCode, transactionId, captureProperties);
 			} else {
 				KortathjonustanAuthorizationException cce = new KortathjonustanAuthorizationException();
 				cce.setDisplayError(captureProperties.get(this.PROPERTY_ACTION_CODE_TEXT).toString());
@@ -796,8 +799,17 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		return (firstTime ? CoreConstants.EMPTY : CoreConstants.AMP).concat(name).concat(CoreConstants.EQ).concat(value);
 	}
 
-	@Override
-	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
+	/**
+	 * Sets d4, de4, d41, d42, d49, d12, d31
+	 *
+	 * @param currency
+	 * @param amount
+	 * @param timestamp
+	 * @param reference
+	 * @return
+	 * @throws CreditCardAuthorizationException
+	 */
+	private String getProperties(String currency, double amount, Timestamp timestamp, String reference) throws CreditCardAuthorizationException {
 		StringBuffer properties = new StringBuffer();
 
 		setCurrencyAndAmount(currency, amount);
@@ -817,6 +829,15 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		//	d31
 		strReferenceNumber = reference;
 		properties.append(getProperty(this.PROPERTY_REFERENCE_ID, strReferenceNumber));
+
+		String result = properties.toString();
+		LOGGER.info("Properties for " + amount + " at " + timestamp + ": " + result);
+		return result;
+	}
+
+	@Override
+	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
+		StringBuffer properties = new StringBuffer(getProperties(currency, amount, timestamp, reference));
 
 		//	d38
 		properties.append(getProperty(this.PROPERTY_APPROVAL_CODE, approvalCode));
@@ -1099,6 +1120,121 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	@Override
 	public String voidTransaction(String properties) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented for korta cliens");
+	}
+
+	@Override
+	public String doSaleWithCardToken(
+			String cardToken,
+			double amount,
+			String currency,
+			String referenceNumber,
+			Object parentPaymentPK
+	) throws CreditCardAuthorizationException {
+		if (
+				StringUtil.isEmpty(cardToken) ||
+				amount <= 0 ||
+				StringUtil.isEmpty(currency) ||
+				StringUtil.isEmpty(referenceNumber)
+		) {
+			String error = "Invalid parameters";
+			LOGGER.warning(error);
+			throw new CreditCardAuthorizationException(error);
+		}
+
+		String properties = getProperties(currency, amount, new Timestamp(System.currentTimeMillis()), referenceNumber);
+		if (StringUtil.isEmpty(properties)) {
+			String error = "Invalid properties";
+			LOGGER.warning(error);
+			throw new CreditCardAuthorizationException(error);
+		}
+
+		String protocol = "https://";
+		boolean test = CreditCardUtil.isTestEnvironment();
+		if (test) {
+			this.HOST_NAME = protocol.concat("test.kortathjonustan.is");
+			this.HOST_PORT = 8443;
+		}
+		String url = this.HOST_NAME + CoreConstants.COLON + this.HOST_PORT + REQUEST_TYPE_AUTHORIZATION;
+		if (!url.startsWith(protocol)) {
+			url = protocol.concat(url);
+		}
+		Hashtable<String, String> propertiesInHash = parseResponse(properties);
+		if (MapUtil.isEmpty(propertiesInHash)) {
+			String error = "Invalid parsed properties from " + properties;
+			LOGGER.warning(error);
+			throw new CreditCardAuthorizationException(error);
+		}
+
+		if (!StringUtil.isEmpty(this.USER)) {
+			propertiesInHash.put(PROPERTY_USER, this.USER);
+		}
+		if (!StringUtil.isEmpty(this.PASSWORD)) {
+			propertiesInHash.put(PROPERTY_PASSWORD, this.PASSWORD);
+		}
+		propertiesInHash.put("initiatedby", "M");
+		propertiesInHash.put("cof", "U");
+		propertiesInHash.put(PROPERTY_TRANSACTION_ID, cardToken);
+		propertiesInHash.put("d22cp", "RPA");
+		if (test) {
+			propertiesInHash.put(PROPERTY_ACCEPTOR_IDENT, "8180001");
+			propertiesInHash.put(PROPERTY_ACCEPTOR_TERM_ID, "90000001");
+		}
+		propertiesInHash.put("capture", Boolean.TRUE.toString());
+
+		//	Resetting auth. entry not to mix up with parent payment
+		if (this.auth != null && this.auth.getPrimaryKey() != null && parentPaymentPK != null && this.auth.getPrimaryKey().toString().equals(parentPaymentPK.toString())) {
+			this.auth = null;
+		}
+
+		String data = getPostData(propertiesInHash);
+		LOGGER.info("Properties: " + properties + ", in hash: " + propertiesInHash + ", data to send to sale with card token: " + data + " to URL: " + url);
+		Long length = Integer.valueOf(data.length()).longValue();
+		ClientResponse response = null;
+		try {
+			response = ConnectionUtil.getInstance().getResponseFromREST(url, length, "application/x-www-form-urlencoded", "POST", data, null, null);
+		} catch (Exception e) {
+			throw new KortathjonustanAuthorizationException("Error getting response from " + url, e);
+		}
+		if (response == null) {
+			throw new KortathjonustanAuthorizationException("Unknown response from " + url);
+		}
+		if (response.getStatus() != Status.OK.getStatusCode()) {
+			throw new KortathjonustanAuthorizationException("Response is not OK: " + response.getStatus() + ". " + response);
+		}
+
+		String strResponse = null;
+		try {
+			strResponse = StringHandler.getContentFromInputStream(response.getEntityInputStream());
+		} catch (Exception e) {
+			String error = "Error parsing response " + response;
+			LOGGER.log(Level.WARNING, error, e);
+			throw new KortathjonustanAuthorizationException(error);
+		}
+		if (strResponse == null) {
+			KortathjonustanAuthorizationException cce = new KortathjonustanAuthorizationException();
+			cce.setDisplayError("Cannot connect to Central Payment Server");
+			cce.setErrorMessage("SendRequest returned null");
+			cce.setErrorNumber("-");
+			throw cce;
+		} else if (!strResponse.startsWith(this.PROPERTY_ACTION_CODE)) {
+			KortathjonustanAuthorizationException cce = new KortathjonustanAuthorizationException();
+			cce.setDisplayError("Cannot connect to Central Payment Server");
+			cce.setErrorMessage("Invalid response from host, should start with d39 [" + strResponse + "]");
+			cce.setErrorNumber("-");
+			throw cce;
+		} else {
+			Hashtable<String, String> captureProperties = parseResponse(strResponse);
+			if (CODE_AUTHORIZATOIN_APPROVED.equals(captureProperties.get(this.PROPERTY_ACTION_CODE))) {
+				String authCode = finishWithCapturedResponse(captureProperties, parentPaymentPK);
+				return authCode;
+			} else {
+				KortathjonustanAuthorizationException cce = new KortathjonustanAuthorizationException();
+				cce.setDisplayError(captureProperties.get(this.PROPERTY_ACTION_CODE_TEXT).toString());
+				cce.setErrorMessage(captureProperties.get(this.PROPERTY_ERROR_TEXT).toString());
+				cce.setErrorNumber(captureProperties.get(this.PROPERTY_ACTION_CODE).toString());
+				throw cce;
+			}
+		}
 	}
 
 }
