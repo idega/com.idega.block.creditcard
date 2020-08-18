@@ -2,6 +2,7 @@ package com.idega.block.creditcard2.data.beans;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.persistence.Cacheable;
@@ -19,8 +20,8 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.util.DigestUtils;
 
+import com.idega.util.CoreConstants;
 import com.idega.util.StringUtil;
 
 @Entity
@@ -76,11 +77,13 @@ public class VirtualCard implements Serializable {
 	}
 
 	private void setTokenFromIdentifier(String identifier) {
-		identifier = StringUtil.isEmpty(identifier) ? UUID.randomUUID().toString() : identifier;
-		this.token = DigestUtils.md5DigestAsHex(identifier.getBytes()).toLowerCase();
-		if (this.token.length() > 20) {
-			this.token = this.token.substring(0, 20);
+		String token = CoreConstants.EMPTY;
+		Random random = new Random();
+		while (token.length() < 19) {
+			Integer randomNumber = random.ints(0, 9).findFirst().getAsInt();
+			token = token.concat(randomNumber.toString());
 		}
+		this.token = token;
 	}
 
 	@PrePersist
