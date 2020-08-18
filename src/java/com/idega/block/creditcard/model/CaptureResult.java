@@ -42,4 +42,9 @@ public class CaptureResult {
 		this.transactionId = transactionId;
 	}
 
+	@Override
+	public String toString() {
+		return "Auth. code: " + getAuthCode() + ", transaction ID: " + getTransactionId() + ", all properties: " + getProperties();
+	}
+
 }
