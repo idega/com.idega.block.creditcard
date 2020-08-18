@@ -456,6 +456,9 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		if (properties.containsKey(this.PROPERTY_ORIGINAL_DATA_ELEMENT)) {
 			auth.setPaymentId(properties.get(this.PROPERTY_ORIGINAL_DATA_ELEMENT));
 		}
+		if (properties.containsKey(PROPERTY_TRANSACTION_ID)) {
+			auth.setTransactionId(properties.get(PROPERTY_TRANSACTION_ID));
+		}
 
 		auth.setTransactionType(authorizationType);
 		auth.setCardNumber(encodedCardnumber);
@@ -1125,6 +1128,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	@Override
 	public String doSaleWithCardToken(
 			String cardToken,
+			String transactionId,
 			double amount,
 			String currency,
 			String referenceNumber,
@@ -1132,6 +1136,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	) throws CreditCardAuthorizationException {
 		if (
 				StringUtil.isEmpty(cardToken) ||
+				StringUtil.isEmpty(transactionId) ||
 				amount <= 0 ||
 				StringUtil.isEmpty(currency) ||
 				StringUtil.isEmpty(referenceNumber)
@@ -1141,6 +1146,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 			throw new CreditCardAuthorizationException(error);
 		}
 
+		//	Sets d4, de4, d41, d42, d49, d12, d31
 		String properties = getProperties(currency, amount, new Timestamp(System.currentTimeMillis()), referenceNumber);
 		if (StringUtil.isEmpty(properties)) {
 			String error = "Invalid properties";
@@ -1171,15 +1177,16 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		if (!StringUtil.isEmpty(this.PASSWORD)) {
 			propertiesInHash.put(PROPERTY_PASSWORD, this.PASSWORD);
 		}
+		propertiesInHash.put("capture", Boolean.TRUE.toString());
+		propertiesInHash.put("daskm", cardToken);
 		propertiesInHash.put("initiatedby", "M");
 		propertiesInHash.put("cof", "U");
-		propertiesInHash.put(PROPERTY_TRANSACTION_ID, cardToken);
+		propertiesInHash.put(PROPERTY_TRANSACTION_ID, transactionId);
 		propertiesInHash.put("d22cp", "RPA");
 		if (test) {
 			propertiesInHash.put(PROPERTY_ACCEPTOR_IDENT, "8180001");
 			propertiesInHash.put(PROPERTY_ACCEPTOR_TERM_ID, "90000001");
 		}
-		propertiesInHash.put("capture", Boolean.TRUE.toString());
 
 		//	Resetting auth. entry not to mix up with parent payment
 		if (this.auth != null && this.auth.getPrimaryKey() != null && parentPaymentPK != null && this.auth.getPrimaryKey().toString().equals(parentPaymentPK.toString())) {

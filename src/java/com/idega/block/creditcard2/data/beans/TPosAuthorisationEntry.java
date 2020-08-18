@@ -196,6 +196,19 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = COLUMN_CARD_TOKEN)
 	private String cardToken;
 
+	@Column(name = COLUMN_TRANSACTION_ID)
+	private String transactionId;
+
+	@Override
+	public String getTransactionId() {
+		return transactionId;
+	}
+
+	@Override
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
+	}
+
 	@Override
 	public String getCardToken() {
 		return cardToken;

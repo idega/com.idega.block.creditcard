@@ -69,6 +69,17 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		addMetaDataRelationship();
 		addAttribute(COLUMN_PAYMENT_ID, "Payment ID", true, true, String.class);
 		addAttribute(COLUMN_CARD_TOKEN, "Card token", true, true, String.class);
+		addAttribute(COLUMN_TRANSACTION_ID, "Transaction ID", true, true, String.class);
+	}
+
+	@Override
+	public void setTransactionId(String transactionId) {
+		setColumn(COLUMN_TRANSACTION_ID, transactionId);
+	}
+
+	@Override
+	public String getTransactionId() {
+		return getStringColumnValue(COLUMN_TRANSACTION_ID);
 	}
 
 	@Override

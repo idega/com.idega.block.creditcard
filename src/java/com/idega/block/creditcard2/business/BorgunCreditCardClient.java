@@ -716,7 +716,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String doSaleWithCardToken(String cardToken, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
+	public String doSaleWithCardToken(String cardToken, String transactionId, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 

@@ -19,7 +19,8 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 
 	public static final String	COLUMN_TIMESTAMP = "timestamp",
 								COLUMN_PAYMENT_ID = "payment_id",
-								COLUMN_CARD_TOKEN = "card_token";
+								COLUMN_CARD_TOKEN = "card_token",
+								COLUMN_TRANSACTION_ID = "transaction_id";
 
 	public static float amountMultiplier = 100;
 
@@ -76,5 +77,9 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 	public void setCardToken(String cardToken);
 
 	public String getCardToken();
+
+	public void setTransactionId(String transactionId);
+
+	public String getTransactionId();
 
 }

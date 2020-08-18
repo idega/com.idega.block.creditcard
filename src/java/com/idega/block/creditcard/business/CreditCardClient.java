@@ -121,6 +121,7 @@ public interface CreditCardClient {
 
 	public String doSaleWithCardToken(
 			String cardToken,
+			String transactionId,
 			double amount,
 			String currency,
 			String referenceNumber,
