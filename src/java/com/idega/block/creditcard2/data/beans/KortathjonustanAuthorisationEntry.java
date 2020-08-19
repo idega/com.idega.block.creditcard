@@ -106,7 +106,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 	@Column(name = "ERROR_TEXT")
 	private String errorText;
 
-	@Column(name = "SERVER_RESPONSE")
+	@Column(name = "SERVER_RESPONSE", length = 1000)
 	private String serverResponse;
 
 	@OneToOne
