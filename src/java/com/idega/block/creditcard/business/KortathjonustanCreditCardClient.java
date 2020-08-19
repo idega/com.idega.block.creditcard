@@ -462,7 +462,11 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 
 		auth.setTransactionType(authorizationType);
 		auth.setCardNumber(encodedCardnumber);
-		auth.setDate(IWTimestamp.RightNow().getDate());
+		IWTimestamp now = IWTimestamp.RightNow();
+		auth.setDate(now.getDate());
+		if (auth.getTimestamp() == null) {
+			auth.setTimestamp(new Timestamp(now.getTime().getTime()));
+		}
 
 		if (parentDataPK != null && StringHandler.isNumeric(parentDataPK.toString())) {
 			try {
