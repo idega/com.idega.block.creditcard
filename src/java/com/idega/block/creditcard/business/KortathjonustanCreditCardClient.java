@@ -816,7 +816,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	 * @return
 	 * @throws CreditCardAuthorizationException
 	 */
-	private String getProperties(String currency, double amount, Timestamp timestamp, String reference) throws CreditCardAuthorizationException {
+	private String getProperties(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
 		StringBuffer properties = new StringBuffer();
 
 		setCurrencyAndAmount(currency, amount);
@@ -830,7 +830,13 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		properties.append(getProperty(this.PROPERTY_CURRENCY_CODE, strCurrencyCode));				//	d49
 
 		//	d12
-		strCurrentDate = getDateString(new IWTimestamp(timestamp.getTime()));
+		IWTimestamp stamp = new IWTimestamp(timestamp.getTime());
+		if (StringUtil.isEmpty(approvalCode)) {
+			strCurrentDate = getDateString(stamp);
+		} else {
+			strCurrentDate = stamp.getDateString("yyMMdd");
+			strCurrentDate = strCurrentDate.concat(approvalCode);
+		}
 		properties.append(getProperty(this.PROPERTY_CURRENT_DATE, strCurrentDate));
 
 		//	d31
@@ -844,7 +850,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 
 	@Override
 	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
-		StringBuffer properties = new StringBuffer(getProperties(currency, amount, timestamp, reference));
+		StringBuffer properties = new StringBuffer(getProperties(currency, amount, timestamp, reference, approvalCode));
 
 		//	d38
 		properties.append(getProperty(this.PROPERTY_APPROVAL_CODE, approvalCode));
@@ -1151,7 +1157,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		}
 
 		//	Sets d4, de4, d41, d42, d49, d12, d31
-		String properties = getProperties(currency, amount, new Timestamp(System.currentTimeMillis()), referenceNumber);
+		String properties = getProperties(currency, amount, new Timestamp(System.currentTimeMillis()), referenceNumber, null);
 		if (StringUtil.isEmpty(properties)) {
 			String error = "Invalid properties";
 			LOGGER.warning(error);
