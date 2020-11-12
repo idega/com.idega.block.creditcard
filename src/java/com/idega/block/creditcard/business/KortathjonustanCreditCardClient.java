@@ -86,6 +86,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	// private String PROPERTY_SHIPPING_CITY = "d2scity";
 	// private String PROPERTY_SHIPPING_ZIP = "d2szip";
 	// private String PROPERTY_SHIPPING_COUNTRY = "d2sctr";
+	private String PROPERTY_CARD_NUMBER = "d2dsp";
 	private String PROPERTY_CARD_BRAND_NAME = "d2brand";
 	private String PROPERTY_TOTAL_RESPONSE = "totalResponse";
 
@@ -436,6 +437,9 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		if (properties.containsKey(this.PROPERTY_CARD_BRAND_NAME)) {
 			auth.setBrandName(properties.get(this.PROPERTY_CARD_BRAND_NAME).toString());
 		}
+		if (properties.containsKey(this.PROPERTY_CARD_NUMBER)) {
+			auth.setCardNumber(properties.get(this.PROPERTY_CARD_NUMBER).toString());
+		}
 		if (properties.containsKey(this.PROPERTY_CC_EXPIRE))
 		 {
 			auth.setCardExpires(properties.get(this.PROPERTY_CC_EXPIRE).toString());// monthExpires+yearExpires);
@@ -461,7 +465,9 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		}
 
 		auth.setTransactionType(authorizationType);
-		auth.setCardNumber(encodedCardnumber);
+		if (!StringUtil.isEmpty(encodedCardnumber)) {
+			auth.setCardNumber(encodedCardnumber);
+		}
 		IWTimestamp now = IWTimestamp.RightNow();
 		auth.setDate(now.getDate());
 		if (auth.getTimestamp() == null) {
@@ -776,6 +782,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 			} else {
 				captureProperties = parseResponse(strResponse);
 				captureProperties.put(this.PROPERTY_CARD_BRAND_NAME, properties.get(this.PROPERTY_CARD_BRAND_NAME));
+				captureProperties.put(this.PROPERTY_CARD_NUMBER, properties.get(this.PROPERTY_CARD_NUMBER));
 				if (CODE_AUTHORIZATOIN_APPROVED.equals(captureProperties.get(this.PROPERTY_ACTION_CODE))) {
 					return captureProperties;
 				} else {
