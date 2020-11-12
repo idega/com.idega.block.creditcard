@@ -53,6 +53,7 @@ import com.idega.presentation.ui.DropdownMenu;
 import com.idega.transaction.IdegaTransactionManager;
 import com.idega.user.dao.GroupDAO;
 import com.idega.user.data.bean.Group;
+import com.idega.user.data.bean.User;
 import com.idega.util.Encrypter;
 import com.idega.util.IWTimestamp;
 import com.idega.util.ListUtil;
@@ -745,6 +746,39 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		}
 
 		return null;
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public boolean doUpdateVirtualCard(
+			String token,
+			String transactionId,
+			String card4,
+			String brand,
+			Integer expireYear,
+			Integer expireMonth,
+			Boolean enabled,
+			User owner
+	) {
+		VirtualCard vCard = getVirtualCard(token);
+		if (vCard == null) {
+			return false;
+		}
+
+		try {
+			vCard.setTransactionId(transactionId);
+			vCard.setLast4(card4);
+			vCard.setBrand(brand);
+			vCard.setOwner(owner);
+			vCard.setExpYear(expireYear);
+			vCard.setExpMonth(expireMonth);
+			vCard.setEnabled(Boolean.TRUE);
+			creditCardInformationDAO.merge(vCard);
+			return true;
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error updating virtual card " + vCard, e);
+		}
+		return false;
 	}
 
 }

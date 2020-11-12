@@ -3,6 +3,7 @@ package com.idega.block.creditcard2.business;
 import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.block.trade.stockroom.data.Supplier;
+import com.idega.user.data.bean.User;
 import com.idega.util.IWTimestamp;
 
 public interface CardBusiness {
@@ -22,5 +23,16 @@ public interface CardBusiness {
 	 * @return
 	 */
 	public VirtualCard getVirtualCard(String token);
+
+	public boolean doUpdateVirtualCard(
+			String token,
+			String transactionId,
+			String card4,
+			String brand,
+			Integer expireYear,
+			Integer expireMonth,
+			Boolean enabled,
+			User owner
+	);
 
 }
