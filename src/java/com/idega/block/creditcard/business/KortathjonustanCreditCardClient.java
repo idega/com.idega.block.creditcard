@@ -1163,7 +1163,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 			throw new CreditCardAuthorizationException(error);
 		}
 
-		//	Sets d4, de4, d41, d42, d49, d12, d31
+		//	Sets d4 (amount), de4 (number of decimals), d41 (terminal), d42 (merchant), d49 (currency code), d12 (date), d31 (payment reference)
 		String properties = getProperties(currency, amount, new Timestamp(System.currentTimeMillis()), referenceNumber, null);
 		if (StringUtil.isEmpty(properties)) {
 			String error = "Invalid properties";
@@ -1194,15 +1194,15 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		if (!StringUtil.isEmpty(this.PASSWORD)) {
 			propertiesInHash.put(PROPERTY_PASSWORD, this.PASSWORD);
 		}
-		propertiesInHash.put("capture", Boolean.TRUE.toString());
-		propertiesInHash.put("daskm", cardToken);
-		propertiesInHash.put("initiatedby", "M");
-		propertiesInHash.put("cof", "U");
+		propertiesInHash.put("capture", "True");
+		propertiesInHash.put("daskm", cardToken);							//	Virtual Card Token
+		propertiesInHash.put("initiatedby", "M");							//	M - merchant initiated
+		propertiesInHash.put("cof", "U");									//	U - unscheduled (M or C)
 		propertiesInHash.put(PROPERTY_TRANSACTION_ID, transactionId);
-		propertiesInHash.put("d22cp", "RPA");
+		propertiesInHash.put("d22cp", "RPA");								//	RPA - internet
 		if (test) {
-			propertiesInHash.put(PROPERTY_ACCEPTOR_IDENT, "8180001");
-			propertiesInHash.put(PROPERTY_ACCEPTOR_TERM_ID, "90000001");
+			propertiesInHash.put(PROPERTY_ACCEPTOR_IDENT, "8180001");		//	d42
+			propertiesInHash.put(PROPERTY_ACCEPTOR_TERM_ID, "90000001");	//	d41
 		}
 
 		//	Resetting auth. entry not to mix up with parent payment
