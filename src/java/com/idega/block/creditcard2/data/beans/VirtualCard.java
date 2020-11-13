@@ -39,7 +39,7 @@ import com.idega.util.StringUtil;
 @NamedQueries({
 	@NamedQuery(
 			name = VirtualCard.QUERY_FIND_BY_TOKEN,
-			query = "select vc from VirtualCard vc where vc.token = :" + VirtualCard.COLUMN_TOKEN + " and vc.transactionId is not null"
+			query = "select vc from VirtualCard vc where vc.token = :" + VirtualCard.COLUMN_TOKEN
 	),
 	@NamedQuery(
 			name = VirtualCard.QUERY_FIND_BY_OWNER,
