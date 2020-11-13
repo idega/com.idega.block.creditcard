@@ -736,6 +736,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 	@Override
 	public VirtualCard getVirtualCard(String token) {
 		if (StringUtil.isEmpty(token)) {
+			getLogger().warning("Token is not provided");
 			return null;
 		}
 
@@ -762,6 +763,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 	) {
 		VirtualCard vCard = getVirtualCard(token);
 		if (vCard == null) {
+			getLogger().warning("Virtual card not found by token: " + token);
 			return false;
 		}
 
