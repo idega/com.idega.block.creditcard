@@ -95,4 +95,6 @@ public interface CreditCardMerchant extends IDOEntity {
 
 	public void setSuccessRedirectURL(String successRedirectURL);
 
+	public Integer getId();
+
 }

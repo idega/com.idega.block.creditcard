@@ -259,4 +259,10 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 		return getStringColumnValue(COLUMN_SHARED_SECRET);
 	}
 
+	@Override
+	public Integer getId() {
+		Object pk = getPrimaryKey();
+		return (Integer) pk;
+	}
+
 }

@@ -272,4 +272,10 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 		return getStringColumnValue(COLUMN_SHARED_SECRET);
 	}
 
+	@Override
+	public Integer getId() {
+		Object pk = getPrimaryKey();
+		return (Integer) pk;
+	}
+
 }
