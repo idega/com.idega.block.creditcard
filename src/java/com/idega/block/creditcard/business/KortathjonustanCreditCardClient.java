@@ -857,7 +857,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 
 	@Override
 	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
-		StringBuffer properties = new StringBuffer(getProperties(currency, amount, timestamp, reference, approvalCode));
+		StringBuffer properties = new StringBuffer(getProperties(currency, amount, timestamp, reference, CreditCardUtil.isTestEnvironment() ? approvalCode : null));
 
 		//	d38
 		properties.append(getProperty(this.PROPERTY_APPROVAL_CODE, approvalCode));
