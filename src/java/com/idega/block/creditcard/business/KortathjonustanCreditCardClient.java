@@ -482,6 +482,13 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 			}
 		}
 		auth.store();
+
+		String uniqueId = auth.getUniqueId();
+		if (StringUtil.isEmpty(uniqueId)) {
+			uniqueId = UUIDGenerator.getInstance().generateUUID();
+			auth.setUniqueId(uniqueId);
+			auth.store();
+		}
 	}
 
 	private String getDateString(IWTimestamp stamp) {
