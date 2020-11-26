@@ -21,7 +21,9 @@ import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesHome;
+import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
+import com.idega.core.idgenerator.business.UUIDGenerator;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
 import com.idega.idegaweb.IWApplicationContext;
@@ -417,22 +419,24 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	 * @throws IDOLookupException
 	 * @throws CreateException
 	 */
-	private void storeAuthorizationEntry(String encodedCardnumber, Object parentDataPK, Hashtable<String, String> properties, String authorizationType) throws IDOLookupException, CreateException {
+	private AuthEntryData storeAuthorizationEntry(
+			String encodedCardnumber,
+			Object parentDataPK,
+			Hashtable<String, String> properties,
+			String authorizationType
+	) throws IDOLookupException, CreateException {
 		if (auth == null) {
-			KortathjonustanAuthorisationEntriesHome authHome = (KortathjonustanAuthorisationEntriesHome) IDOLookup
-					.getHome(KortathjonustanAuthorisationEntries.class);
+			KortathjonustanAuthorisationEntriesHome authHome = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntries.class);
 			auth = authHome.create();
 		}
 
 		LOGGER.info("Save entry " + auth + " with data " + properties);
 
-		if (properties.containsKey(this.PROPERTY_AMOUNT))
-		 {
-			auth.setAmount(Double.parseDouble(properties.get(this.PROPERTY_AMOUNT).toString()));// Double.parseDouble(strAmount));
+		if (properties.containsKey(this.PROPERTY_AMOUNT)) {
+			auth.setAmount(Double.parseDouble(properties.get(this.PROPERTY_AMOUNT).toString()));
 		}
-		if (properties.containsKey(this.PROPERTY_APPROVAL_CODE))
-		 {
-			auth.setAuthorizationCode(properties.get(this.PROPERTY_APPROVAL_CODE).toString());// authCode);
+		if (properties.containsKey(this.PROPERTY_APPROVAL_CODE)) {
+			auth.setAuthorizationCode(properties.get(this.PROPERTY_APPROVAL_CODE).toString());
 		}
 		if (properties.containsKey(this.PROPERTY_CARD_BRAND_NAME)) {
 			auth.setBrandName(properties.get(this.PROPERTY_CARD_BRAND_NAME).toString());
@@ -440,13 +444,11 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		if (properties.containsKey(this.PROPERTY_CARD_NUMBER)) {
 			auth.setCardNumber(properties.get(this.PROPERTY_CARD_NUMBER).toString());
 		}
-		if (properties.containsKey(this.PROPERTY_CC_EXPIRE))
-		 {
-			auth.setCardExpires(properties.get(this.PROPERTY_CC_EXPIRE).toString());// monthExpires+yearExpires);
+		if (properties.containsKey(this.PROPERTY_CC_EXPIRE)) {
+			auth.setCardExpires(properties.get(this.PROPERTY_CC_EXPIRE).toString());
 		}
-		if (properties.containsKey(this.PROPERTY_CURRENCY_CODE))
-		 {
-			auth.setCurrency(getCurrencyAbbreviation(properties.get(this.PROPERTY_CURRENCY_CODE).toString()));// currency);
+		if (properties.containsKey(this.PROPERTY_CURRENCY_CODE)) {
+			auth.setCurrency(getCurrencyAbbreviation(properties.get(this.PROPERTY_CURRENCY_CODE).toString()));
 		}
 		if (properties.containsKey(this.PROPERTY_ERROR_CODE)) {
 			auth.setErrorNumber(properties.get(this.PROPERTY_ERROR_CODE).toString());
@@ -489,6 +491,8 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 			auth.setUniqueId(uniqueId);
 			auth.store();
 		}
+		String authCode = auth.getAuthorizationCode();
+		return new AuthEntryData(authCode, uniqueId);
 	}
 
 	private String getDateString(IWTimestamp stamp) {
@@ -658,16 +662,17 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		Hashtable<String, String> propertiesInHash = parseResponse(properties);
 		LOGGER.info("Properties: " + properties + ", in hash: " + propertiesInHash);
 		Hashtable<String, String> returnedCaptureProperties = finishTransaction(propertiesInHash);
-		return finishWithCapturedResponse(returnedCaptureProperties, null);
+		AuthEntryData authEntryData = finishWithCapturedResponse(returnedCaptureProperties, null);
+		return authEntryData == null ? null : authEntryData.getAuthCode();
 	}
 
-	private String finishWithCapturedResponse(Hashtable<String, String> returnedCaptureProperties, Object mainPaymentPK) throws KortathjonustanAuthorizationException {
+	private AuthEntryData finishWithCapturedResponse(Hashtable<String, String> returnedCaptureProperties, Object mainPaymentPK) throws KortathjonustanAuthorizationException {
 		LOGGER.info("Captured properties: " + returnedCaptureProperties);
 		try {
-			this.storeAuthorizationEntry(null, mainPaymentPK, returnedCaptureProperties, KortathjonustanAuthorisationEntries.AUTHORIZATION_TYPE_DELAYED_TRANSACTION);
+			AuthEntryData data = this.storeAuthorizationEntry(null, mainPaymentPK, returnedCaptureProperties, KortathjonustanAuthorisationEntries.AUTHORIZATION_TYPE_DELAYED_TRANSACTION);
 			return MapUtil.isEmpty(returnedCaptureProperties) || !returnedCaptureProperties.containsKey(this.PROPERTY_APPROVAL_CODE) ?
 					null :
-					returnedCaptureProperties.get(this.PROPERTY_APPROVAL_CODE).toString();
+					data;
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, "Unable to save entry to database", e);
 			throw new KortathjonustanAuthorizationException(e);
@@ -741,7 +746,8 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		} else {
 			Hashtable<String, String> captureProperties = parseResponse(strResponse);
 			if (CODE_AUTHORIZATOIN_APPROVED.equals(captureProperties.get(this.PROPERTY_ACTION_CODE))) {
-				String authCode = finishWithCapturedResponse(captureProperties, null);
+				AuthEntryData authEntryData = finishWithCapturedResponse(captureProperties, null);
+				String authCode = authEntryData == null ? null : authEntryData.getAuthCode();
 				String transactionId = captureProperties.get(PROPERTY_ORIGINAL_DATA_ELEMENT);
 				transactionId = StringUtil.isEmpty(transactionId) ? captureProperties.get(PROPERTY_TRANSACTION_ID) : transactionId;
 				return new CaptureResult(authCode, transactionId, captureProperties);
@@ -1150,7 +1156,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String doSaleWithCardToken(
+	public AuthEntryData doSaleWithCardToken(
 			String cardToken,
 			String transactionId,
 			double amount,
@@ -1256,8 +1262,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		} else {
 			Hashtable<String, String> captureProperties = parseResponse(strResponse);
 			if (CODE_AUTHORIZATOIN_APPROVED.equals(captureProperties.get(this.PROPERTY_ACTION_CODE))) {
-				String authCode = finishWithCapturedResponse(captureProperties, parentPaymentPK);
-				return authCode;
+				return finishWithCapturedResponse(captureProperties, parentPaymentPK);
 			} else {
 				KortathjonustanAuthorizationException cce = new KortathjonustanAuthorizationException();
 				cce.setDisplayError(captureProperties.get(this.PROPERTY_ACTION_CODE_TEXT).toString());

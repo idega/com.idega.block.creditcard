@@ -16,6 +16,7 @@ import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
+import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard2.data.beans.ValitorAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.ValitorMerchant;
@@ -103,7 +104,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	private static final Object LOCK = new Object() {
 	};
 
-	private static HashMap<Integer, RRN> authRefs = new HashMap<Integer, RRN>();
+	private static HashMap<Integer, RRN> authRefs = new HashMap<>();
 
 	public ValitorCreditCardClient(CreditCardMerchant merchant) {
 		if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(merchant.getType())) {
@@ -455,7 +456,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String doSaleWithCardToken(String cardToken, String transactionId, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
+	public AuthEntryData doSaleWithCardToken(String cardToken, String transactionId, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 

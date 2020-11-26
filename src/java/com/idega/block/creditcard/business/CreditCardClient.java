@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
+import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
 
 /**
@@ -119,7 +120,7 @@ public interface CreditCardClient {
 
 	public CaptureResult getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException;
 
-	public String doSaleWithCardToken(
+	public AuthEntryData doSaleWithCardToken(
 			String cardToken,
 			String transactionId,
 			double amount,

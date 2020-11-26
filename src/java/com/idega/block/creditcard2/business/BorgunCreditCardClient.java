@@ -22,6 +22,7 @@ import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
+import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard2.data.beans.BorgunAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
@@ -115,7 +116,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	private static final Object LOCK = new Object() {
 	};
 
-	private static HashMap<Integer, RRN> authRefs = new HashMap<Integer, RRN>();
+	private static HashMap<Integer, RRN> authRefs = new HashMap<>();
 
 	public BorgunCreditCardClient(CreditCardMerchant merchant) {
 		if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(merchant.getType())) {
@@ -230,7 +231,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 
 			Authorization service = new Authorization();
 			AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
-			HashMap<String, String> params = new HashMap<String, String>();
+			HashMap<String, String> params = new HashMap<>();
 			params.put(BORGUN_ACTION_NAME, "getVirtualCard");
 			params.put(BorgunCreditCardClient.MERCHANT_CONTRACT_NUMBER,
 					((BorgunMerchant) this.merchant).getMerchantContractNumber());
@@ -281,7 +282,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 			BorgunDocument prevAuth = new BorgunDocument(auth.getServerResponse());
 			Authorization service = new Authorization();
 			AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
-			HashMap<String, String> params = new HashMap<String, String>();
+			HashMap<String, String> params = new HashMap<>();
 			params.put(BORGUN_ACTION_NAME, "getAuthorization");
 			params.put(BorgunCreditCardClient.VERSION, BorgunCreditCardClient.CURRENT_VERSION);
 			params.put(BorgunCreditCardClient.PROCESSOR, ((BorgunMerchant) this.merchant).getMerchantProcessor());
@@ -365,7 +366,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	) throws CreditCardAuthorizationException {
 		Authorization service = new Authorization();
 		AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
-		HashMap<String, String> params = new HashMap<String, String>();
+		HashMap<String, String> params = new HashMap<>();
 		params.put(BORGUN_ACTION_NAME, "getAuthorization");
 		params.put(BorgunCreditCardClient.VERSION, BorgunCreditCardClient.CURRENT_VERSION);
 		params.put(BorgunCreditCardClient.PROCESSOR, ((BorgunMerchant) this.merchant).getMerchantProcessor());
@@ -483,7 +484,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	) throws CreditCardAuthorizationException {
 		Authorization service = new Authorization();
 		AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
-		HashMap<String, String> params = new HashMap<String, String>();
+		HashMap<String, String> params = new HashMap<>();
 		params.put(BORGUN_ACTION_NAME, "getAuthorization");
 		params.put(BorgunCreditCardClient.VERSION, BorgunCreditCardClient.CURRENT_VERSION);
 		params.put(BorgunCreditCardClient.PROCESSOR, ((BorgunMerchant) this.merchant).getMerchantProcessor());
@@ -532,7 +533,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	public String finishTransaction(String properties) throws CreditCardAuthorizationException {
 		Authorization service = new Authorization();
 		AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
-		HashMap<String, String> params = new HashMap<String, String>();
+		HashMap<String, String> params = new HashMap<>();
 		try {
 			BorgunDocument prevAuth = new BorgunDocument(properties);
 			params.put(BORGUN_ACTION_NAME, "getAuthorization");
@@ -589,7 +590,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	public String voidTransaction(String properties) throws CreditCardAuthorizationException {
 		Authorization service = new Authorization();
 		AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();
-		HashMap<String, String> params = new HashMap<String, String>();
+		HashMap<String, String> params = new HashMap<>();
 		try {
 			BorgunDocument prevAuth = new BorgunDocument(properties);
 			params.put(BORGUN_ACTION_NAME, "cancelAuthorization");
@@ -716,7 +717,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String doSaleWithCardToken(String cardToken, String transactionId, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
+	public AuthEntryData doSaleWithCardToken(String cardToken, String transactionId, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
