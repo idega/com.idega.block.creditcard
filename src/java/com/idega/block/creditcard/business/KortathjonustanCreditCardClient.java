@@ -205,22 +205,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	}
 
 	private String getCurrencyAbbreviation(String currencyCode) {
-		if (currencyCode.equals("352")) {
-			return "ISK";
-		} else if (currencyCode.equals("840")) {
-			return "USD";
-		} else if (currencyCode.equals("826")) {
-			return "GBP";
-		} else if (currencyCode.equals("208")) {
-			return "DDK";
-		} else if (currencyCode.equals("978")) {
-			return "EUR";
-		} else if (currencyCode.equals("752")) {
-			return "SEK";
-		} else if (currencyCode.equals("578")) {
-			return "NOK";
-		}
-		return currencyCode;
+		return CreditCardUtil.getCurrencyAbbreviation(currencyCode);
 	}
 
 	private void setCurrencyAndAmount(String currency, double amount) throws CreditCardAuthorizationException {
