@@ -35,4 +35,6 @@ public interface CardBusiness {
 			User owner
 	);
 
+	public VirtualCard createVirtualCard(String identifier, User owner, String cardUniqueId);
+
 }

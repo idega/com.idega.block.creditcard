@@ -626,4 +626,10 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 		return false;
 	}
 
+	@Override
+	public VirtualCard createVirtualCard(String identifier, User owner, String cardUniqueId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
