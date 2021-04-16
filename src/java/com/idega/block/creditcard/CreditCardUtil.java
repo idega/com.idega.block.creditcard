@@ -1,5 +1,6 @@
 package com.idega.block.creditcard;
 
+import com.idega.block.trade.business.CurrencyHolder;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.util.CoreConstants;
 import com.idega.util.StringUtil;
@@ -32,22 +33,32 @@ public class CreditCardUtil {
 	}
 
 	public static final String getCurrencyAbbreviation(String currencyCode) {
-		if (currencyCode.equals("352")) {
-			return "ISK";
-		} else if (currencyCode.equals("840")) {
-			return "USD";
-		} else if (currencyCode.equals("826")) {
-			return "GBP";
-		} else if (currencyCode.equals("208")) {
-			return "DDK";
-		} else if (currencyCode.equals("978")) {
-			return "EUR";
-		} else if (currencyCode.equals("752")) {
-			return "SEK";
-		} else if (currencyCode.equals("578")) {
-			return "NOK";
+		switch (currencyCode) {
+		case "352":
+			return CurrencyHolder.ICELANDIC_KRONA;
+
+		case "840":
+			return CurrencyHolder.USA_DOLLAR;
+
+		case "826":
+			return CurrencyHolder.BRITISH_POUND;
+
+		case "208":
+			return CurrencyHolder.DANISH_KRONA;
+
+		case "978":
+			return CurrencyHolder.EURO;
+
+		case "752":
+			return CurrencyHolder.SWEDISH_KRONA;
+
+		case "578":
+			return CurrencyHolder.NORWEGIAN_KRONA;
+
+		default:
+			return currencyCode;
 		}
-		return currencyCode;
+	}
 	}
 
 }
