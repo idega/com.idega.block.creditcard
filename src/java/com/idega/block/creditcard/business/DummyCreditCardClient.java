@@ -16,6 +16,7 @@ import com.idega.block.creditcard.data.DummyAuthorisationEntries;
 import com.idega.block.creditcard.data.DummyAuthorisationEntriesHome;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
+import com.idega.block.trade.business.CurrencyHolder;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
 import com.idega.idegaweb.IWApplicationContext;
@@ -80,37 +81,11 @@ public class DummyCreditCardClient implements CreditCardClient {
 		return (IW_BUNDLE_IDENTIFIER);
 	}
 
-	private int getAmountWithExponents(double amount) {
-		int amountMultiplier = (int) Math.pow(10, Double.parseDouble(this.strCurrencyExponent));
-
-		return (int) amount * amountMultiplier;
-
-	}
-
-	private String getCurrencyAbbreviation(String currencyCode) {
-		if (currencyCode.equals("352")) {
-			return "ISK";
-		} else if (currencyCode.equals("840")) {
-			return "USD";
-		} else if (currencyCode.equals("826")) {
-			return "GBP";
-		} else if (currencyCode.equals("208")) {
-			return "DDK";
-		} else if (currencyCode.equals("978")) {
-			return "EUR";
-		} else if (currencyCode.equals("752")) {
-			return "SEK";
-		} else if (currencyCode.equals("578")) {
-			return "NOK";
-		}
-		return currencyCode;
-	}
-
 	private void setCurrencyAndAmount(String currency, double amount) throws CreditCardAuthorizationException {
 		if (currency != null) {
 			int amountMultiplier = 100;
 
-			if (currency.equalsIgnoreCase("ISK")) {
+			if (currency.equalsIgnoreCase(CurrencyHolder.ICELANDIC_KRONA)) {
 				this.strCurrencyCode = "352";
 				this.strCurrencyExponent = "2";
 				amountMultiplier = (int) Math.pow(10, Double.parseDouble(this.strCurrencyExponent));

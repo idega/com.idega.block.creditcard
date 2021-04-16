@@ -27,6 +27,7 @@ import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard2.data.beans.BorgunAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
 import com.idega.block.creditcard2.data.dao.impl.BorgunAuthorisationEntryDAO;
+import com.idega.block.trade.business.CurrencyHolder;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
@@ -687,7 +688,7 @@ public class BorgunCreditCardClient implements CreditCardClient {
 
 	private String getCurrencyCode(String currency) {
 		if (currency != null) {
-			if (currency.equalsIgnoreCase("ISK")) {
+			if (currency.equalsIgnoreCase(CurrencyHolder.ICELANDIC_KRONA)) {
 				return "352";
 			} else if (currency.equalsIgnoreCase("USD")) {
 				return "840";

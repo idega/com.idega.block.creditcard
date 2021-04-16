@@ -403,27 +403,6 @@ public class ValitorDebitCardClient implements CreditCardClient {
 		this.authDAO = authDAO;
 	}
 
-	private String getCurrencyCode(String currency) {
-		if (currency != null) {
-			if (currency.equalsIgnoreCase("ISK")) {
-				return "352";
-			} else if (currency.equalsIgnoreCase("USD")) {
-				return "840";
-			} else if (currency.equalsIgnoreCase("SEK")) {
-				return "752";
-			} else if (currency.equalsIgnoreCase("NOK")) {
-				return "578";
-			} else if (currency.equalsIgnoreCase("GBP")) {
-				return "826";
-			} else if (currency.equalsIgnoreCase("DKK")) {
-				return "208";
-			} else if (currency.equalsIgnoreCase("EUR")) {
-				return "978";
-			}
-		}
-		return null;
-	}
-
 	@Override
 	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");

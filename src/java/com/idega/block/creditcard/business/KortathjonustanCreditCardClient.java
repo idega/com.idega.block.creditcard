@@ -23,6 +23,7 @@ import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesHome;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
+import com.idega.block.trade.business.CurrencyHolder;
 import com.idega.core.idgenerator.business.UUIDGenerator;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
@@ -209,7 +210,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		if (currency != null) {
 			int amountMultiplier = 100;
 
-			if (currency.equalsIgnoreCase("ISK")) {
+			if (currency.equalsIgnoreCase(CurrencyHolder.ICELANDIC_KRONA)) {
 				this.strCurrencyCode = "352";
 				this.strCurrencyExponent = "2";
 				amountMultiplier = (int) Math.pow(10, Double.parseDouble(this.strCurrencyExponent));

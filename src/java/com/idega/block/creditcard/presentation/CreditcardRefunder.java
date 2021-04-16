@@ -7,6 +7,7 @@ import com.idega.block.creditcard.business.CreditCardBusiness;
 import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard.data.TPosMerchant;
 import com.idega.block.creditcard.data.TPosMerchantHome;
+import com.idega.block.trade.business.CurrencyHolder;
 import com.idega.block.trade.stockroom.data.Supplier;
 import com.idega.block.trade.stockroom.data.SupplierHome;
 import com.idega.business.IBOLookup;
@@ -31,7 +32,7 @@ import com.idega.util.text.TextSoap;
 /**
  * Title: idegaWeb Travel Description: Copyright: Copyright (c) 2001 Company:
  * idega
- * 
+ *
  * @author <a href mailto:"gimmi@idega.is">Grimur Jonsson</a>
  * @version 1.0
  */
@@ -65,10 +66,12 @@ public class CreditcardRefunder extends Block {
 		// this.setStatus(true);
 	}
 
+	@Override
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
 	}
 
+	@Override
 	public void main(IWContext iwc) throws Exception {
 		// super.main(iwc);
 
@@ -383,7 +386,7 @@ public class CreditcardRefunder extends Block {
 			number = number.replaceAll(" ", "");
 			number = number.replaceAll("-", "");
 
-			String heimild = t.doRefund(number, month, year, null, Float.parseFloat(amount), "ISK", null, null);
+			String heimild = t.doRefund(number, month, year, null, Float.parseFloat(amount), CurrencyHolder.ICELANDIC_KRONA, null, null);
 			System.out.println("Ending TPOS test : " + IWTimestamp.RightNow().toString());
 
 			int row = 1;
@@ -464,7 +467,7 @@ public class CreditcardRefunder extends Block {
 					menu.addMenuElement(supp.getID(), supp.getName());
 				}
 			}
-			
+
 			String defaultMerchant = getIWApplicationContext().getIWMainApplication().getSettings().getProperty("default_tpos_merchant");
 			if (defaultMerchant != null) {
 				menu.addMenuElement("m"+defaultMerchant, "System Default");
@@ -493,7 +496,7 @@ public class CreditcardRefunder extends Block {
 
 	protected CreditCardBusiness getCreditCardBusiness(IWContext iwc) {
 		try {
-			return (CreditCardBusiness) IBOLookup.getServiceInstance(iwc, CreditCardBusiness.class);
+			return IBOLookup.getServiceInstance(iwc, CreditCardBusiness.class);
 		}
 		catch (IBOLookupException rt) {
 			throw new IBORuntimeException();
