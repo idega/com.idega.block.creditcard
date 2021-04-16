@@ -12,6 +12,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ValitorWebhookResponseDataData implements Serializable {
+
 	private static final long serialVersionUID = -6985835352807317377L;
 
 	private String transactionId;			//As "914217598109"
@@ -71,6 +72,5 @@ public class ValitorWebhookResponseDataData implements Serializable {
 	public void setResponseDescription(String responseDescription) {
 		this.responseDescription = responseDescription;
 	}
-
 
 }

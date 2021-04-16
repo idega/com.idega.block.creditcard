@@ -110,7 +110,7 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "transaction_type")
 	private String transactionType;
 
-	@Column(name = "server_response")
+	@Column(name = "server_response", length = 1000)
 	private String serverResponse;
 
 	@Column(name = "rrn")
@@ -445,7 +445,7 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public Map<String, String> getMetaDataAttributes() {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 
 		Set<Metadata> list = getMetadata();
 		for (Metadata metaData : list) {
@@ -457,7 +457,7 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public Map<String, String> getMetaDataTypes() {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 
 		Set<Metadata> list = getMetadata();
 		for (Metadata metaData : list) {

@@ -2,7 +2,13 @@ package com.idega.block.creditcard.model;
 
 import java.io.Serializable;
 
+import com.idega.block.creditcard.CreditCardUtil;
+import com.idega.block.trade.business.CurrencyHolder;
+import com.idega.util.CoreConstants;
+import com.idega.util.StringUtil;
+
 public class ValitorPayPaymentData implements Serializable {
+
 	private static final long serialVersionUID = 6388603347171361654L;
 
 	public static final String CARD_HOLDER_DEVICE_TYPE_WWW = "WWW";
@@ -12,18 +18,20 @@ public class ValitorPayPaymentData implements Serializable {
 	private String merchantWebhookUrl; //EXAMPLE: "https://example.com/webhook",
 	private String merchantReferenceId; //EXAMPLE:  "00000000-0000-0000-0000-000000000000",
 	private Integer amount;
-	private String currency = "ISK";
+	private String currency = CurrencyHolder.ICELANDIC_KRONA;
 	private String cardNumber;
 	private String expirationMonth;
 	private String expirationYear;
 	private String cvc;
 	private String cardholderDeviceType = CARD_HOLDER_DEVICE_TYPE_WWW;
-	private ValitorPayVirtualCardData virtualCardData;
 	private String displayName;
+
+	private ValitorPayVirtualCardData virtualCardData;
 
 	//Payment with virtual card
 	private String operation = OPERATION_SALE;
 	private String virtualCardNumber;
+
 	private ValitorPayVirtualCardAdditionalData virtualCardAdditionalData;
 
 	public ValitorPayPaymentData() {
@@ -44,6 +52,8 @@ public class ValitorPayPaymentData implements Serializable {
 			ValitorPayVirtualCardData virtualCardData,
 			String displayName
 	) {
+		this();
+
 		this.merchantReentryUrl = merchantReentryUrl;
 		this.merchantWebhookUrl = merchantWebhookUrl;
 		this.merchantReferenceId = merchantReferenceId;
@@ -58,8 +68,6 @@ public class ValitorPayPaymentData implements Serializable {
 		this.displayName = displayName;
 	}
 
-
-
 	public ValitorPayPaymentData(
 			String operation,
 			String currency,
@@ -67,7 +75,8 @@ public class ValitorPayPaymentData implements Serializable {
 			String merchantReferenceId,
 			ValitorPayVirtualCardAdditionalData virtualCardAdditionalData
 	) {
-		super();
+		this();
+
 		this.operation = operation;
 		this.currency = currency;
 		this.amount = amount;
@@ -195,6 +204,12 @@ public class ValitorPayPaymentData implements Serializable {
 		this.virtualCardAdditionalData = virtualCardAdditionalData;
 	}
 
-
+	@Override
+	public String toString() {
+		return	"Name on card: " + getDisplayName() +
+				", number: " + (StringUtil.isEmpty(getCardNumber()) ? getVirtualCardNumber() : CreditCardUtil.getMaskedCreditCardNumber(getCardNumber())) +
+				", expires (MM/YY): " + getExpirationMonth() + CoreConstants.SLASH + getExpirationYear() +
+				". Virtual card data: " + getVirtualCardData();
+	}
 
 }

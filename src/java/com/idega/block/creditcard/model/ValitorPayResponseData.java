@@ -12,6 +12,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ValitorPayResponseData implements Serializable {
+
 	private static final long serialVersionUID = -4453041109576575679L;
 
 	//RESPONSE - 200
@@ -23,6 +24,7 @@ public class ValitorPayResponseData implements Serializable {
 	private String responseDescription;
 	private String responseTime;
 	private String correlationID;
+
 	//For virtual card payment
 	private String acquirerReferenceNumber;
 	private String transactionID;
@@ -32,10 +34,8 @@ public class ValitorPayResponseData implements Serializable {
 	//RESPONSE - 400
 	private String title;
 
-
 	//RESPONSE - 500
 	private String message;
-
 
 	public String getVerificationHtml() {
 		return verificationHtml;
@@ -121,6 +121,5 @@ public class ValitorPayResponseData implements Serializable {
 	public void setTransactionLifecycleId(String transactionLifecycleId) {
 		this.transactionLifecycleId = transactionLifecycleId;
 	}
-
 
 }

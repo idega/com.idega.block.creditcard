@@ -12,6 +12,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ValitorWebhookResponseData implements Serializable {
+
 	private static final long serialVersionUID = 3245706993422208476L;
 
 	private String type; 		//"CardPayment"
@@ -19,7 +20,9 @@ public class ValitorWebhookResponseData implements Serializable {
 	private Boolean isSuccess;
 	private Boolean isLife;
 	private String timestamp; 	//As "2021-04-12T07:21:31.3465196Z"
+
 	private ValitorWebhookResponseDataData data;
+
 	public String getType() {
 		return type;
 	}
@@ -56,7 +59,5 @@ public class ValitorWebhookResponseData implements Serializable {
 	public void setData(ValitorWebhookResponseDataData data) {
 		this.data = data;
 	}
-
-
 
 }

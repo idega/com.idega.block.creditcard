@@ -1,13 +1,11 @@
 package com.idega.block.creditcard2.business;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +18,7 @@ import javax.xml.ws.BindingProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.Gson;
+import com.idega.block.creditcard.CreditCardUtil;
 import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
@@ -34,13 +33,11 @@ import com.idega.block.creditcard2.data.beans.ValitorAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.ValitorMerchant;
 import com.idega.block.creditcard2.data.dao.impl.ValitorAuthorisationEntryDAO;
 import com.idega.builder.bean.AdvancedProperty;
-import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWMainApplicationSettings;
-import com.idega.idegaweb.IWResourceBundle;
-import com.idega.presentation.IWContext;
 import com.idega.restful.util.ConnectionUtil;
 import com.idega.util.CoreConstants;
+import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
 import com.idega.util.RequestUtil;
 import com.idega.util.StringUtil;
@@ -54,15 +51,19 @@ import is.valitor.api.fyrirtaekjagreidslur.SyndarkortnumerSkilabod;
 
 public class ValitorCreditCardClient implements CreditCardClient {
 
-	private String login;
-	private String password;
-	private String url;
-	private CreditCardMerchant merchant;
-	private ValitorAuthorisationEntry auth = null;
+	private static final Logger LOGGER = Logger.getLogger(ValitorCreditCardClient.class.getName());
+
+	public static final String CURRENT_VERSION = "1000";
+
 	@Autowired
 	private ValitorAuthorisationEntryDAO authDAO = null;
 
-	public static final String CURRENT_VERSION = "1000";
+	private CreditCardMerchant merchant;
+	private ValitorAuthorisationEntry auth = null;
+
+	private String login;
+	private String password;
+	private String url;
 
 	public static final String VERSION = "Version";
 	public static final String PROCESSOR = "Processor";
@@ -107,8 +108,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	public static final String TO_DATE = "ToDate";
 	public static final String VOIDED = "Voided";
 	public static final String STATUS = "Status";
-	public static final String CREDIT = "Credit"; // Contains 1 if OCT/CFT
-													// transaction
+	public static final String CREDIT = "Credit"; // Contains 1 if OCT/CFT transaction
 
 	public static final String ACTION_CODE_ACCEPTED = "000";
 
@@ -119,14 +119,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	public static final String ACTION_CODE_RESTRICTED_CARD = "104";
 	public static final String DEFAULT_URL = "https://api-acquiring.valitor.is/fyrirtaekjagreidslur/1_1/fyrirtaekjagreidslur.asmx";
 
-	private final Logger log = Logger.getLogger(this.getClass().getName());
-
-	private static Long lastAuth = null;
-	private static final Object LOCK = new Object() {
-	};
-
-	private static HashMap<Integer, RRN> authRefs = new HashMap<>();
-
 	public ValitorCreditCardClient(CreditCardMerchant merchant) {
 		if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(merchant.getType())) {
 			this.login = ((ValitorMerchant) merchant).getUser();
@@ -134,85 +126,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			this.url = ((ValitorMerchant) merchant).getMerchantUrl() == null ? ValitorCreditCardClient.DEFAULT_URL : ((ValitorMerchant) merchant).getMerchantUrl();
 			this.merchant = merchant;
 		}
-	}
-
-	private String getYYYYMMDDHHMMSSDate() {
-		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMddHHmmss");
-		Date now = new Date();
-		String strDate = sdfDate.format(now);
-		return strDate;
-	}
-
-	private String getYYMMDDHHMMSSDate() {
-		SimpleDateFormat sdfDate = new SimpleDateFormat("yyMMddHHmmss");
-		Date now = new Date();
-		String strDate = sdfDate.format(now);
-		return strDate;
-	}
-
-	private Date getDateFromYYYYMMDDHHMMSS(String date) {
-		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMddHHmmss");
-		Date result = null;
-		try {
-			result = sdfDate.parse(date);
-		} catch (ParseException e) {
-
-		}
-		return result;
-	}
-
-	private Date getDateFromYYMMDDHHMMSS(String date) {
-		SimpleDateFormat sdfDate = new SimpleDateFormat("yyMMddHHmmss");
-		Date result = null;
-		try {
-			result = sdfDate.parse(date);
-		} catch (ParseException e) {
-
-		}
-		return result;
-	}
-
-	private String getRRN() {
-
-		RRN ref = authRefs.get(merchant.getPrimaryKey());
-		String suffix = ((ValitorMerchant) merchant).getMerchantRrnSuffix();
-		Long lastAuth;
-
-		if (ref == null) {
-			synchronized (LOCK) {
-				ref = authRefs.get(merchant.getPrimaryKey());
-				if (ref == null) {
-					ref = new RRN();
-					String last = getAuthDAO().getLastAuthorizationForMerchant(suffix,
-							(Integer) merchant.getPrimaryKey());
-					if (last == null) {
-						lastAuth = (long) 1;
-					} else {
-						String lastNUmber = last.substring(suffix.length());
-						lastAuth = Long.parseLong(lastNUmber, 10);
-						lastAuth++;
-					}
-					ref.setLastAuth(lastAuth);
-					authRefs.put((Integer) merchant.getPrimaryKey(), ref);
-				} else {
-					synchronized (ref.getLOCK()) {
-						lastAuth = ref.getNextAuth();
-					}
-				}
-			}
-		} else {
-			synchronized (ref.getLOCK()) {
-				lastAuth = ref.getNextAuth();
-			}
-		}
-		StringBuilder rrn = new StringBuilder();
-		rrn.append(suffix);
-		for (int i = 0; i < 12 - (suffix.length() + lastAuth.toString().length()); i++) {
-			rrn.append('0');
-		}
-		rrn.append(lastAuth);
-		return rrn.toString();
-
 	}
 
 	@Override
@@ -295,26 +208,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			throw ex;
 		}
 	}
-
-	private IWResourceBundle getResourceBundle() {
-		IWContext iwc = IWContext.getCurrentInstance();
-		if (iwc != null) {
-			return getBundle().getResourceBundle(iwc);
-		} else {
-			return getBundle().getResourceBundle(IWMainApplication.getDefaultIWMainApplication().getDefaultLocale());
-		}
-	}
-
-	private IWBundle getBundle() {
-		IWMainApplication iwma = IWMainApplication.getDefaultIWMainApplication();
-		IWBundle bundle = iwma.getBundle("com.idega.block.creditcard");
-		if (bundle == null) {
-			bundle = iwma.getBundle("com.idega.block.creditcard", true);
-		}
-		return bundle;
-	}
-
-
 
 //	//when using a virtual card number monthExpires yearExpires ccVerifyNumber should be null
 //	@Override
@@ -446,27 +339,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		this.authDAO = authDAO;
 	}
 
-	private String getCurrencyCode(String currency) {
-		if (currency != null) {
-			if (currency.equalsIgnoreCase("ISK")) {
-				return "352";
-			} else if (currency.equalsIgnoreCase("USD")) {
-				return "840";
-			} else if (currency.equalsIgnoreCase("SEK")) {
-				return "752";
-			} else if (currency.equalsIgnoreCase("NOK")) {
-				return "578";
-			} else if (currency.equalsIgnoreCase("GBP")) {
-				return "826";
-			} else if (currency.equalsIgnoreCase("DKK")) {
-				return "208";
-			} else if (currency.equalsIgnoreCase("EUR")) {
-				return "978";
-			}
-		}
-		return null;
-	}
-
 	@Override
 	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
@@ -480,7 +352,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	@Override
 	public String doSale(
 			String nameOnCard,
-			String cardnumber,
+			String cardNumber,
 			String monthExpires,
 			String yearExpires,
 			String ccVerifyNumber,
@@ -488,20 +360,34 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String currency,
 			String referenceNumber
 	) throws CreditCardAuthorizationException {
-
+		String details = null;
 		try {
-			if (StringUtil.isEmpty(cardnumber) || StringUtil.isEmpty(monthExpires) || StringUtil.isEmpty(yearExpires)
-					|| StringUtil.isEmpty(ccVerifyNumber) || StringUtil.isEmpty(currency) || StringUtil.isEmpty(referenceNumber) || amount == 0
+			details = "Name on card: " + nameOnCard + ", card number: " + CreditCardUtil.getMaskedCreditCardNumber(cardNumber) +
+			", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires + ", CVC: " + ccVerifyNumber + ", amount: " + amount +
+			"currency: " + currency + ", reference number: " + referenceNumber;
+			if (
+					StringUtil.isEmpty(cardNumber) ||
+					StringUtil.isEmpty(monthExpires) ||
+					StringUtil.isEmpty(yearExpires) ||
+					StringUtil.isEmpty(ccVerifyNumber) ||
+					StringUtil.isEmpty(currency) ||
+					StringUtil.isEmpty(referenceNumber) ||
+					amount < 0
 			) {
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException("ERROR: Some of the mandatory data is not provided.", "DATA_NOT_PROVIDED");
+				String error = "ERROR: Some of the mandatory data is not provided. " + details;
+				LOGGER.warning(error);
+				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "DATA_NOT_PROVIDED");
 				throw ex;
 			}
 
 			IWMainApplicationSettings settings = getSettings();
 			if (settings == null) {
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException("ERROR: Can not get the application settings.", "APP_SETTINGS");
+				String error = "ERROR: Can not get the application settings. " + details;
+				LOGGER.warning(error);
+				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "APP_SETTINGS");
 				throw ex;
 			}
+
 			String valitorPayCardPaymentWithVerificationWebServiceURL = getValitorPayCardPaymentWithVerificationWebServiceURL(settings);
 			String valitorPayApiVersion = getValitorPayApiVersion(settings);
 			String valitorPayApiKey = getValitorPayApiKey(settings);
@@ -510,7 +396,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			ValitorPayPaymentData valitorPayPaymentData = getValitorPayPaymentData(
 					settings,
 					nameOnCard,
-					cardnumber,
+					cardNumber,
 					monthExpires,
 					yearExpires,
 					ccVerifyNumber,
@@ -519,17 +405,18 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					referenceNumber
 			);
 			if (valitorPayPaymentData == null) {
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException("ERROR: Can not construct ValitorPay payment data.", "PAYMENT_DATA");
+				String error = "ERROR: Can not construct ValitorPay payment data. " + details;
+				LOGGER.warning(error);
+				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
 				throw ex;
 			}
 
 			//FIXME: Should we include once more "MerchantReferenceId" as query parameter???
 			//FROM API: The MerchantReferenceId should be included as a query parameter to ensure that the user is redirected to the correct page on the merchant site.
 
-
 			//Call the ValitorPay web service
 			String postJSON = new Gson().toJson(valitorPayPaymentData);
-			log.info("Calling ValitorPay doSale web service with data: " + postJSON);
+			LOGGER.info("Calling ValitorPay (" + valitorPayCardPaymentWithVerificationWebServiceURL + ") with data: " + postJSON);
 			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
 					valitorPayCardPaymentWithVerificationWebServiceURL,
 					StringUtil.isEmpty(postJSON) ? null : Long.valueOf(postJSON.length()),
@@ -537,7 +424,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					HttpMethod.POST,
 					postJSON,
 					Arrays.asList(
-							new AdvancedProperty(null, "".concat(valitorPayApiVersion), "valitorpay-api-version"),
+							new AdvancedProperty(null, valitorPayApiVersion, "valitorpay-api-version"),
 							new AdvancedProperty(null, "APIKey ".concat(valitorPayApiKey), RequestUtil.HEADER_AUTHORIZATION)
 					),
 					null
@@ -548,53 +435,73 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (response != null) {
 				valitorPayResponseData = getValitorPayResponseData(response);
 			}
-			log.info("After calling ValitorPay doSale web service. Response data: " + valitorPayResponseData);
+			LOGGER.info("After calling ValitorPay (" + valitorPayCardPaymentWithVerificationWebServiceURL + "). Response data: " + valitorPayResponseData);
 
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				//Error response
 				CreditCardAuthorizationException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				LOGGER.warning(error);
 				throw ex;
-			} else {
-				//OK response
-				if (valitorPayResponseData != null
-						&& !StringUtil.isEmpty(valitorPayResponseData.getVerificationHtml())
-						&& valitorPayResponseData.getIsSuccess() != null && valitorPayResponseData.getIsSuccess().booleanValue() == true
-				) {
-					//Save the transaction
-					storeValitorAuthorizationEntry(valitorPayResponseData, valitorPayPaymentData, false);
-
-					//Return the verification HTML
-					return valitorPayResponseData.getVerificationHtml();
-				} else {
-					CreditCardAuthorizationException ex = new CreditCardAuthorizationException("ERROR: ValitorPay payment failed.", "PAYMENT_DATA");
-					throw ex;
-				}
 			}
 
-		} catch (Exception e) {
-			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(e);
+			//OK response
+			if (
+					valitorPayResponseData != null &&
+					!StringUtil.isEmpty(valitorPayResponseData.getVerificationHtml()) &&
+					valitorPayResponseData.getIsSuccess() != null &&
+					valitorPayResponseData.getIsSuccess().booleanValue() == true
+			) {
+				//Save the transaction
+				storeValitorAuthorizationEntry(valitorPayResponseData, valitorPayPaymentData, false);
+
+				//Return the verification HTML
+				return valitorPayResponseData.getVerificationHtml();
+			}
+
+			String error = "ERROR: ValitorPay payment failed. " + details;
+			LOGGER.warning(error);
+			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
+			throw ex;
+		} catch (Throwable e) {
+			String error = "Message: " + e.getMessage() + ", " + details;
+			LOGGER.log(Level.WARNING, error, e);
+
+			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, e);
 			ex.setErrorNumber("UNKNOWN");
 			throw ex;
 		}
 	}
 
-
 	@Override
 	public AuthEntryData doSaleWithCardToken(String cardToken, String transactionId, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
+		String details = null;
 		try {
-			if (StringUtil.isEmpty(cardToken) || StringUtil.isEmpty(transactionId) || parentPaymentPK == null
-					|| StringUtil.isEmpty(currency) || StringUtil.isEmpty(referenceNumber) || amount == 0
+			details = "Card token: " + cardToken + ", transaction ID: " + transactionId +
+			", amount: " + amount + "currency: " + currency + ", reference number: " + referenceNumber + ", parent payment PK: " + parentPaymentPK;
+			if (
+					StringUtil.isEmpty(cardToken) ||
+					StringUtil.isEmpty(transactionId) ||
+					parentPaymentPK == null ||
+					StringUtil.isEmpty(currency) ||
+					StringUtil.isEmpty(referenceNumber) ||
+					amount < 0
 			) {
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException("ERROR: Some of the mandatory data is not provided.", "DATA_NOT_PROVIDED");
+				String error = "ERROR: Some of the mandatory data is not provided. " + details;
+				LOGGER.warning(error);
+				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "DATA_NOT_PROVIDED");
 				throw ex;
 			}
 
 			IWMainApplicationSettings settings = getSettings();
 			if (settings == null) {
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException("ERROR: Can not get the application settings.", "APP_SETTINGS");
+				String error = "ERROR: Can not get the application settings. " + details;
+				LOGGER.warning(error);
+				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "APP_SETTINGS");
 				throw ex;
 			}
+
 			String valitorPayWithVirtualCardWebServiceURL = getValitorPayPayWithVirtualCardWebServiceURL(settings);
 			String valitorPayApiVersion = getValitorPayApiVersion(settings);
 			String valitorPayApiKey = getValitorPayApiKey(settings);
@@ -610,13 +517,15 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					parentPaymentPK //FIXME: Where should we use this???
 			);
 			if (valitorPayPaymentData == null) {
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException("ERROR: Can not construct ValitorPay payment with virtual card data.", "PAYMENT_DATA");
+				String error = "ERROR: Can not construct ValitorPay payment with virtual card data. " + details;
+				LOGGER.warning(error);
+				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
 				throw ex;
 			}
 
 			//Call the ValitorPay web service
 			String postJSON = new Gson().toJson(valitorPayPaymentData);
-			log.info("Calling ValitorPay doSaleWithCardToken web service with data: " + postJSON);
+			LOGGER.info("Calling ValitorPay (" + valitorPayWithVirtualCardWebServiceURL + ") with data: " + postJSON);
 			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
 					valitorPayWithVirtualCardWebServiceURL,
 					StringUtil.isEmpty(postJSON) ? null : Long.valueOf(postJSON.length()),
@@ -624,7 +533,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					HttpMethod.POST,
 					postJSON,
 					Arrays.asList(
-							new AdvancedProperty(null, "".concat(valitorPayApiVersion), "valitorpay-api-version"),
+							new AdvancedProperty(null, valitorPayApiVersion, "valitorpay-api-version"),
 							new AdvancedProperty(null, "APIKey ".concat(valitorPayApiKey), RequestUtil.HEADER_AUTHORIZATION)
 					),
 					null
@@ -635,34 +544,42 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (response != null) {
 				valitorPayResponseData = getValitorPayResponseData(response);
 			}
-			log.info("After calling ValitorPay doSaleWithCardToken web service. Response data: " + valitorPayResponseData);
+			LOGGER.info("After calling ValitorPay (" + valitorPayWithVirtualCardWebServiceURL + "). Response data: " + valitorPayResponseData);
 
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				//Error response
 				CreditCardAuthorizationException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				LOGGER.warning(error);
 				throw ex;
-			} else {
-				//OK response
-				if (valitorPayResponseData != null
-						&& valitorPayResponseData.getIsSuccess() != null && valitorPayResponseData.getIsSuccess().booleanValue() == true
-				) {
-					//Save the transaction
-					if (StringUtil.isEmpty(valitorPayPaymentData.getMerchantReferenceId()) && valitorPayPaymentData.getVirtualCardAdditionalData() != null) {
-						valitorPayPaymentData.setMerchantReferenceId(valitorPayPaymentData.getVirtualCardAdditionalData().getMerchantReferenceData());
-					}
-					storeValitorAuthorizationEntry(valitorPayResponseData, valitorPayPaymentData, true);
-
-					//Return the data
-					return new AuthEntryData(valitorPayResponseData.getAuthorizationCode(), valitorPayPaymentData.getMerchantReferenceId());
-				} else {
-					CreditCardAuthorizationException ex = new CreditCardAuthorizationException("ERROR: ValitorPay virtual card payment failed.", "PAYMENT_DATA");
-					throw ex;
-				}
 			}
 
-		} catch (Exception e) {
-			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(e);
+			//OK response
+			if (
+					valitorPayResponseData != null &&
+					valitorPayResponseData.getIsSuccess() != null &&
+					valitorPayResponseData.getIsSuccess().booleanValue() == true
+			) {
+				//Save the transaction
+				if (StringUtil.isEmpty(valitorPayPaymentData.getMerchantReferenceId()) && valitorPayPaymentData.getVirtualCardAdditionalData() != null) {
+					valitorPayPaymentData.setMerchantReferenceId(valitorPayPaymentData.getVirtualCardAdditionalData().getMerchantReferenceData());
+				}
+				storeValitorAuthorizationEntry(valitorPayResponseData, valitorPayPaymentData, true);
+
+				//Return the data
+				return new AuthEntryData(valitorPayResponseData.getAuthorizationCode(), valitorPayPaymentData.getMerchantReferenceId());
+			}
+
+			String error = "ERROR: ValitorPay virtual card payment failed. " + details;
+			LOGGER.warning(error);
+			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
+			throw ex;
+		} catch (Throwable e) {
+			String error = "Message: " + e.getMessage() + ", " + details;
+			LOGGER.log(Level.WARNING, error, e);
+
+			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, e);
 			ex.setErrorNumber("UNKNOWN");
 			throw ex;
 		}
@@ -687,11 +604,10 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			double amount,
 			String currency,
 			String referenceNumber
-	) {
+	) throws CreditCardAuthorizationException {
 		//According the ValitorPay, amount should be provided in minor currency unit:
 		//EXPLANATION: The total amount of the payment specified in a minor currency unit. This means that GBP is quoted in pence, USD in cents, DKK in öre, ISK in aurar etc.
-		amount = amount * 100;
-		Integer amountInt = new Double(amount).intValue();
+		Integer amountInt = CreditCardUtil.getAmountWithExponents(amount, "2");
 
 		//Creating MerchantReentryUrl
 		//FIXME: We have different redirections for different payments, but we can not get them here ???
@@ -742,11 +658,10 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String currency,
 			String referenceNumber,
 			Object parentPaymentPK
-	) {
+	) throws CreditCardAuthorizationException {
 		//According the ValitorPay, amount should be provided in minor currency unit:
 		//EXPLANATION: The total amount of the payment specified in a minor currency unit. This means that GBP is quoted in pence, USD in cents, DKK in öre, ISK in aurar etc.
-		amount = amount * 100;
-		Integer amountInt = new Double(amount).intValue();
+		Integer amountInt = CreditCardUtil.getAmountWithExponents(amount, "2");
 
 		//Create the data bean to send to ValitorPay
 		ValitorPayVirtualCardAdditionalData virtualCardAdditionalData = new ValitorPayVirtualCardAdditionalData(transactionId);
@@ -769,11 +684,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		return serverUrl;
 	}
 
-
 	private CreditCardAuthorizationException handleValitorPayErrorResponse(ClientResponse response, ValitorPayResponseData valitorPayResponseData) {
 		CreditCardAuthorizationException ex = null;
 		if (response == null) {
 			ex = new CreditCardAuthorizationException("ERROR: ValitorPay response was empty.", "RESPONSE_ERROR");
+
 		} else if (response.getStatus() == Status.INTERNAL_SERVER_ERROR.getStatusCode()) {
 			String errorMsg = "ERROR: ValitorPay response was - Internal server error. ";
 			if (valitorPayResponseData != null) {
@@ -787,6 +702,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				}
 			}
 			ex = new CreditCardAuthorizationException(errorMsg, "RESPONSE_ERROR");
+
 		} else if (response.getStatus() == Status.BAD_REQUEST.getStatusCode()) {
 			String errorMsg = "ERROR: ValitorPay response was - Bad request. ";
 			if (valitorPayResponseData != null) {
@@ -796,57 +712,71 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				}
 			}
 			ex = new CreditCardAuthorizationException(errorMsg, "RESPONSE_ERROR");
-		} else {
-			ex = new CreditCardAuthorizationException("ERROR: ValitorPay - unknown error.", "RESPONSE_ERROR");
 
+		} else {
+			ex = new CreditCardAuthorizationException("ERROR: ValitorPay - unknown error. Response code: " + response.getStatus(), "RESPONSE_ERROR");
 		}
 		return ex;
 	}
 
-	private ValitorPayResponseData getValitorPayResponseData(ClientResponse response) {
+	private ValitorPayResponseData getValitorPayResponseData(ClientResponse response) throws CreditCardAuthorizationException {
 		ValitorPayResponseData valitorPayResponseData = null;
+		Reader reader = null;
+		InputStream stream = null;
 		try {
-			//String reader = StringHandler.getContentFromInputStream(response.getEntityInputStream());
-			InputStreamReader reader = new InputStreamReader(response.getEntityInputStream());
+			stream = response == null ? null : response.getEntityInputStream();
+			reader = stream == null ? null : new InputStreamReader(stream);
 			if (reader != null) {
 				valitorPayResponseData = new Gson().fromJson(reader, ValitorPayResponseData.class);
 			}
-		} catch (Exception e) {
-			return null;
+		} catch (Throwable e) {
+			String error = "Error reading from response " + response + ". Message: " + e.getMessage();
+			LOGGER.log(Level.WARNING, error, e);
+			throw new CreditCardAuthorizationException(error, e);
+		} finally {
+			IOUtil.close(stream);
+			IOUtil.close(reader);
 		}
 
 		return valitorPayResponseData;
 	}
 
-	private void storeValitorAuthorizationEntry(ValitorPayResponseData valitorPayResponseData, ValitorPayPaymentData valitorPayPaymentData, boolean virtualCardPayment) {
+	private ValitorAuthorisationEntry storeValitorAuthorizationEntry(ValitorPayResponseData response, ValitorPayPaymentData payment, boolean virtualCardPayment) {
 		try {
 			ValitorAuthorisationEntry auth = this.auth == null ? new ValitorAuthorisationEntry() : this.auth;
-			auth.setAmount(Double.valueOf(valitorPayPaymentData.getAmount()));
+			auth.setAmount(Double.valueOf(payment.getAmount()));
 			if (virtualCardPayment) {
-				auth.setCardNumber(valitorPayPaymentData.getVirtualCardNumber()); //FIXME: Using virtual card number instead of real card number
+				auth.setCardNumber(payment.getVirtualCardNumber()); //FIXME: Using virtual card number instead of real card number
 			} else {
-				auth.setCardNumber(valitorPayPaymentData.getCardNumber());
+				auth.setCardNumber(CreditCardUtil.getMaskedCreditCardNumber(payment.getCardNumber()));
 			}
-			auth.setCurrency(valitorPayPaymentData.getCurrency());
-			auth.setServerResponse(valitorPayPaymentData.getMerchantReferenceId()); //FIXME: Is it OK to store here reference number uuid of the payment?
-			auth.setAuthCode(valitorPayPaymentData.getMerchantReferenceId());		//FIXME: Is it OK to store here reference number uuid of the payment?
+			auth.setCurrency(payment.getCurrency());
+			String serverResponse = new Gson().toJson(response);
+			serverResponse = serverResponse.length() > 1000 ? serverResponse.substring(0, 1000) : serverResponse;
+			auth.setServerResponse(serverResponse);
+			auth.setAuthCode(response.getAuthorizationCode());
 			auth.setDate(new IWTimestamp().getDate());
-			auth.setUniqueId(valitorPayPaymentData.getMerchantReferenceId());
-			if (valitorPayResponseData.getIsSuccess() != null && valitorPayResponseData.getIsSuccess().booleanValue() == false){
-				auth.setErrorNumber(valitorPayResponseData.getResponseCode());
-				auth.setErrorText(valitorPayResponseData.getResponseDescription());
+			auth.setUniqueId(payment.getMerchantReferenceId());		//	TODO: is this correct?
+			if (response.getIsSuccess() != null && response.getIsSuccess().booleanValue() == false){
+				auth.setErrorNumber(response.getResponseCode());
+				auth.setErrorText(response.getResponseDescription());
 			}
 			auth.setMerchant((ValitorMerchant) merchant);
 			getAuthDAO().store(auth);
+			return auth.getId() == null ? null : auth;
 		} catch (Exception e) {
-			log.log(Level.WARNING, "Could not store the ValitorAuthorisationEntry after the ValidtoPay transaction. "
-					+ "valitorPayResponseData: " + valitorPayResponseData
-					+ ". valitorPayPaymentData: " + valitorPayPaymentData, e);
+			LOGGER.log(Level.WARNING, "Could not store the ValitorAuthorisationEntry after the ValidtoPay transaction. "
+					+ "valitorPayResponseData: " + response
+					+ ". valitorPayPaymentData: " + payment, e);
 		}
+		return null;
 	}
 
 	private String getValitorPayCardPaymentWithVerificationWebServiceURL(IWMainApplicationSettings settings) {
-		String valitorPayCardPaymentWithVerificationWebServiceURL = settings.getProperty("valitorpay.url.card_payment_with_verification", "https://uat.valitorpay.com/Payment/CardPaymentWithVerification");
+		String valitorPayCardPaymentWithVerificationWebServiceURL = settings.getProperty(
+				"valitorpay.url.card_payment_with_verification",
+				"https://uat.valitorpay.com/Payment/CardPaymentWithVerification"
+		);
 		return valitorPayCardPaymentWithVerificationWebServiceURL;
 	}
 
@@ -861,7 +791,10 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	}
 
 	private String getValitorPayPayWithVirtualCardWebServiceURL(IWMainApplicationSettings settings) {
-		String valitorPayCardPaymentWithVerificationWebServiceURL = settings.getProperty("valitorpay.url.virtual_card_payment", "https://uat.valitorpay.com/Payment/VirtualCardPayment");
+		String valitorPayCardPaymentWithVerificationWebServiceURL = settings.getProperty(
+				"valitorpay.url.virtual_card_payment",
+				"https://uat.valitorpay.com/Payment/VirtualCardPayment"
+		);
 		return valitorPayCardPaymentWithVerificationWebServiceURL;
 	}
 
