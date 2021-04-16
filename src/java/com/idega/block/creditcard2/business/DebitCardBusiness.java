@@ -163,7 +163,7 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 
 	public Collection<Image> getDebitCardTypeImages(CreditCardClient client) {
 		Collection<String> types = client.getValidCardTypes();
-		Collection<Image> images = new ArrayList<Image>();
+		Collection<Image> images = new ArrayList<>();
 		if (types != null && !types.isEmpty()) {
 			Iterator<String> iter = types.iterator();
 			IWBundle bundle = getBundle();
@@ -627,8 +627,19 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public VirtualCard createVirtualCard(String identifier, User owner, String cardUniqueId) {
-		// TODO Auto-generated method stub
+		try {
+			VirtualCard vCard = new VirtualCard();
+			vCard.setToken(identifier);
+			vCard.setUniqueId(cardUniqueId);
+			vCard.setOwner(owner);
+			debitCardInformationDAO.persist(vCard);
+			return vCard.getId() == null ? null : vCard;
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error creating new virtual card with identifier " + identifier, e);
+		}
+
 		return null;
 	}
 
