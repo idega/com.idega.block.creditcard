@@ -197,11 +197,8 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 		return (IW_BUNDLE_IDENTIFIER);
 	}
 
-	private int getAmountWithExponents(double amount) {
-		int amountMultiplier = (int) Math.pow(10, Double.parseDouble(this.strCurrencyExponent));
-
-		return (int) amount * amountMultiplier;
-
+	private int getAmountWithExponents(double amount) throws CreditCardAuthorizationException {
+		return CreditCardUtil.getAmountWithExponents(amount, this.strCurrencyExponent);
 	}
 
 	private String getCurrencyAbbreviation(String currencyCode) {

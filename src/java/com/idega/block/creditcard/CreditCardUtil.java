@@ -1,5 +1,6 @@
 package com.idega.block.creditcard;
 
+import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.trade.business.CurrencyHolder;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.util.CoreConstants;
@@ -59,6 +60,26 @@ public class CreditCardUtil {
 			return currencyCode;
 		}
 	}
+
+	public static final int getAmountWithExponents(double amount, String currencyExponent) throws CreditCardAuthorizationException {
+		if (amount < 0) {
+			throw new CreditCardAuthorizationException("Invalid amount: " + amount);
+		}
+		if (StringUtil.isEmpty(currencyExponent)) {
+			throw new CreditCardAuthorizationException("Invalid currency exponent: " + currencyExponent);
+		}
+
+		if (amount == Double.valueOf(0).doubleValue()) {
+			return 0;
+		}
+
+		try {
+			int amountMultiplier = (int) Math.pow(10, Double.parseDouble(currencyExponent));
+			return (int) amount * amountMultiplier;
+		} catch (Throwable t) {
+			String error = "Error getting amount (" + amount + ") with exponent (" + currencyExponent + "). " + t.getMessage();
+			throw new CreditCardAuthorizationException(error, t);
+		}
 	}
 
 }
