@@ -29,7 +29,7 @@ public class ValitorPayPaymentData implements Serializable {
 	private ValitorPayVirtualCardData virtualCardData;
 
 	//Payment with virtual card
-	private String operation = OPERATION_SALE;
+	private String operation;
 	private String virtualCardNumber;
 
 	private ValitorPayVirtualCardAdditionalData virtualCardAdditionalData;

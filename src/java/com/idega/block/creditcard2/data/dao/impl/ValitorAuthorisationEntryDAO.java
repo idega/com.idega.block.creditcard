@@ -2,6 +2,7 @@ package com.idega.block.creditcard2.data.dao.impl;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -13,6 +14,7 @@ import com.idega.block.creditcard2.data.beans.ValitorAuthorisationEntry;
 import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.core.persistence.Param;
 import com.idega.core.persistence.impl.GenericDaoImpl;
+import com.idega.util.StringUtil;
 
 @Repository(ValitorAuthorisationEntryDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
@@ -74,5 +76,31 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl
 				"select max(bae.rrn) from ValitorAuthorisationEntry bae where bae.rrn Like :rrn and bae.merchant.id = :id",
 				String.class, new Param("rrn", merchantRrnSuffix + "%"), new Param("id", merchantId));
 	}
+
+
+	public ValitorAuthorisationEntry getByMetadata(String key, String value) {
+		if (StringUtil.isEmpty(key) || StringUtil.isEmpty(value)) {
+			return null;
+		}
+
+		try {
+			Object obj = getSingleResult(
+					ValitorAuthorisationEntry.QUERY_FIND_BY_METADATA,
+					Object.class,
+					new Param(ValitorAuthorisationEntry.METADATA_KEY_PROP, key),
+					new Param(ValitorAuthorisationEntry.METADATA_VALUE_PROP, value)
+			);
+			if (obj != null && obj instanceof ValitorAuthorisationEntry) {
+				return (ValitorAuthorisationEntry) obj;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting ValitorAuthorisationEntry by metadada: " + key + "=" + value, e);
+		}
+
+		return null;
+	}
+
 
 }

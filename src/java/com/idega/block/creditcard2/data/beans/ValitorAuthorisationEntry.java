@@ -51,7 +51,16 @@ import com.idega.util.DBUtil;
 		@NamedQuery(name = ValitorAuthorisationEntry.GET_REFUNDS_BY_DATES, query = "from ValitorAuthorisationEntry bae where bae.transactionType = "
 				+ ValitorAuthorisationEntry.AUTHORIZATION_TYPE_REFUND + " and bae." + ValitorAuthorisationEntry.dateProp
 				+ " >= :" + ValitorAuthorisationEntry.dateFromProp + " and " + ValitorAuthorisationEntry.dateProp + " <=:"
-				+ ValitorAuthorisationEntry.dateToProp) })
+				+ ValitorAuthorisationEntry.dateToProp),
+		@NamedQuery(
+				name = ValitorAuthorisationEntry.QUERY_FIND_BY_METADATA,
+				query = "select vae from ValitorAuthorisationEntry vae "
+						+ "join vae.metadata meta "
+						+ " where meta.key = :" + ValitorAuthorisationEntry.METADATA_KEY_PROP
+						+ " and meta.value = :" + ValitorAuthorisationEntry.METADATA_VALUE_PROP
+
+		)
+})
 public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public static final String TABLE_NAME = "VALITOR_AUTHORISATION_ENTRIES";
@@ -67,6 +76,9 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	public static final String dateProp = "date";
 	public static final String dateFromProp = "dateFrom";
 	public static final String dateToProp = "dateTo";
+	public static final String QUERY_FIND_BY_METADATA = "ValitorAuthorisationEntry.findByMetadata";
+	public static final String METADATA_KEY_PROP = "metadataKey";
+	public static final String METADATA_VALUE_PROP = "metadataValue";
 
 
 	//for Valitor these are Idega internal
@@ -137,6 +149,12 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Column(name = COLUMN_TRANSACTION_ID)
 	private String transactionId;
+
+	@Column(name = "redirection_url")
+	private String redirectionUrl;
+
+	@Column(name = "success")
+	private Boolean success;
 
 	@Override
 	public String getTransactionId() {
@@ -557,6 +575,24 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Override
 	public void setAuthorizationCode(String authCode) {
 		setAuthCode(authCode);
+	}
+
+
+
+	public String getRedirectionUrl() {
+		return redirectionUrl;
+	}
+
+	public void setRedirectionUrl(String redirectionUrl) {
+		this.redirectionUrl = redirectionUrl;
+	}
+
+	public Boolean getSuccess() {
+		return success;
+	}
+
+	public void setSuccess(Boolean success) {
+		this.success = success;
 	}
 
 	@Override

@@ -15,49 +15,73 @@ public class ValitorWebhookResponseData implements Serializable {
 
 	private static final long serialVersionUID = 3245706993422208476L;
 
-	private String type; 		//"CardPayment"
-	private String signature; 	//As "SHA512-fingerprint"
-	private Boolean isSuccess;
-	private Boolean isLife;
-	private String timestamp; 	//As "2021-04-12T07:21:31.3465196Z"
+	private String Type; 		//"CardPayment"
+	private String Signature; 	//As "SHA512-fingerprint"
+	private Boolean IsSuccess;
+	private Boolean IsLife;
+	private String Timestamp; 	//As "2021-04-12T07:21:31.3465196Z"
 
-	private ValitorWebhookResponseDataData data;
+	private ValitorWebhookResponseDataData Data;
 
 	public String getType() {
-		return type;
+		return Type;
 	}
 	public void setType(String type) {
-		this.type = type;
+		this.Type = type;
 	}
 	public String getSignature() {
-		return signature;
+		return Signature;
 	}
 	public void setSignature(String signature) {
-		this.signature = signature;
+		this.Signature = signature;
 	}
 	public Boolean getIsSuccess() {
-		return isSuccess;
+		return IsSuccess;
 	}
 	public void setIsSuccess(Boolean isSuccess) {
-		this.isSuccess = isSuccess;
+		this.IsSuccess = isSuccess;
 	}
 	public Boolean getIsLife() {
-		return isLife;
+		return IsLife;
 	}
 	public void setIsLife(Boolean isLife) {
-		this.isLife = isLife;
+		this.IsLife = isLife;
 	}
 	public String getTimestamp() {
-		return timestamp;
+		return Timestamp;
 	}
 	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
+		this.Timestamp = timestamp;
 	}
 	public ValitorWebhookResponseDataData getData() {
-		return data;
+		return Data;
 	}
 	public void setData(ValitorWebhookResponseDataData data) {
-		this.data = data;
+		this.Data = data;
+	}
+
+	@Override
+	public String toString() {
+		String returnStr = "ValitorWebhookResponseData. "
+				+ "type: " + Type
+				+ ", signature: " + Signature
+				+ ", isSuccess: " + IsSuccess
+				+ ", isLife: " + IsLife
+				+ ", timestamp: " + Timestamp;
+		if (getData() != null) {
+			returnStr = returnStr +
+					". ValitorWebhookResponseDataData. "
+					+ "transactionId: " + getData().getTransactionId()
+					+ ", authorizationCode: " + getData().getAuthorizationCode()
+					+ ", transactionLifecycleId: " + getData().getTransactionLifecycleId()
+					+ ", acquirerReferenceNumber: " + getData().getAcquirerReferenceNumber()
+					+ ", virtualCardNumber: " + getData().getVirtualCardNumber()
+					+ ", merchantReferenceId: " + getData().getMerchantReferenceId()
+					+ ", responseCode: " + getData().getResponseCode()
+					+ ", responseDescription: " + getData().getResponseDescription();
+		}
+
+		return returnStr;
 	}
 
 }

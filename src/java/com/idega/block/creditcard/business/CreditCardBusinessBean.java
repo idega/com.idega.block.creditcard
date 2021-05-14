@@ -26,6 +26,7 @@ import com.idega.block.creditcard.data.TPosAuthorisationEntriesBean;
 import com.idega.block.creditcard.data.TPosAuthorisationEntriesBeanHome;
 import com.idega.block.creditcard.data.TPosMerchant;
 import com.idega.block.creditcard.data.TPosMerchantHome;
+import com.idega.block.creditcard2.data.dao.impl.ValitorAuthorisationEntryDAO;
 import com.idega.block.trade.data.CreditCardInformation;
 import com.idega.block.trade.data.CreditCardInformationHome;
 import com.idega.block.trade.stockroom.data.Supplier;
@@ -43,6 +44,7 @@ import com.idega.user.data.Group;
 import com.idega.util.Encrypter;
 import com.idega.util.IWTimestamp;
 import com.idega.util.StringUtil;
+import com.idega.util.expression.ELUtil;
 
 /**
  * @author gimmi
@@ -755,6 +757,15 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		if (entry != null) {
 			return entry;
 		}
+
+		try {
+			ValitorAuthorisationEntryDAO valitorAuthorisationEntryDAO = ELUtil.getInstance().getBean(ValitorAuthorisationEntryDAO.class);
+			entry = valitorAuthorisationEntryDAO.getByMetadata(key, value);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
 
 		return null;
 	}

@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.ws.BindingProvider;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.Gson;
@@ -41,6 +42,7 @@ import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
 import com.idega.util.RequestUtil;
 import com.idega.util.StringUtil;
+import com.idega.util.datastructures.map.MapUtil;
 import com.idega.util.expression.ELUtil;
 import com.sun.jersey.api.client.ClientResponse;
 
@@ -364,7 +366,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		try {
 			details = "Name on card: " + nameOnCard + ", card number: " + CreditCardUtil.getMaskedCreditCardNumber(cardNumber) +
 			", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires + ", CVC: " + ccVerifyNumber + ", amount: " + amount +
-			"currency: " + currency + ", reference number: " + referenceNumber;
+			", currency: " + currency + ", reference number: " + referenceNumber;
 			if (
 					StringUtil.isEmpty(cardNumber) ||
 					StringUtil.isEmpty(monthExpires) ||
@@ -435,7 +437,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (response != null) {
 				valitorPayResponseData = getValitorPayResponseData(response);
 			}
-			LOGGER.info("After calling ValitorPay (" + valitorPayCardPaymentWithVerificationWebServiceURL + "). Response data: " + valitorPayResponseData);
+			LOGGER.info("After calling ValitorPay (" + valitorPayCardPaymentWithVerificationWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
 
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
@@ -544,7 +546,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (response != null) {
 				valitorPayResponseData = getValitorPayResponseData(response);
 			}
-			LOGGER.info("After calling ValitorPay (" + valitorPayWithVirtualCardWebServiceURL + "). Response data: " + valitorPayResponseData);
+			LOGGER.info("After calling ValitorPay (" + valitorPayWithVirtualCardWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
 
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
@@ -622,7 +624,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 		//Creating MerchantWebhookUrl
 		String merchantWebhookUrl = getServerUrl(settings);
-		String merchantWebhookWebServiceUrl = settings.getProperty("valitorpay.merchant_webhook_web_service_url", "payment/callback/hook");
+		String merchantWebhookWebServiceUrl = settings.getProperty("valitorpay.merchant_webhook_web_service_url", "portal/c4c/payment/callback/hook");
 		if (merchantWebhookUrl.endsWith(CoreConstants.SLASH)) {
 			merchantWebhookUrl += merchantWebhookWebServiceUrl;
 		} else {
@@ -710,6 +712,10 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					errorMsg += " TITLE: ";
 					errorMsg += valitorPayResponseData.getTitle();
 				}
+				if (!MapUtil.isEmpty(valitorPayResponseData.getErrors())) {
+					errorMsg += ". Errors: ";
+					errorMsg += valitorPayResponseData.getErrors();
+				}
 			}
 			ex = new CreditCardAuthorizationException(errorMsg, "RESPONSE_ERROR");
 
@@ -728,6 +734,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			reader = stream == null ? null : new InputStreamReader(stream);
 			if (reader != null) {
 				valitorPayResponseData = new Gson().fromJson(reader, ValitorPayResponseData.class);
+				String responseFromTheServer = IOUtils.toString(stream);
+				LOGGER.info("Response from ValitorPay: " + responseFromTheServer);
 			}
 		} catch (Throwable e) {
 			String error = "Error reading from response " + response + ". Message: " + e.getMessage();
@@ -752,9 +760,9 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 			auth.setCurrency(payment.getCurrency());
 			String serverResponse = new Gson().toJson(response);
-			serverResponse = serverResponse.length() > 1000 ? serverResponse.substring(0, 1000) : serverResponse;
+			serverResponse = serverResponse.length() > 255 ? serverResponse.substring(0, 255) : serverResponse;
 			auth.setServerResponse(serverResponse);
-			auth.setAuthCode(response.getAuthorizationCode());
+			auth.setAuthCode(payment.getMerchantReferenceId()); //response.getAuthorizationCode() //TODO: We need to store merchant reference id as authorisation code, to get the entry later
 			auth.setDate(new IWTimestamp().getDate());
 			auth.setUniqueId(payment.getMerchantReferenceId());		//	TODO: is this correct?
 			if (response.getIsSuccess() != null && response.getIsSuccess().booleanValue() == false){
@@ -766,7 +774,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			return auth.getId() == null ? null : auth;
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, "Could not store the ValitorAuthorisationEntry after the ValidtoPay transaction. "
-					+ "valitorPayResponseData: " + response
+					+ "valitorPayResponseData: " + response.toString()
 					+ ". valitorPayPaymentData: " + payment, e);
 		}
 		return null;

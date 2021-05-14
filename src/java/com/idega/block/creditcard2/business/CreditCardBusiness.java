@@ -365,8 +365,13 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 			// supplierManager
 			if (ccInfo == null) {
 				GroupDAO grpDAO = ELUtil.getInstance().getBean(GroupDAO.class);
-				Group group = grpDAO.findGroup((Integer) supplier.getSupplierManager().getPrimaryKey());
-				ccInfo = getCreditCardInformation(group, stamp);
+				Group group = null;
+				if (supplier.getSupplierManager() != null) {
+					group = grpDAO.findGroup((Integer) supplier.getSupplierManager().getPrimaryKey());
+				}
+				if (group != null) {
+					ccInfo = getCreditCardInformation(group, stamp);
+				}
 			}
 
 			return ccInfo;

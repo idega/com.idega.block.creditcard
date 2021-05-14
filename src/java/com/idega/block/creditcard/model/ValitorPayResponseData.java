@@ -1,6 +1,8 @@
 package com.idega.block.creditcard.model;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -33,6 +35,7 @@ public class ValitorPayResponseData implements Serializable {
 
 	//RESPONSE - 400
 	private String title;
+	private Map<String, List<String>> errors;
 
 	//RESPONSE - 500
 	private String message;
@@ -121,5 +124,32 @@ public class ValitorPayResponseData implements Serializable {
 	public void setTransactionLifecycleId(String transactionLifecycleId) {
 		this.transactionLifecycleId = transactionLifecycleId;
 	}
+	public Map<String, List<String>> getErrors() {
+		return errors;
+	}
+	public void setErrors(Map<String, List<String>> errors) {
+		this.errors = errors;
+	}
+
+	@Override
+	public String toString() {
+		String returnStr = "ValitorPayResponseData. ";
+		returnStr = returnStr + " verificationHtml: " + verificationHtml
+				+ ", postUrl: " + postUrl
+				+ ", verificationStatus: " + verificationStatus
+				+ ", isSuccess: " + isSuccess
+				+ ", responseCode: " + responseCode
+				+ ", responseDescription: " + responseDescription
+				+ ", responseTime: " + responseTime
+				+ ", correlationID: " + correlationID
+				+ ", acquirerReferenceNumber: " + acquirerReferenceNumber
+				+ ", transactionID: " + transactionID
+				+ ", authorizationCode: " + authorizationCode
+				+ ", transactionLifecycleId: " + transactionLifecycleId
+				+ ", title: " + title
+				+ ", errors: " + errors;
+		return returnStr;
+	}
+
 
 }

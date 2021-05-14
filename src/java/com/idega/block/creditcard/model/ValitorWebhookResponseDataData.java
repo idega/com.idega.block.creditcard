@@ -15,62 +15,62 @@ public class ValitorWebhookResponseDataData implements Serializable {
 
 	private static final long serialVersionUID = -6985835352807317377L;
 
-	private String transactionId;			//As "914217598109"
-	private String authorizationCode;		//As "HOSTOK"
-	private String transactionLifecycleId;	//As "ABC123"
-	private String acquirerReferenceNumber;	//As "123456"
-	private String virtualCardNumber;		//As "99999999-9999-9999-9999-999999999999"
-	private String merchantReferenceId;		//As "00000000-0000-0000-0000-000000000000"
-	private String responseCode;			//As "00-I"
-	private String responseDescription;		//As "Authorized"
+	private String TransactionId;			//As "914217598109"
+	private String AuthorizationCode;		//As "HOSTOK"
+	private String TransactionLifecycleId;	//As "ABC123"
+	private String AcquirerReferenceNumber;	//As "123456"
+	private String VirtualCardNumber;		//As "99999999-9999-9999-9999-999999999999"
+	private String MerchantReferenceId;		//As "00000000-0000-0000-0000-000000000000"
+	private String ResponseCode;			//As "00-I"
+	private String ResponseDescription;		//As "Authorized"
 
 	public String getTransactionId() {
-		return transactionId;
+		return TransactionId;
 	}
 	public void setTransactionId(String transactionId) {
-		this.transactionId = transactionId;
+		this.TransactionId = transactionId;
 	}
 	public String getAuthorizationCode() {
-		return authorizationCode;
+		return AuthorizationCode;
 	}
 	public void setAuthorizationCode(String authorizationCode) {
-		this.authorizationCode = authorizationCode;
+		this.AuthorizationCode = authorizationCode;
 	}
 	public String getTransactionLifecycleId() {
-		return transactionLifecycleId;
+		return TransactionLifecycleId;
 	}
 	public void setTransactionLifecycleId(String transactionLifecycleId) {
-		this.transactionLifecycleId = transactionLifecycleId;
+		this.TransactionLifecycleId = transactionLifecycleId;
 	}
 	public String getAcquirerReferenceNumber() {
-		return acquirerReferenceNumber;
+		return AcquirerReferenceNumber;
 	}
 	public void setAcquirerReferenceNumber(String acquirerReferenceNumber) {
-		this.acquirerReferenceNumber = acquirerReferenceNumber;
+		this.AcquirerReferenceNumber = acquirerReferenceNumber;
 	}
 	public String getVirtualCardNumber() {
-		return virtualCardNumber;
+		return VirtualCardNumber;
 	}
 	public void setVirtualCardNumber(String virtualCardNumber) {
-		this.virtualCardNumber = virtualCardNumber;
+		this.VirtualCardNumber = virtualCardNumber;
 	}
 	public String getMerchantReferenceId() {
-		return merchantReferenceId;
+		return MerchantReferenceId;
 	}
 	public void setMerchantReferenceId(String merchantReferenceId) {
-		this.merchantReferenceId = merchantReferenceId;
+		this.MerchantReferenceId = merchantReferenceId;
 	}
 	public String getResponseCode() {
-		return responseCode;
+		return ResponseCode;
 	}
 	public void setResponseCode(String responseCode) {
-		this.responseCode = responseCode;
+		this.ResponseCode = responseCode;
 	}
 	public String getResponseDescription() {
-		return responseDescription;
+		return ResponseDescription;
 	}
 	public void setResponseDescription(String responseDescription) {
-		this.responseDescription = responseDescription;
+		this.ResponseDescription = responseDescription;
 	}
 
 }
