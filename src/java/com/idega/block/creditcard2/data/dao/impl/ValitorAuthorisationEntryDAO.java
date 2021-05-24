@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard2.data.beans.ValitorAuthorisationEntry;
 import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
+import com.idega.business.SpringBeanName;
 import com.idega.core.persistence.Param;
 import com.idega.core.persistence.impl.GenericDaoImpl;
 import com.idega.util.StringUtil;
@@ -19,6 +20,7 @@ import com.idega.util.StringUtil;
 @Repository(ValitorAuthorisationEntryDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 @Transactional(readOnly = true)
+@SpringBeanName(ValitorAuthorisationEntryDAO.BEAN_NAME)
 public class ValitorAuthorisationEntryDAO extends GenericDaoImpl
 		implements AuthorisationEntriesDAO<ValitorAuthorisationEntry> {
 
