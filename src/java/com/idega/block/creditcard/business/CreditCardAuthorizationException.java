@@ -6,48 +6,85 @@
  */
 package com.idega.block.creditcard.business;
 
+import java.util.logging.Logger;
+
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
+import com.idega.util.CoreUtil;
 
 /**
  * @author gimmi
  *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ *         To change the template for this generated type comment go to Window -
+ *         Preferences - Java - Code Generation - Code and Comments
  */
 public class CreditCardAuthorizationException extends Exception {
+
+	private static final long serialVersionUID = -5439026878445387334L;
 
 	protected String _errorMessage = null;
 	protected String _errorNumber = null;
 	protected String _displayError = null;
 
-	
 	/**
-	 * 
+	 *
 	 */
 	public CreditCardAuthorizationException() {
 		super();
+
+		sendExceptionNotification();
 	}
 
 	/**
-	 * @param arg0
+	 * @param message
 	 */
-	public CreditCardAuthorizationException(String arg0) {
-		super(arg0);
+	public CreditCardAuthorizationException(String message) {
+		super(message);
+
+		sendExceptionNotification();
+	}
+
+	public CreditCardAuthorizationException(String message, String errorNumber) {
+		super(message);
+		this._errorNumber = errorNumber;
+
+		sendExceptionNotification();
 	}
 
 	/**
-	 * @param arg0
-	 * @param arg1
+	 * @param message
+	 * @param cause
 	 */
-	public CreditCardAuthorizationException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
+	public CreditCardAuthorizationException(String message, Throwable cause) {
+		super(message, cause);
+
+		sendExceptionNotification();
 	}
 
 	/**
-	 * @param arg0
+	 * @param cause
 	 */
-	public CreditCardAuthorizationException(Throwable arg0) {
-		super(arg0);
+	public CreditCardAuthorizationException(Throwable cause) {
+		super(cause);
+
+		sendExceptionNotification();
+	}
+
+	public CreditCardAuthorizationException(Throwable cause, String errorMessage, String errorNumber) {
+		super(cause);
+
+		this._errorMessage = errorMessage;
+		this._errorNumber = errorNumber;
+
+		sendExceptionNotification();
+	}
+
+	private void sendExceptionNotification() {
+		String message = "Message: " + _errorMessage + ", error number: " + _errorNumber + ", display error: " + _displayError;
+		Logger.getLogger(getClass().getName()).warning(message);
+		if (IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("credit_card.report_exceptions", false)) {
+			CoreUtil.sendExceptionNotification(message, this);
+		}
 	}
 
 	/**
@@ -61,7 +98,7 @@ public class CreditCardAuthorizationException extends Exception {
 	 *
 	 */
 	public String getErrorMessage() {
-		return(this._errorMessage);
+		return (this._errorMessage);
 	}
 
 	/**
@@ -75,7 +112,7 @@ public class CreditCardAuthorizationException extends Exception {
 	 *
 	 */
 	public String getErrorNumber() {
-		return(this._errorNumber);
+		return (this._errorNumber);
 	}
 
 	/**
@@ -89,14 +126,17 @@ public class CreditCardAuthorizationException extends Exception {
 	 *
 	 */
 	public String getDisplayError() {
-		return(this._displayError);
+		return (this._displayError);
 	}
-	
+
 	public void setParentException(Exception e) {
 		this.setStackTrace(e.getStackTrace());
 	}
-	
+
 	public String getLocalizedMessage(IWResourceBundle iwrb) {
-		return "unimplemented";
+		if (iwrb != null && this._errorNumber != null && this._errorMessage != null) {
+			return iwrb.getLocalizedString("CCERROR_" + this._errorNumber, this._errorMessage);
+		}
+		return this._errorMessage;
 	}
 }

@@ -1,1 +1,7 @@
-target/
+/target/
+
+.classpath
+
+.project
+.settings/
+.settings/org.eclipse.jdt.core.prefs

@@ -1,6 +1,7 @@
 package com.idega.block.creditcard.business;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
@@ -11,6 +12,11 @@ import javax.transaction.TransactionManager;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
+import com.idega.block.creditcard.data.DummyAuthorisationEntries;
+import com.idega.block.creditcard.data.DummyAuthorisationEntriesBMPBean;
+import com.idega.block.creditcard.data.DummyAuthorisationEntriesHome;
+import com.idega.block.creditcard.data.DummyMerchant;
+import com.idega.block.creditcard.data.DummyMerchantHome;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesBMPBean;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesHome;
@@ -30,11 +36,13 @@ import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
 import com.idega.idegaweb.IWBundle;
 import com.idega.idegaweb.IWResourceBundle;
+import com.idega.presentation.Image;
 import com.idega.presentation.ui.DropdownMenu;
 import com.idega.transaction.IdegaTransactionManager;
 import com.idega.user.data.Group;
 import com.idega.util.Encrypter;
 import com.idega.util.IWTimestamp;
+import com.idega.util.StringUtil;
 
 /**
  * @author gimmi
@@ -50,11 +58,14 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 
 	public final static int CLIENT_TYPE_TPOS = 1;
 	public final static int CLIENT_TYPE_KORTATHJONUSTAN = 2;
+	public final static int CLIENT_TYPE_DUMMY = 3;
 
+	@Override
 	public String getBundleIdentifier() {
 		return IW_BUNDLE_IDENTIFIER;
 	}
 
+	@Override
 	public Collection getAuthorizationEntries(int clientType, String merchantID, IWTimestamp from, IWTimestamp to) throws IDOLookupException, FinderException {
 		if (clientType > 0) {
 			if (clientType == CLIENT_TYPE_KORTATHJONUSTAN) {
@@ -69,10 +80,17 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 
 				return coll;
 			}
+			else if (clientType == CLIENT_TYPE_DUMMY) {
+				DummyAuthorisationEntriesHome home = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntries.class);
+				Collection coll = home.findByDates(from, to);
+
+				return coll;
+			}
 		}
 		return null;
 	}
 
+	@Override
 	public DropdownMenu getCreditCardTypes(CreditCardClient client, IWResourceBundle iwrb, String dropdownName) {
 		Collection types = client.getValidCardTypes();
 		if (types != null && !types.isEmpty()) {
@@ -89,15 +107,16 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
-	public Collection getCreditCardTypeImages(CreditCardClient client) {
-		Collection types = client.getValidCardTypes();
-		Vector images = new Vector();
+	@Override
+	public Collection<Image> getCreditCardTypeImages(CreditCardClient client) {
+		Collection<String> types = client.getValidCardTypes();
+		Collection<Image> images = new ArrayList<Image>();
 		if (types != null && !types.isEmpty()) {
-			Iterator iter = types.iterator();
+			Iterator<String> iter = types.iterator();
 			IWBundle bundle = this.getBundle();
 			String type;
 			while (iter.hasNext()) {
-				type = (String) iter.next();
+				type = iter.next();
 				if (CreditCardBusiness.CARD_TYPE_DANKORT.equals(type)) {
 					images.add(bundle.getImage("logos/dankort.gif"));
 				}
@@ -125,6 +144,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return images;
 	}
 
+	@Override
 	public CreditCardClient getCreditCardClient(Supplier supplier, IWTimestamp stamp) throws Exception {
 
 		CreditCardMerchant merchant = getCreditCardMerchant(supplier, stamp);
@@ -133,11 +153,13 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return client;
 	}
 
+	@Override
 	public CreditCardClient getCreditCardClient(Group supplierManager, IWTimestamp stamp) throws Exception {
 		CreditCardMerchant m = getCreditCardMerchant(supplierManager, stamp);
 		return getCreditCardClient(m);
 	}
 
+	@Override
 	public CreditCardClient getCreditCardClient(CreditCardMerchant merchant) throws Exception {
 		if (merchant != null && merchant.getType() != null) {
 			if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(merchant.getType())) {
@@ -151,27 +173,34 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 
 				return new KortathjonustanCreditCardClient(getIWApplicationContext(), hostName, Integer.parseInt(hostPort), keystore, keystorePass, merchant);
 			}
+			else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(merchant.getType())) {
+				return new DummyCreditCardClient(getIWApplicationContext());
+			}
 		}
 		return null;
 		// Default client
 		// return new TPosClient(getIWApplicationContext());
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(String merchantPK, String merchantType) {
 		CreditCardInformation ccInfo = getCreditCardInformation(merchantPK, merchantType);
 		return getCreditCardMerchant(ccInfo);
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(Supplier supplier, IWTimestamp stamp) {
 		CreditCardInformation ccInfo = getCreditCardInformation(supplier, stamp);
 		return getCreditCardMerchant(ccInfo);
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, IWTimestamp stamp) {
 		CreditCardInformation ccInfo = getCreditCardInformation(supplierManager, stamp);
 		return getCreditCardMerchant(ccInfo);
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(CreditCardInformation ccInfo) {
 		if (ccInfo != null) {
 			try {
@@ -184,6 +213,10 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 					KortathjonustanMerchantHome kortHome = (KortathjonustanMerchantHome) IDOLookup.getHome(KortathjonustanMerchant.class, ccInfo.getDatasource());
 					return kortHome.findByPrimaryKey(new Integer(ccInfo.getMerchantPKString()));
 				}
+				else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(type)) {
+					DummyMerchantHome kortHome = (DummyMerchantHome) IDOLookup.getHome(DummyMerchant.class, ccInfo.getDatasource());
+					return kortHome.findByPrimaryKey(new Integer(ccInfo.getMerchantPKString()));
+				}
 			}
 			catch (Exception e) {
 				e.printStackTrace(System.err);
@@ -192,6 +225,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public CreditCardInformation getCreditCardInformation(String merchantPK, String merchantType) {
 		try {
 			CreditCardInformationHome ccInfoHome = (CreditCardInformationHome) IDOLookup.getHome(CreditCardInformation.class);
@@ -207,6 +241,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public CreditCardInformation getCreditCardInformation(Supplier supplier, IWTimestamp stamp) {
 		try {
 			Timestamp toCheck = null;
@@ -248,6 +283,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 	 * @throws FinderException
 	 * @throws IDOLookupException
 	 */
+	@Override
 	public CreditCardInformation getCreditCardInformation(Group supplierManager, IWTimestamp stamp) {
 		Timestamp toCheck = null;
 		if (stamp != null) {
@@ -297,6 +333,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(Supplier supplier, Object PK) {
 		try {
 			Collection coll = supplier.getCreditCardInformation();
@@ -309,6 +346,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public CreditCardMerchant getCreditCardMerchant(Group supplierManager, Object PK) {
 		try {
 			Collection coll = getCreditCardInformations(supplierManager);
@@ -343,6 +381,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public CreditCardMerchant createCreditCardMerchant(String type) throws CreateException {
 		try {
 			if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
@@ -353,6 +392,10 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 				KortathjonustanMerchantHome kortHome = (KortathjonustanMerchantHome) IDOLookup.getHome(KortathjonustanMerchant.class);
 				return kortHome.create();
 			}
+			else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(type)) {
+				DummyMerchantHome dummyHome = (DummyMerchantHome) IDOLookup.getHome(DummyMerchant.class);
+				return dummyHome.create();
+			}
 			return null;
 		}
 		catch (IDOLookupException e) {
@@ -360,10 +403,12 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		}
 	}
 
+	@Override
 	public void addCreditCardMerchant(Group supplierManager, CreditCardMerchant merchant) throws CreateException {
 		addCreditCardMerchant((Object) supplierManager, merchant);
 	}
 
+	@Override
 	public void addCreditCardMerchant(Supplier supplier, CreditCardMerchant merchant) throws CreateException {
 		addCreditCardMerchant((Object) supplier, merchant);
 	}
@@ -431,6 +476,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		}
 	}
 
+	@Override
 	public Collection getCreditCardInformations(Supplier supplier) throws IDORelationshipException {
 		Collection coll = supplier.getCreditCardInformation();
 		if (coll == null || coll.isEmpty()) {
@@ -453,6 +499,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return coll;
 	}
 
+	@Override
 	public Collection getCreditCardInformations(Group supplierManager) throws FinderException, IDOLookupException {
 		CreditCardInformationHome ccInfoHome = (CreditCardInformationHome) IDOLookup.getHome(CreditCardInformation.class, supplierManager.getDatasource());
 		return ccInfoHome.findBySupplierManager(supplierManager);
@@ -494,6 +541,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		}
 	}
 
+	@Override
 	public boolean verifyCreditCardNumber(String numberToCheck, CreditCardAuthorizationEntry entry) throws IllegalArgumentException {
 		if (numberToCheck != null && numberToCheck.length() >= 10) {
 			int length = numberToCheck.length();
@@ -506,11 +554,13 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		throw new IllegalArgumentException("Number must be at least 10 characters long");
 	}
 
+	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Group supplierManager, String authorizationCode, IWTimestamp stamp) {
 		CreditCardInformation info = getCreditCardInformation(supplierManager, stamp);
 		return getAuthorizationEntry(info, authorizationCode, stamp);
 	}
 
+	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntry(Supplier supplier, String authorizationCode, IWTimestamp stamp) {
 		CreditCardInformation info = getCreditCardInformation(supplier, stamp);
 		CreditCardAuthorizationEntry entry = getAuthorizationEntry(info, authorizationCode, stamp);
@@ -520,6 +570,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return entry;
 	}
 
+	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntry(CreditCardInformation info, String authorizationCode, IWTimestamp stamp) {
 		if (info != null) {
 			try {
@@ -533,6 +584,13 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 				else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(info.getType())) {
 					KortathjonustanAuthorisationEntriesHome authEntHome = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntries.class, info.getDatasource());
 					KortathjonustanAuthorisationEntries entry = authEntHome.findByAuthorizationCode(authorizationCode, stamp);
+					if (entry != null) {
+						return entry;
+					}
+				}
+				else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(info.getType())) {
+					DummyAuthorisationEntriesHome authEntHome = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntries.class, info.getDatasource());
+					DummyAuthorisationEntries entry = authEntHome.findByAuthorizationCode(authorizationCode, stamp);
 					if (entry != null) {
 						return entry;
 					}
@@ -563,10 +621,12 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return null;
 	}
 
+	@Override
 	public boolean getUseCVC(CreditCardClient client) {
 		return !(client instanceof TPosClient);
 	}
 
+	@Override
 	public boolean getUseCVC(CreditCardMerchant merchant) {
 		if (merchant != null) {
 			return !CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(merchant.getType());
@@ -574,10 +634,12 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		return false;
 	}
 
+	@Override
 	public boolean getUseCVC(Supplier supplier, IWTimestamp stamp) {
 		return getUseCVC(getCreditCardMerchant(supplier, stamp));
 	}
 
+	@Override
 	public Collection getAllRefunds(IWTimestamp from, IWTimestamp to, int clientType) throws IDOLookupException, FinderException {
 		Collection coll = new Vector();
 		if (clientType == CLIENT_TYPE_TPOS) {
@@ -588,7 +650,113 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			KortathjonustanAuthorisationEntriesHome home = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntriesBMPBean.class);
 			coll = home.findRefunds(from, to);
 		}
+		else if (clientType == CLIENT_TYPE_DUMMY) {
+			DummyAuthorisationEntriesHome home = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntriesBMPBean.class);
+			coll = home.findRefunds(from, to);
+		}
 		return coll;
+	}
+
+	@Override
+	public CreditCardAuthorizationEntry getAuthorizationEntry(String authorizationCode, IWTimestamp stamp) throws java.rmi.RemoteException {
+		if (StringUtil.isEmpty(authorizationCode) || stamp == null) {
+			return null;
+		}
+
+		CreditCardAuthorizationEntry entry = null;
+		try {
+			TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);
+			entry = home.findByAuthorisationIdRsp(authorizationCode, stamp);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			KortathjonustanAuthorisationEntriesHome home = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntriesBMPBean.class);
+			entry = home.findByAuthorizationCode(authorizationCode, stamp);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			DummyAuthorisationEntriesHome home = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntriesBMPBean.class);
+			entry = home.findByAuthorizationCode(authorizationCode, stamp);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		return null;
+	}
+
+	@Override
+	public CreditCardAuthorizationEntry getAuthorizationEntryByUniqueId(String uniqueId) {
+		if (StringUtil.isEmpty(uniqueId)) {
+			return null;
+		}
+
+		CreditCardAuthorizationEntry entry = null;
+		try {
+			TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);
+			entry = home.getAuthorizationEntryByUniqueId(uniqueId);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			KortathjonustanAuthorisationEntriesHome home = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntriesBMPBean.class);
+			entry = home.getAuthorizationEntryByUniqueId(uniqueId);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			DummyAuthorisationEntriesHome home = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntriesBMPBean.class);
+			entry = home.getAuthorizationEntryByUniqueId(uniqueId);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		return null;
+	}
+
+	@Override
+	public CreditCardAuthorizationEntry getAuthorizationEntryByMetaData(String key, String value) {
+		if (StringUtil.isEmpty(key) || StringUtil.isEmpty(value)) {
+			return null;
+		}
+
+		CreditCardAuthorizationEntry entry = null;
+		try {
+			TPosAuthorisationEntriesBeanHome home = (TPosAuthorisationEntriesBeanHome) IDOLookup.getHome(TPosAuthorisationEntriesBean.class);
+			entry = home.getAuthorizationEntryByMetaData(key, value);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			KortathjonustanAuthorisationEntriesHome home = (KortathjonustanAuthorisationEntriesHome) IDOLookup.getHome(KortathjonustanAuthorisationEntriesBMPBean.class);
+			entry = home.getAuthorizationEntryByMetaData(key, value);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			DummyAuthorisationEntriesHome home = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntriesBMPBean.class);
+			entry = home.getAuthorizationEntryByMetaData(key, value);
+		} catch (Exception e) {}
+		if (entry != null) {
+			return entry;
+		}
+
+		return null;
 	}
 
 }

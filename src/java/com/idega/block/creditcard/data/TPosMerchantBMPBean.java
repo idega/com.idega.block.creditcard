@@ -17,7 +17,9 @@ import com.idega.util.IWTimestamp;
 
 public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 
-  private static final String _EntityName = "TPOS_MERCHANT";
+	private static final long serialVersionUID = 103141253215413457L;
+
+private static final String _EntityName = "TPOS_MERCHANT";
   private static final String _ColumnNameName = "MERCHANT_NAME";
   private static final String _ColumnNameMerchantID = "MERCHANT_ID";
   private static final String _ColumnNameLocationID = "LOCATION_ID";
@@ -33,11 +35,13 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
   public TPosMerchantBMPBean() {
   }
 
-  public String getType() {
+  @Override
+public String getType() {
   	return MERCHANT_TYPE_TPOS;
   }
 
-  public void initializeAttributes() {
+  @Override
+public void initializeAttributes() {
     addAttribute(getIDColumnName());
     addAttribute(_ColumnNameName,"Merchant Name", true, true, String.class);
     addAttribute(_ColumnNameMerchantID,"Merchant ID", true, true, String.class);
@@ -50,76 +54,116 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
     addAttribute(_ColumnModifiedDate, "Modification date", true, true, Timestamp.class);
     addAttribute(_ColumnEndDate, "End date", true, true, Timestamp.class);
     addAttribute(COLUMN_IS_DELETED, "Is delted", true, true, Boolean.class);
-  }
+    addAttribute(COLUMN_SHARED_SECRET, "Shared secret", true, true, String.class);
+    addAttribute(COLUMN_SUCCESS_REDIRECT_URL, "Success redirect URL", true, true, String.class);
+    addAttribute(COLUMN_AUTHORIZATION_TERMINAL, "Authorization terminal", true, true, String.class);
+}
+
+@Override
+public String getAuthorizationTerminal() {
+	return getStringColumnValue(COLUMN_AUTHORIZATION_TERMINAL);
+}
+
+@Override
+public void setAuthorizationTerminal(String authorizationTerminal) {
+	setColumn(COLUMN_AUTHORIZATION_TERMINAL, authorizationTerminal);
+}
+
+@Override
+public String getSuccessRedirectURL() {
+	return getStringColumnValue(COLUMN_SUCCESS_REDIRECT_URL);
+}
+
+@Override
+public void setSuccessRedirectURL(String successRedirectURL) {
+	setColumn(COLUMN_SUCCESS_REDIRECT_URL, successRedirectURL);
+}
 
 
-  public String getEntityName() {
+  @Override
+public String getEntityName() {
     return _EntityName;
   }
 
   /** SETTERS */
-  public void setName(String name) {
+  @Override
+public void setName(String name) {
     setMerchantName(name);
   }
 
-  public void setMerchantName(String name) {
+  @Override
+public void setMerchantName(String name) {
     setColumn(_ColumnNameName, name);
   }
 
-  public void setMerchantID(String id) {
+  @Override
+public void setMerchantID(String id) {
     setColumn(_ColumnNameMerchantID, id);
   }
 
-  public void setLocationID(String id) {
+  @Override
+public void setLocationID(String id) {
     setColumn(_ColumnNameLocationID, id);
   }
 
-  public void setUserID(String id) {
+  @Override
+public void setUserID(String id) {
     setColumn(_ColumnNameUser, id);
   }
 
-  public void setPassword(String password) {
+  @Override
+public void setPassword(String password) {
     setColumn(_ColumnNamePassword, password);
   }
 
-  public void setPosID(String id) {
+  @Override
+public void setPosID(String id) {
     setColumn(_ColumnNamePosID, id);
   }
 
-  public void setKeyReceivedPassword(String keyRcvPassw) {
+  @Override
+public void setKeyReceivedPassword(String keyRcvPassw) {
     setColumn(_ColumnNameKeyReceivedPassword, keyRcvPassw);
   }
 
   /** GETTERS */
-  public String getName() {
+  @Override
+public String getName() {
     return getMerchantName();
   }
 
-  public String getMerchantName() {
+  @Override
+public String getMerchantName() {
     return getStringColumnValue(_ColumnNameName);
   }
 
-  public String getMerchantID() {
+  @Override
+public String getMerchantID() {
     return getStringColumnValue(_ColumnNameMerchantID);
   }
 
-  public String getLocationID() {
+  @Override
+public String getLocationID() {
     return getStringColumnValue(_ColumnNameLocationID);
   }
 
-  public String getUserID() {
+  @Override
+public String getUserID() {
     return getStringColumnValue(_ColumnNameUser);
   }
 
-  public String getPassword() {
+  @Override
+public String getPassword() {
     return getStringColumnValue(_ColumnNamePassword);
   }
 
-  public String getPosID() {
+  @Override
+public String getPosID() {
     return getStringColumnValue(_ColumnNamePosID);
   }
 
-  public String getKeyReceivedPassword() {
+  @Override
+public String getKeyReceivedPassword() {
     return getStringColumnValue(_ColumnNameKeyReceivedPassword);
   }
 
@@ -127,30 +171,34 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 	/* (non-Javadoc)
 	 * @see com.idega.block.tpos.business.CreditCardMerchant#getLocation()
 	 */
+	@Override
 	public String getLocation() {
 		return getLocationID();
 	}
-	
-	
+
+
 	/* (non-Javadoc)
 	 * @see com.idega.block.tpos.business.CreditCardMerchant#getUser()
 	 */
+	@Override
 	public String getUser() {
 		return getUserID();
 	}
-	
-	
+
+
 	/* (non-Javadoc)
 	 * @see com.idega.block.tpos.business.CreditCardMerchant#getTerminalID()
 	 */
+	@Override
 	public String getTerminalID() {
 		return getPosID();
 	}
-	
-	
+
+
 	/* (non-Javadoc)
 	 * @see com.idega.block.tpos.business.CreditCardMerchant#getExtraInfo()
 	 */
+	@Override
 	public String getExtraInfo() {
 		return getKeyReceivedPassword();
 	}
@@ -159,6 +207,7 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setLocation(java.lang.String)
 	 */
+	@Override
 	public void setLocation(String location) {
 		setLocationID(location);
 	}
@@ -167,6 +216,7 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setUser(java.lang.String)
 	 */
+	@Override
 	public void setUser(String user) {
 		setUserID(user);
 	}
@@ -175,6 +225,7 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setTerminalID(java.lang.String)
 	 */
+	@Override
 	public void setTerminalID(String terminalID) {
 		setPosID(terminalID);
 	}
@@ -183,6 +234,7 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setExtraInfo(java.lang.String)
 	 */
+	@Override
 	public void setExtraInfo(String extra) {
 		setKeyReceivedPassword(extra);
 	}
@@ -190,6 +242,7 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getStartDate()
 	 */
+	@Override
 	public Timestamp getStartDate() {
 		return getTimestampColumnValue(_ColumnStartDate);
 	}
@@ -197,6 +250,7 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getEndDate()
 	 */
+	@Override
 	public Timestamp getEndDate() {
 		return getTimestampColumnValue(_ColumnEndDate);
 	}
@@ -204,6 +258,7 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#IsDeleted()
 	 */
+	@Override
 	public boolean getIsDeleted() {
 		return getBooleanColumnValue(COLUMN_IS_DELETED);
 	}
@@ -219,6 +274,7 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getModificationDate()
 	 */
+	@Override
 	public Timestamp getModificationDate() {
 		return getTimestampColumnValue(_ColumnModifiedDate);
 	}
@@ -230,6 +286,7 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#store()
 	 */
+	@Override
 	public void store() {
 		setModificationDate(IWTimestamp.RightNow().getTimestamp());
 		if (getStartDate() == null) {
@@ -241,11 +298,28 @@ public class TPosMerchantBMPBean extends GenericEntity implements TPosMerchant {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#remove()
 	 */
+	@Override
 	public void remove() throws RemoveException {
 		setModificationDate(IWTimestamp.RightNow().getTimestamp());
 		setEndDate(IWTimestamp.RightNow().getTimestamp());
 		setColumn(COLUMN_IS_DELETED, true);
 		store();
+	}
+
+	@Override
+	public void setSharedSecret(String secret) {
+		setColumn(COLUMN_SHARED_SECRET, secret);
+	}
+
+	@Override
+	public String getSharedSecret() {
+		return getStringColumnValue(COLUMN_SHARED_SECRET);
+	}
+
+	@Override
+	public Integer getId() {
+		Object pk = getPrimaryKey();
+		return (Integer) pk;
 	}
 
 }

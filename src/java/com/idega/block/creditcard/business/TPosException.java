@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.util.CoreUtil;
 
 /**
@@ -23,34 +24,27 @@ public class TPosException extends CreditCardAuthorizationException {
 	
 	private static final Logger LOGGER = Logger.getLogger(TPosException.class.getName());
 	
-  /**
-   *
-   */
   public TPosException() {
     super();
   }
 
-  /**
-   *
-   */
   public TPosException(String message) {
     super(message);
   }
 
-  
   /**
-   * @param arg0
-   * @param arg1
+   * @param message
+   * @param cause
    */
-  public TPosException(String message, Throwable arg1) {
-  	super(message, arg1);
+  public TPosException(String message, Throwable cause) {
+  	super(message, cause);
   }
 
   /**
-   * @param arg0
+   * @param cause
    */
-  public TPosException(Throwable arg0) {
-  	super(arg0);
+  public TPosException(Throwable cause) {
+  	super(cause);
   }
 
   public String getLocalizedMessage(IWResourceBundle iwrb) {
