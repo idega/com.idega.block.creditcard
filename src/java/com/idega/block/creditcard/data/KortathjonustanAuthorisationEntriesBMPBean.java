@@ -42,12 +42,12 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 	private static final String COLUMN_REFERENCE = "reference";
 	private static final String COLUMN_CARD_TOKEN = "card_token";
 
-	@Override
+	
 	public String getEntityName() {
 		return TABLE_NAME;
 	}
 
-	@Override
+	
 	public void initializeAttributes() {
 		addAttribute(getIDColumnName());
 		addAttribute(COLUMN_AMOUNT, "amount", true, true, Double.class);
@@ -72,127 +72,127 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		addAttribute(COLUMN_TRANSACTION_ID, "Transaction ID", true, true, String.class);
 	}
 
-	@Override
+	
 	public void setTransactionId(String transactionId) {
 		setColumn(COLUMN_TRANSACTION_ID, transactionId);
 	}
 
-	@Override
+	
 	public String getTransactionId() {
 		return getStringColumnValue(COLUMN_TRANSACTION_ID);
 	}
 
-	@Override
+	
 	public String getPaymentId() {
 		return getStringColumnValue(COLUMN_PAYMENT_ID);
 	}
 
-	@Override
+	
 	public void setPaymentId(String paymentId) {
 		setColumn(COLUMN_PAYMENT_ID, paymentId);
 	}
 
-	@Override
+	
 	public Timestamp getTimestamp() {
 		return getTimestampColumnValue(COLUMN_TIMESTAMP);
 	}
 
-	@Override
+	
 	public void setTimestamp(Timestamp timestamp) {
 		setColumn(COLUMN_TIMESTAMP, timestamp);
 	}
 
-	@Override
+	
 	public double getAmount() {
 		return getDoubleColumnValue(COLUMN_AMOUNT);
 	}
 
-	@Override
+	
 	public void setAmount(double amount) {
 		setColumn(COLUMN_AMOUNT, amount);
 	}
 
-	@Override
+	
 	public String getCurrency() {
 		return getStringColumnValue(COLUMN_CURRENCY);
 	}
 
-	@Override
+	
 	public void setCurrency(String currency) {
 		setColumn(COLUMN_CURRENCY, currency);
 	}
 
-	@Override
+	
 	public Date getDate() {
 		return getDateColumnValue(COLUMN_DATE);
 	}
 
-	@Override
+	
 	public void setDate(Date date) {
 		setColumn(COLUMN_DATE, date);
 	}
 
-	@Override
+	
 	public String getCardExpires() {
 		return getStringColumnValue(COLUMN_CARD_EXPIRES);
 	}
 
-	@Override
+	
 	public void setCardExpires(String expires) {
 		setColumn(COLUMN_CARD_EXPIRES, expires);
 	}
 
-	@Override
+	
 	public String getCardNumber() {
 		return getStringColumnValue(COLUMN_CARD_NUMBER);
 	}
 
-	@Override
+	
 	public void setCardNumber(String number) {
 		setColumn(COLUMN_CARD_NUMBER, number);
 	}
 
-	@Override
+	
 	public String getBrandName() {
 		return getStringColumnValue(COLUMN_BRAND_NAME);
 	}
 
-	@Override
+	
 	public void setBrandName(String name) {
 		setColumn(COLUMN_BRAND_NAME, name);
 	}
 
-	@Override
+	
 	public String getAuthorizationCode() {
 		return getStringColumnValue(COLUMN_AUTHORIZATION_CODE);
 	}
 
-	@Override
+	
 	public void setAuthorizationCode(String code) {
 		setColumn(COLUMN_AUTHORIZATION_CODE, code);
 	}
 
-	@Override
+	
 	public String getTransactionType() {
 		return getStringColumnValue(COLUMN_TRANSACTION_TYPE);
 	}
 
-	@Override
+	
 	public void setTransactionType(String type) {
 		setColumn(COLUMN_TRANSACTION_TYPE, type);
 	}
 
-	@Override
+	
 	public int getParentID() {
 		return getIntColumnValue(COLUMN_PARENT_ID);
 	}
 
-	@Override
+	
 	public CreditCardAuthorizationEntry getParent() {
 		return (KortathjonustanAuthorisationEntries) getColumnValue(COLUMN_PARENT_ID);
 	}
 
-	@Override
+	
 	public void setParentID(int id) {
 		setColumn(COLUMN_PARENT_ID, id);
 	}
@@ -226,7 +226,7 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 	}
 
 	public Integer ejbFindByMetaData(String key, String value) throws FinderException {
-		Collection<?> entries = super.idoFindPKsByMetaData(key, value);
+		Collection entries = super.idoFindPKsByMetaData(key, value);
 		if (ListUtil.isEmpty(entries)) {
 			return null;
 		}
@@ -235,7 +235,7 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		return entryId instanceof Integer ? (Integer) entryId : null;
 	}
 
-	public Collection<?> ejbFindByDate(IWTimestamp stamp) throws FinderException {
+	public Collection ejbFindByDate(IWTimestamp stamp) throws FinderException {
 		Table table = new Table(this);
 		Column date = new Column(table, COLUMN_DATE);
 		SelectQuery query = new SelectQuery(table);
@@ -245,7 +245,7 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		return this.idoFindPKsByQuery(query);
 	}
 
-	public Collection<?> ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
+	public Collection ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
 		Table table = new Table(this);
@@ -259,42 +259,42 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 	}
 
 
-	@Override
+	
 	public void setErrorNumber(String errorNumber) {
 		setColumn(COLUMN_ERROR_NUMBER, errorNumber);
 	}
 
-	@Override
+	
 	public String getErrorNumber() {
 		return getStringColumnValue(COLUMN_ERROR_NUMBER);
 	}
 
-	@Override
+	
 	public void setErrorText(String errorText) {
 		setColumn(COLUMN_ERROR_TEXT, errorText);
 	}
 
-	@Override
+	
 	public String getErrorText() {
 		return getStringColumnValue(COLUMN_ERROR_TEXT);
 	}
 
-	@Override
+	
 	public void setServerResponse(String response) {
 		setColumn(COLUMN_SERVER_RESPONSE, response);
 	}
 
-	@Override
+	
 	public String getServerResponse() {
 		return getStringColumnValue(COLUMN_SERVER_RESPONSE);
 	}
 
-	@Override
+	
 	public String getExtraField() {
 		return getServerResponse();
 	}
 
-	@Override
+	
 	public CreditCardAuthorizationEntry getChild() throws FinderException {
 		Object obj = this.idoFindOnePKByColumnBySQL(COLUMN_PARENT_ID, this.getPrimaryKey().toString());
 		if (obj != null) {
@@ -310,7 +310,7 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		return null;
 	}
 
-	public Collection<?> ejbFindRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
+	public Collection ejbFindRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
 		Table table = new Table(this);
@@ -326,29 +326,29 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		return this.idoFindPKsByQuery(query);
 	}
 
-	@Override
+	
 	public void setReference(String reference) {
 		setColumn(COLUMN_REFERENCE, reference);
 	}
 
-	@Override
+	
 	public String getReference() {
 		return getStringColumnValue(COLUMN_REFERENCE);
 	}
 
-	@Override
+	
 	public void setDate(Timestamp date) {
 		if (date != null) {
 			setDate(new Date(date.getTime()));
 		}
 	}
 
-	@Override
+	
 	public void setCardToken(String cardToken) {
 		setColumn(COLUMN_CARD_TOKEN, cardToken);
 	}
 
-	@Override
+	
 	public String getCardToken() {
 		return getStringColumnValue(COLUMN_CARD_TOKEN);
 	}

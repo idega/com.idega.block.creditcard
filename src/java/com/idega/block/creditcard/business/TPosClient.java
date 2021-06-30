@@ -23,6 +23,8 @@ import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.data.TPosAuthorisationEntriesBean;
 import com.idega.block.creditcard.data.TPosAuthorisationEntriesBeanHome;
+import com.idega.block.creditcard.model.AuthEntryData;
+import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.data.IDOLookup;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
@@ -753,14 +755,7 @@ public class TPosClient implements CreditCardClient {
 			return Collections.emptyList();
 		}
 
-		List validCards = new ArrayList();
-		List cards = Arrays.asList(supportedCards.split(CoreConstants.COMMA));
-		for (int i = 0; i < CreditCardType.values().size(); i++) {
-			if (cards.contains(type.name())) {
-				validCards.add(type.name());
-			}
-		}
-		return validCards;
+		return Arrays.asList(supportedCards.split(CoreConstants.COMMA));
 	}
 
 

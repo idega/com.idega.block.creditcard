@@ -98,7 +98,7 @@ private final static String ENTITY_NAME = "tpos_auth_entries";
   /**
    * Description of the Method
    */
-  @Override
+  
 public void initializeAttributes() {
     addAttribute(getIDColumnName());
     addAttribute(getAuthorisationAmountColumnName(), "", true, true, java.lang.String.class, 20);
@@ -146,32 +146,32 @@ public void initializeAttributes() {
     addAttribute(COLUMN_TRANSACTION_ID, "Transaction ID", true, true, String.class);
 	}
 
-	@Override
+	
 	public void setTransactionId(String transactionId) {
 		setColumn(COLUMN_TRANSACTION_ID, transactionId);
 	}
 
-	@Override
+	
 	public String getTransactionId() {
 		return getStringColumnValue(COLUMN_TRANSACTION_ID);
 	}
 
-	@Override
+	
 	public String getPaymentId() {
 		return getStringColumnValue(COLUMN_PAYMENT_ID);
 	}
 
-	@Override
+	
 	public void setPaymentId(String paymentId) {
 		setColumn(COLUMN_PAYMENT_ID, paymentId);
 	}
 
-  	@Override
+  	
 	public Timestamp getTimestamp() {
 		return getTimestampColumnValue(COLUMN_TIMESTAMP);
 	}
 
-	@Override
+	
 	public void setTimestamp(Timestamp timestamp) {
 		setColumn(COLUMN_TIMESTAMP, timestamp);
 	}
@@ -181,7 +181,7 @@ public void initializeAttributes() {
    *
    * @return   The entityName value
    */
-  @Override
+  
 public String getEntityName() {
     return ENTITY_NAME;
   }
@@ -521,7 +521,7 @@ public String getEntityName() {
    *
    * @return   The authorisationAmount value
    */
-  @Override
+  
 public String getAuthorisationAmount() {
     return getStringColumnValue(getAuthorisationAmountColumnName());
   }
@@ -532,7 +532,7 @@ public String getAuthorisationAmount() {
    *
    * @return   The authorisationCurrency value
    */
-  @Override
+  
 public String getAuthorisationCurrency() {
     return getStringColumnValue(getAuthorisationCurrencyColumnName());
   }
@@ -543,7 +543,7 @@ public String getAuthorisationCurrency() {
    *
    * @return   The authorisationCode value
    */
-  @Override
+  
 public String getAuthorisationCode() {
     return getStringColumnValue(getAuthorisationCodeColumnName());
   }
@@ -554,7 +554,7 @@ public String getAuthorisationCode() {
    *
    * @return   The authorisationIdRsp value
    */
-  @Override
+  
 public String getAuthorisationIdRsp() {
     return getStringColumnValue(getAuthorisationIdRspColumnName());
   }
@@ -565,7 +565,7 @@ public String getAuthorisationIdRsp() {
    *
    * @return   The authorisationPathReasonCode value
    */
-  @Override
+  
 public String getAuthorisationPathReasonCode() {
     return getStringColumnValue(getAuthorisationPathReasonCodeColumnName());
   }
@@ -575,7 +575,7 @@ public String getAuthorisationPathReasonCode() {
    *
    * @return   The batchNumber value
    */
-  @Override
+  
 public String getBatchNumber() {
     return getStringColumnValue(getBatchNumberColumnName());
   }
@@ -585,7 +585,7 @@ public String getBatchNumber() {
    *
    * @return   The brandId value
    */
-  @Override
+  
 public String getBrandId() {
     return getStringColumnValue(getBrandIdColumnName());
   }
@@ -595,7 +595,7 @@ public String getBrandId() {
    *
    * @return   The brandName value
    */
-  @Override
+  
 public String getBrandName() {
     return getStringColumnValue(getBrandNameColumnName());
   }
@@ -606,7 +606,7 @@ public String getBrandName() {
    *
    * @return   The cardCharacteristics value
    */
-  @Override
+  
 public String getCardCharacteristics() {
     return getStringColumnValue(getCardCharacteristicsColumnName());
   }
@@ -616,7 +616,7 @@ public String getCardCharacteristics() {
    *
    * @return   The cardType value
    */
-  @Override
+  
 public String getCardType() {
     return getStringColumnValue(getCardTypeColumnName());
   }
@@ -626,7 +626,7 @@ public String getCardType() {
    *
    * @return   The cardName value
    */
-  @Override
+  
 public String getCardName() {
     return getStringColumnValue(getCardNameColumnName());
   }
@@ -636,7 +636,7 @@ public String getCardName() {
    *
    * @return   The entryDate value
    */
-  @Override
+  
 public String getEntryDate() {
     return getStringColumnValue(getEntryDateColumnName());
   }
@@ -647,7 +647,7 @@ public String getEntryDate() {
    *
    * @return   The detailExpected value
    */
-  @Override
+  
 public String getDetailExpected() {
     return getStringColumnValue(getDetailExpectedColumnName());
   }
@@ -657,7 +657,7 @@ public String getDetailExpected() {
    *
    * @return   The errorNo value
    */
-  @Override
+  
 public String getErrorNo() {
     return getStringColumnValue(getErrorNoColumnName());
   }
@@ -667,7 +667,7 @@ public String getErrorNo() {
    *
    * @return   The errorText value
    */
-  @Override
+  
 public String getErrorText() {
     return getStringColumnValue(getErrorTextColumnName());
   }
@@ -677,7 +677,7 @@ public String getErrorText() {
    *
    * @return   The cardExpires value
    */
-  @Override
+  
 public String getCardExpires() {
     return getStringColumnValue(getCardExpiresColumnName());
   }
@@ -687,7 +687,7 @@ public String getCardExpires() {
    *
    * @return   The locationNr value
    */
-  @Override
+  
 public String getLocationNr() {
     return getStringColumnValue(getLocationNrColumnName());
   }
@@ -698,7 +698,7 @@ public String getLocationNr() {
    *
    * @return   The merchantNrAuthorisation value
    */
-  @Override
+  
 public String getMerchantNrAuthorisation() {
     return getStringColumnValue(getMerchantNrAuthorisationColumnName());
   }
@@ -709,7 +709,7 @@ public String getMerchantNrAuthorisation() {
    *
    * @return   The merchantNrOtherServices value
    */
-  @Override
+  
 public String getMerchantNrOtherServices() {
     return getStringColumnValue(getMerchantNrOtherServicesColumnName());
   }
@@ -720,7 +720,7 @@ public String getMerchantNrOtherServices() {
    *
    * @return   The merchantNrSubmission value
    */
-  @Override
+  
 public String getMerchantNrSubmission() {
     return getStringColumnValue(getMerchantNrSubmissionColumnName());
   }
@@ -731,7 +731,7 @@ public String getMerchantNrSubmission() {
    *
    * @return   The attachmentCount value
    */
-  @Override
+  
 public String getAttachmentCount() {
     return getStringColumnValue(getAttachmentCountColumnName());
   }
@@ -741,7 +741,7 @@ public String getAttachmentCount() {
    *
    * @return   The pan value
    */
-  @Override
+  
 public String getPan() {
     return getStringColumnValue(getPanColumnName());
   }
@@ -751,7 +751,7 @@ public String getPan() {
    *
    * @return   The posNr value
    */
-  @Override
+  
 public String getPosNr() {
     return getStringColumnValue(getPosNrColumnName());
   }
@@ -761,7 +761,7 @@ public String getPosNr() {
    *
    * @return   The posSerialNr value
    */
-  @Override
+  
 public String getPosSerialNr() {
     return getStringColumnValue(getPosSerialNrColumnName());
   }
@@ -771,7 +771,7 @@ public String getPosSerialNr() {
    *
    * @return   The printData value
    */
-  @Override
+  
 public String getPrintData() {
     return getStringColumnValue(getPrintDataColumnName());
   }
@@ -782,7 +782,7 @@ public String getPrintData() {
    *
    * @return   The submissionAmount value
    */
-  @Override
+  
 public String getSubmissionAmount() {
     return getStringColumnValue(getSubmissionAmountColumnName());
   }
@@ -793,7 +793,7 @@ public String getSubmissionAmount() {
    *
    * @return   The submissionCurrency value
    */
-  @Override
+  
 public String getSubmissionCurrency() {
     return getStringColumnValue(getSubmissionCurrencyColumnName());
   }
@@ -803,7 +803,7 @@ public String getSubmissionCurrency() {
    *
    * @return   The entryTime value
    */
-  @Override
+  
 public String getEntryTime() {
     return getStringColumnValue(getEntryTimeColumnName());
   }
@@ -814,7 +814,7 @@ public String getEntryTime() {
    *
    * @return   The totalResponseCode value
    */
-  @Override
+  
 public String getTotalResponseCode() {
     return getStringColumnValue(getTotalResponseCodeColumnName());
   }
@@ -824,7 +824,7 @@ public String getTotalResponseCode() {
    *
    * @return   The transactionNr value
    */
-  @Override
+  
 public String getTransactionNr() {
     return getStringColumnValue(getTransactionNrColumnName());
   }
@@ -835,7 +835,7 @@ public String getTransactionNr() {
    *
    * @return   The voidedAuthorisationIdResponse value
    */
-  @Override
+  
 public String getVoidedAuthorisationIdResponse() {
     return getStringColumnValue(getVoidedAuthorisationIdResponseColumnName());
   }
@@ -846,7 +846,7 @@ public String getVoidedAuthorisationIdResponse() {
    *
    * @return   The voidedTransactionNr value
    */
-  @Override
+  
 public String getVoidedTransactionNr() {
     return getStringColumnValue(getVoidedTransactionNrColumnName());
   }
@@ -856,7 +856,7 @@ public String getVoidedTransactionNr() {
    *
    * @return   The xMLAttachment value
    */
-  @Override
+  
 public String getXMLAttachment() {
     return getStringColumnValue(getXMLAttachmentColumnName());
   }
@@ -867,7 +867,7 @@ public String getXMLAttachment() {
    *
    * @param amount  The new authorisationAmount value
    */
-  @Override
+  
 public void setAuthorisationAmount(String amount) {
     setColumn(getAuthorisationAmountColumnName(), amount);
   }
@@ -878,7 +878,7 @@ public void setAuthorisationAmount(String amount) {
    *
    * @param currency  The new authorisationCurrency value
    */
-  @Override
+  
 public void setAuthorisationCurrency(String currency) {
     setColumn(getAuthorisationCurrencyColumnName(), currency);
   }
@@ -889,7 +889,7 @@ public void setAuthorisationCurrency(String currency) {
    *
    * @param code  The new authorisationCode value
    */
-  @Override
+  
 public void setAuthorisationCode(String code) {
     setColumn(getAuthorisationCodeColumnName(), code);
   }
@@ -900,7 +900,7 @@ public void setAuthorisationCode(String code) {
    *
    * @param rsp  The new authorisationIdRsp value
    */
-  @Override
+  
 public void setAuthorisationIdRsp(String rsp) {
     setColumn(getAuthorisationIdRspColumnName(), rsp);
   }
@@ -911,7 +911,7 @@ public void setAuthorisationIdRsp(String rsp) {
    *
    * @param code  The new authorisationPathReasonCode value
    */
-  @Override
+  
 public void setAuthorisationPathReasonCode(String code) {
     setColumn(getAuthorisationPathReasonCodeColumnName(), code);
   }
@@ -921,7 +921,7 @@ public void setAuthorisationPathReasonCode(String code) {
    *
    * @param number  The new batchNumber value
    */
-  @Override
+  
 public void setBatchNumber(String number) {
     setColumn(getBatchNumberColumnName(), number);
   }
@@ -931,7 +931,7 @@ public void setBatchNumber(String number) {
    *
    * @param id  The new brandId value
    */
-  @Override
+  
 public void setBrandId(String id) {
     setColumn(getBrandIdColumnName(), id);
   }
@@ -941,7 +941,7 @@ public void setBrandId(String id) {
    *
    * @param name  The new brandName value
    */
-  @Override
+  
 public void setBrandName(String name) {
     setColumn(getBrandNameColumnName(), name);
   }
@@ -952,7 +952,7 @@ public void setBrandName(String name) {
    *
    * @param characteristics  The new cardCharacteristics value
    */
-  @Override
+  
 public void setCardCharacteristics(String characteristics) {
     setColumn(getCardCharacteristicsColumnName(), characteristics);
   }
@@ -962,7 +962,7 @@ public void setCardCharacteristics(String characteristics) {
    *
    * @param type  The new cardType value
    */
-  @Override
+  
 public void setCardType(String type) {
     setColumn(getCardTypeColumnName(), type);
   }
@@ -972,7 +972,7 @@ public void setCardType(String type) {
    *
    * @param name  The new cardName value
    */
-  @Override
+  
 public void setCardName(String name) {
     setColumn(getCardNameColumnName(), name);
   }
@@ -982,7 +982,7 @@ public void setCardName(String name) {
    *
    * @param date  The new entryDate value
    */
-  @Override
+  
 public void setEntryDate(String date) {
     setColumn(getEntryDateColumnName(), date);
   }
@@ -993,7 +993,7 @@ public void setEntryDate(String date) {
    *
    * @param expected  The new detailExpected value
    */
-  @Override
+  
 public void setDetailExpected(String expected) {
     setColumn(getDetailExpectedColumnName(), expected);
   }
@@ -1003,7 +1003,7 @@ public void setDetailExpected(String expected) {
    *
    * @param no  The new errorNo value
    */
-  @Override
+  
 public void setErrorNo(String no) {
     setColumn(getErrorNoColumnName(), no);
   }
@@ -1013,7 +1013,7 @@ public void setErrorNo(String no) {
    *
    * @param text  The new errorText value
    */
-  @Override
+  
 public void setErrorText(String text) {
     setColumn(getErrorTextColumnName(), text);
   }
@@ -1023,7 +1023,7 @@ public void setErrorText(String text) {
    *
    * @param expires  The new cardExpires value
    */
-  @Override
+  
 public void setCardExpires(String expires) {
     setColumn(getCardExpiresColumnName(), expires);
   }
@@ -1033,7 +1033,7 @@ public void setCardExpires(String expires) {
    *
    * @param location  The new locationNr value
    */
-  @Override
+  
 public void setLocationNr(String location) {
     setColumn(getLocationNrColumnName(), location);
   }
@@ -1044,7 +1044,7 @@ public void setLocationNr(String location) {
    *
    * @param nr  The new merchantNrAuthorisation value
    */
-  @Override
+  
 public void setMerchantNrAuthorisation(String nr) {
     setColumn(getMerchantNrAuthorisationColumnName(), nr);
   }
@@ -1055,7 +1055,7 @@ public void setMerchantNrAuthorisation(String nr) {
    *
    * @param nr  The new merchantNrOtherServices value
    */
-  @Override
+  
 public void setMerchantNrOtherServices(String nr) {
     setColumn(getMerchantNrOtherServicesColumnName(), nr);
   }
@@ -1066,7 +1066,7 @@ public void setMerchantNrOtherServices(String nr) {
    *
    * @param nr  The new merchantNrSubmission value
    */
-  @Override
+  
 public void setMerchantNrSubmission(String nr) {
     setColumn(getMerchantNrSubmissionColumnName(), nr);
   }
@@ -1077,7 +1077,7 @@ public void setMerchantNrSubmission(String nr) {
    *
    * @param count  The new attachmentCount value
    */
-  @Override
+  
 public void setAttachmentCount(String count) {
     setColumn(getAttachmentCountColumnName(), count);
   }
@@ -1087,7 +1087,7 @@ public void setAttachmentCount(String count) {
    *
    * @param pan  The new pan value
    */
-  @Override
+  
 public void setPan(String pan) {
     setColumn(getPanColumnName(), pan);
   }
@@ -1097,7 +1097,7 @@ public void setPan(String pan) {
    *
    * @param nr  The new posNr value
    */
-  @Override
+  
 public void setPosNr(String nr) {
     setColumn(getPosNrColumnName(), nr);
   }
@@ -1107,7 +1107,7 @@ public void setPosNr(String nr) {
    *
    * @param nr  The new posSerialNr value
    */
-  @Override
+  
 public void setPosSerialNr(String nr) {
     setColumn(getPosSerialNrColumnName(), nr);
   }
@@ -1117,7 +1117,7 @@ public void setPosSerialNr(String nr) {
    *
    * @param data  The new printData value
    */
-  @Override
+  
 public void setPrintData(String data) {
     setColumn(getPrintDataColumnName(), data);
   }
@@ -1128,7 +1128,7 @@ public void setPrintData(String data) {
    *
    * @param amount  The new submissionAmount value
    */
-  @Override
+  
 public void setSubmissionAmount(String amount) {
     setColumn(getSubmissionAmountColumnName(), amount);
   }
@@ -1139,7 +1139,7 @@ public void setSubmissionAmount(String amount) {
    *
    * @param currency  The new submissionCurrency value
    */
-  @Override
+  
 public void setSubmissionCurrency(String currency) {
     setColumn(getSubmissionCurrencyColumnName(), currency);
   }
@@ -1149,7 +1149,7 @@ public void setSubmissionCurrency(String currency) {
    *
    * @param time  The new entryTime value
    */
-  @Override
+  
 public void setEntryTime(String time) {
     setColumn(getEntryTimeColumnName(), time);
   }
@@ -1160,7 +1160,7 @@ public void setEntryTime(String time) {
    *
    * @param code  The new totalResponseCode value
    */
-  @Override
+  
 public void setTotalResponseCode(String code) {
     setColumn(getTotalResponseCodeColumnName(), code);
   }
@@ -1170,7 +1170,7 @@ public void setTotalResponseCode(String code) {
    *
    * @param nr  The new transactionNr value
    */
-  @Override
+  
 public void setTransactionNr(String nr) {
     setColumn(getTransactionNrColumnName(), nr);
   }
@@ -1181,7 +1181,7 @@ public void setTransactionNr(String nr) {
    *
    * @param response  The new voidedAuthorisationIdResponse value
    */
-  @Override
+  
 public void setVoidedAuthorisationIdResponse(String response) {
     setColumn(getVoidedAuthorisationIdResponseColumnName(), response);
   }
@@ -1192,7 +1192,7 @@ public void setVoidedAuthorisationIdResponse(String response) {
    *
    * @param nr  The new voidedTransactionNr value
    */
-  @Override
+  
 public void setVoidedTransactionNr(String nr) {
     setColumn(getVoidedTransactionNrColumnName(), nr);
   }
@@ -1202,12 +1202,12 @@ public void setVoidedTransactionNr(String nr) {
    *
    * @param xml  The new xMLAttachment value
    */
-  @Override
+  
 public void setXMLAttachment(String xml) {
     setColumn(getXMLAttachmentColumnName(), xml);
   }
 
-	@Override
+	
 	public double getAmount() {
 		String amount = getAuthorisationAmount();
 		try {
@@ -1216,11 +1216,11 @@ public void setXMLAttachment(String xml) {
 			return -1;
 		}
 	}
-	@Override
+	
 	public String getCurrency() {
 		return this.getAuthorisationCurrency();
 	}
-	@Override
+	
 	public Date getDate() {
 		String date = this.getEntryDate();
 		String time = this.getEntryTime();
@@ -1240,7 +1240,7 @@ public void setXMLAttachment(String xml) {
 		}
 	}
 
-	@Override
+	
 	public String getAuthorizationCode() {
 		return getAuthorisationIdRsp();
 	}
@@ -1262,7 +1262,7 @@ public void setXMLAttachment(String xml) {
 	/**
 	 * Set the creditcard number, which should be encrypted FIRST
    * @param cardNumber  The new cardNumber value	 */
-	@Override
+	
 	public void setCardNumber(String cardNumber) {
 		setColumn(CARD_NUMBER, cardNumber);
 	}
@@ -1273,32 +1273,32 @@ public void setXMLAttachment(String xml) {
    *
    * @return   The creditCard value
    */
-	@Override
+	
 	public String getCardNumber() {
 		return getStringColumnValue(CARD_NUMBER);
 	}
 
-	@Override
+	
 	public int getParentID() {
 		return getIntColumnValue(PARENT_ID);
 	}
 
-	@Override
+	
 	public CreditCardAuthorizationEntry getParent() {
 		return (TPosAuthorisationEntriesBean) getColumnValue(PARENT_ID);
 	}
 
-	@Override
+	
 	public void setParentID(int id) {
 		setColumn(PARENT_ID, id);
 	}
 
-	@Override
+	
 	public String getErrorNumber() {
 		return getErrorNo();
 	}
 
-	@Override
+	
 	public CreditCardAuthorizationEntry getChild() throws FinderException {
 		Object obj = this.idoFindOnePKByColumnBySQL(PARENT_ID, this.getPrimaryKey().toString());
 		if (obj != null) {
@@ -1314,13 +1314,13 @@ public void setXMLAttachment(String xml) {
 		return null;
 	}
 
-	@Override
+	
 	public String getExtraField() {
 		// NOT USED
 		return null;
 	}
 
-	public Collection<?> ejbFindRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
+	public Collection ejbFindRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
 		String fromDate = from.getDateString("yyyyMMdd");
@@ -1339,7 +1339,7 @@ public void setXMLAttachment(String xml) {
 		return this.idoFindPKsByQuery (query);
 	}
 
-	public Collection<?> ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
+	public Collection ejbFindByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
 		to.addDays(1);
 
 		String fromDate = from.getDateString("yyyyMMdd");
@@ -1366,7 +1366,7 @@ public void setXMLAttachment(String xml) {
 	}
 
 	public Integer ejbFindByMetaData(String key, String value) throws FinderException {
-		Collection<?> entries = super.idoFindPKsByMetaData(key, value);
+		Collection entries = super.idoFindPKsByMetaData(key, value);
 		if (ListUtil.isEmpty(entries)) {
 			return null;
 		}
@@ -1375,36 +1375,47 @@ public void setXMLAttachment(String xml) {
 		return entryId instanceof Integer ? (Integer) entryId : null;
 	}
 
-	@Override
+	
 	public void setReference(String reference) {
 		setColumn(COLUMN_REFERENCE, reference);
 	}
 
-	@Override
+	
 	public String getReference() {
 		return getStringColumnValue(COLUMN_REFERENCE);
 	}
 
-	@Override
+	
 	public void setDate(Timestamp date) {
 		if (date != null) {
 			setEntryDate(new IWTimestamp(date).getDateString("yyyyMMdd"));
 		}
 	}
 
-	@Override
+	
 	public void setAuthorizationCode(String code) {
 		setAuthorisationCode(code);
 	}
 
-	@Override
+	
 	public void setCardToken(String cardToken) {
 		setColumn(COLUMN_CARD_TOKEN, cardToken);
 	}
 
-	@Override
+	
 	public String getCardToken() {
 		return getStringColumnValue(COLUMN_CARD_TOKEN);
+	}
+
+	public void setServerResponse(String serverResponse) {
+	}
+
+	public void setCurrency(String currency) {
+		setAuthorisationCurrency(currency);
+	}
+
+	public void setAmount(double amount) {
+		setAuthorisationAmount(String.valueOf(amount));
 	}
 
 }

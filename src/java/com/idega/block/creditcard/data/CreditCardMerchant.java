@@ -74,13 +74,11 @@ public interface CreditCardMerchant extends IDOEntity {
 	/**
 	 * Modification date and possibly StartDate are set in store();
 	 */
-	@Override
 	public void store();
 
 	/**
 	 * End date is set in remove();
 	 */
-	@Override
 	public void remove() throws RemoveException;
 
 	public void setSharedSecret(String secret);

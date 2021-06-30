@@ -168,7 +168,6 @@ public class DummyCreditCardClient implements CreditCardClient {
 		return string;
 	}
 
-	@Override
 	public String creditcardAuthorization(String nameOnCard, String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, String referenceNumber) throws CreditCardAuthorizationException{
 		IWTimestamp stamp = IWTimestamp.RightNow();
 		this.strName = nameOnCard;
@@ -183,13 +182,11 @@ public class DummyCreditCardClient implements CreditCardClient {
 
 	}
 
-	@Override
 	public String getAuthorizationNumber(String properties) {
 
 		return null;
 	}
 
-	@Override
 	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, String referenceNumber) throws CreditCardAuthorizationException {
 		try {
 			IWTimestamp stamp = IWTimestamp.RightNow();
@@ -236,7 +233,6 @@ public class DummyCreditCardClient implements CreditCardClient {
 		}
 	}
 
-	@Override
 	public String doRefund(String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber, double amount, String currency, Object parentDataPK, String captureProperties) throws CreditCardAuthorizationException {
 		IWTimestamp stamp = IWTimestamp.RightNow();
 		this.strCCNumber = cardnumber;
@@ -291,7 +287,7 @@ public class DummyCreditCardClient implements CreditCardClient {
 	 * @throws IDOLookupException
 	 * @throws CreateException
 	 */
-	private void storeAuthorizationEntry(String encodedCardnumber, Double amount, String authorizationCode, String brandName, String cardExpires, String currency, String errorNumber, String errorText, String authorizationType, Object parentDataPK) throws IDOLookupException, CreateException {
+	private void storeAuthorizationEntry(String encodedCardnumber, double amount, String authorizationCode, String brandName, String cardExpires, String currency, String errorNumber, String errorText, String authorizationType, Object parentDataPK) throws IDOLookupException, CreateException {
 		if (auth == null) {
 			DummyAuthorisationEntriesHome authHome = (DummyAuthorisationEntriesHome) IDOLookup.getHome(DummyAuthorisationEntries.class);
 			auth = authHome.create();
@@ -333,14 +329,12 @@ public class DummyCreditCardClient implements CreditCardClient {
 	}
 
 
-	@Override
 	public String finishTransaction(String properties) throws KortathjonustanAuthorizationException {
 		return null;
 	}
 
 
-	@Override
-	public Collection<String> getValidCardTypes() {
+	public Collection getValidCardTypes() {
 		return TPosClient.getValidCardTypes("kortathjo");
 	}
 
@@ -349,7 +343,6 @@ public class DummyCreditCardClient implements CreditCardClient {
 	 *
 	 * @see com.idega.block.creditcard.business.CreditCardClient#getCreditCardMerchant()
 	 */
-	@Override
 	public CreditCardMerchant getCreditCardMerchant() {
 		return this.ccMerchant;
 	}
@@ -357,45 +350,37 @@ public class DummyCreditCardClient implements CreditCardClient {
 	/* (non-Javadoc)
 	 * @see com.idega.block.creditcard.business.CreditCardClient#supportsDelayedTransactions()
 	 */
-	@Override
 	public boolean supportsDelayedTransactions() {
 		return false;
 	}
 
-	@Override
 	public String getExpireDateString(String month, String year) {
 		return year+month;
 	}
 
-	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntry() {
 		return auth;
 	}
 
-	@Override
 	public void setAuthorizationEntry(CreditCardAuthorizationEntry entry) {
 		if (entry instanceof DummyAuthorisationEntries) {
 			this.auth = (DummyAuthorisationEntries) entry;
 		}
 	}
 
-	@Override
 	public String voidTransaction(String properties)
 			throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
-	@Override
 	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
-	@Override
 	public CaptureResult getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
-	@Override
 	public AuthEntryData doSaleWithCardToken(String cardToken, String transactionId, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}

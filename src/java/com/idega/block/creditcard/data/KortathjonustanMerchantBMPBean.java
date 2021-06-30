@@ -26,17 +26,17 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	private static final String COLUMN_MODIFICATION_DATE = "MODIFICATION_DATE";
 	private static final String COLUMN_END_DATE = "END_DATE";
 
-	@Override
+	
 	public String getEntityName() {
 		return ENTITY_NAME;
 	}
 
-	@Override
+	
 	public String getType() {
 		return MERCHANT_TYPE_KORTHATHJONUSTAN;
 	}
 
-	@Override
+	
 	public void initializeAttributes() {
 		addAttribute(getIDColumnName());
 		addAttribute(COLUMN_NAME, "name", true, true, String.class);
@@ -54,32 +54,32 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	    addAttribute(COLUMN_AUTHORIZATION_TERMINAL, "Authorization terminal", true, true, String.class);
 	}
 
-	@Override
+	
 	public String getAuthorizationTerminal() {
 		return getStringColumnValue(COLUMN_AUTHORIZATION_TERMINAL);
 	}
 
-	@Override
+	
 	public void setAuthorizationTerminal(String authorizationTerminal) {
 		setColumn(COLUMN_AUTHORIZATION_TERMINAL, authorizationTerminal);
 	}
 
-	@Override
+	
 	public String getSuccessRedirectURL() {
 		return getStringColumnValue(COLUMN_SUCCESS_REDIRECT_URL);
 	}
 
-	@Override
+	
 	public void setSuccessRedirectURL(String successRedirectURL) {
 		setColumn(COLUMN_SUCCESS_REDIRECT_URL, successRedirectURL);
 	}
 
-	@Override
+	
 	public void setName(String name) {
 		setColumn(COLUMN_NAME, name);
 	}
 
-	@Override
+	
 	public String getName() {
 		return getStringColumnValue(COLUMN_NAME);
 	}
@@ -87,7 +87,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getLocation()
 	 */
-	@Override
+	
 	public String getLocation() {
 		return getStringColumnValue(COLUMN_SITE);
 	}
@@ -95,7 +95,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getUser()
 	 */
-	@Override
+	
 	public String getUser() {
 		return getStringColumnValue(COLUMN_USER);
 	}
@@ -103,7 +103,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getPassword()
 	 */
-	@Override
+	
 	public String getPassword() {
 		return getStringColumnValue(COLUMN_PASSWORD);
 	}
@@ -111,7 +111,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getTerminalID()
 	 */
-	@Override
+	
 	public String getTerminalID() {
 		return getStringColumnValue(COLUMN_ACCEPTOR_TERMINAL_ID);
 	}
@@ -119,7 +119,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getMerchantID()
 	 */
-	@Override
+	
 	public String getMerchantID() {
 		return getStringColumnValue(COLUMN_ACCEPTOR_IDENTIFICATION);
 	}
@@ -127,7 +127,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * Not implemented
 	 */
-	@Override
+	
 	public String getExtraInfo() {
 		return null;
 	}
@@ -135,7 +135,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/** (non-Javadoc)
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setLocation(java.lang.String)
 	 */
-	@Override
+	
 	public void setLocation(String location) {
 		setColumn(COLUMN_SITE, location);
 	}
@@ -143,7 +143,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setUser(java.lang.String)
 	 */
-	@Override
+	
 	public void setUser(String user) {
 		setColumn(COLUMN_USER, user);
 	}
@@ -151,7 +151,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setPassword(java.lang.String)
 	 */
-	@Override
+	
 	public void setPassword(String password) {
 		setColumn(COLUMN_PASSWORD, password);
 	}
@@ -159,7 +159,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setTerminalID(java.lang.String)
 	 */
-	@Override
+	
 	public void setTerminalID(String terminalID) {
 		setColumn(COLUMN_ACCEPTOR_TERMINAL_ID, terminalID);
 	}
@@ -167,7 +167,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setMerchantID(java.lang.String)
 	 */
-	@Override
+	
 	public void setMerchantID(String id) {
 		setColumn(COLUMN_ACCEPTOR_IDENTIFICATION, id);
 	}
@@ -175,14 +175,14 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * Not Implemented
 	 */
-	@Override
+	
 	public void setExtraInfo(String extra) {
 	}
 
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getStartDate()
 	 */
-	@Override
+	
 	public Timestamp getStartDate() {
 		return getTimestampColumnValue(COLUMN_START_DATE);
 	}
@@ -190,7 +190,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getEndDate()
 	 */
-	@Override
+	
 	public Timestamp getEndDate() {
 		return getTimestampColumnValue(COLUMN_END_DATE);
 	}
@@ -198,7 +198,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#IsDeleted()
 	 */
-	@Override
+	
 	public boolean getIsDeleted() {
 		return getBooleanColumnValue(COLUMN_IS_DELETED);
 	}
@@ -217,7 +217,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getModificationDate()
 	 */
-	@Override
+	
 	public Timestamp getModificationDate() {
 		return getTimestampColumnValue(COLUMN_MODIFICATION_DATE);
 	}
@@ -229,7 +229,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#store()
 	 */
-	@Override
+	
 	public void store() {
 		setModificationDate(IWTimestamp.RightNow().getTimestamp());
 		if (getStartDate() == null) {
@@ -241,7 +241,7 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#remove()
 	 */
-	@Override
+	
 	public void remove() throws RemoveException {
 		setModificationDate(IWTimestamp.RightNow().getTimestamp());
 		setEndDate(IWTimestamp.RightNow().getTimestamp());
@@ -249,17 +249,17 @@ public class KortathjonustanMerchantBMPBean extends GenericEntity implements Kor
 		store();
 	}
 
-	@Override
+	
 	public void setSharedSecret(String secret) {
 		setColumn(COLUMN_SHARED_SECRET, secret);
 	}
 
-	@Override
+	
 	public String getSharedSecret() {
 		return getStringColumnValue(COLUMN_SHARED_SECRET);
 	}
 
-	@Override
+	
 	public Integer getId() {
 		Object pk = getPrimaryKey();
 		return (Integer) pk;

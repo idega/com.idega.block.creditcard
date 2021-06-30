@@ -33,17 +33,13 @@ import com.idega.util.IWTimestamp;
  */
 public interface CreditCardBusiness extends IBOService {
 
-	public final static String CARD_TYPE_VISA = CreditCardType.VISA.name();
-	public final static String CARD_TYPE_ELECTRON = CreditCardType.ELECTRON.name();
-	public final static String CARD_TYPE_DINERS = CreditCardType.DINERS.name();
-	public final static String CARD_TYPE_DANKORT = CreditCardType.DANKORT.name();
-	public final static String CARD_TYPE_MASTERCARD = CreditCardType.MASTERCARD.name();
-	public final static String CARD_TYPE_JCB = CreditCardType.JCB.name();
-	public final static String CARD_TYPE_AMERICAN_EXPRESS = CreditCardType.AMERICAN_EXRESS.name();
-
-	public enum CreditCardType {
-		VISA, ELECTRON, DINERS, DANKORT, MASTERCARD, JCB, AMERICAN_EXRESS;
-	}
+	public final static String CARD_TYPE_VISA = "VISA";
+	public final static String CARD_TYPE_ELECTRON = "ELECTRON";
+	public final static String CARD_TYPE_DINERS = "DINERS";
+	public final static String CARD_TYPE_DANKORT = "DANKORT";
+	public final static String CARD_TYPE_MASTERCARD = "MASTERCARD";
+	public final static String CARD_TYPE_JCB = "JCB";
+	public final static String CARD_TYPE_AMERICAN_EXPRESS = "AMERICAN_EXRESS";
 
 	/**
 	 * @see com.idega.block.creditcard.business.CreditCardBusinessBean#getBundleIdentifier
@@ -58,7 +54,7 @@ public interface CreditCardBusiness extends IBOService {
 	/**
 	 * @see com.idega.block.creditcard.business.CreditCardBusinessBean#getCreditCardTypeImages
 	 */
-	public Collection<Image> getCreditCardTypeImages(CreditCardClient client) throws java.rmi.RemoteException;
+	public Collection getCreditCardTypeImages(CreditCardClient client) throws java.rmi.RemoteException;
 
 	/**
 	 * @see com.idega.block.creditcard.business.CreditCardBusinessBean#getCreditCardClient

@@ -26,22 +26,18 @@ import com.idega.util.IWTimestamp;
  */
 public class TPosAuthorisationEntriesBeanHomeImpl extends IDOFactory implements TPosAuthorisationEntriesBeanHome {
 
-	@Override
 	protected Class getEntityInterfaceClass() {
 		return TPosAuthorisationEntriesBean.class;
 	}
 
-	@Override
 	public TPosAuthorisationEntriesBean create() throws javax.ejb.CreateException {
 		return (TPosAuthorisationEntriesBean) super.createIDO();
 	}
 
-	@Override
 	public TPosAuthorisationEntriesBean findByPrimaryKey(Object pk) throws javax.ejb.FinderException {
 		return (TPosAuthorisationEntriesBean) super.findByPrimaryKeyIDO(pk);
 	}
 
-	@Override
 	public TPosAuthorisationEntriesBean findByAuthorisationIdRsp(String authIdRsp, IWTimestamp stamp)
 			throws FinderException {
 		com.idega.data.IDOEntity entity = this.idoCheckOutPooledEntity();
@@ -50,7 +46,6 @@ public class TPosAuthorisationEntriesBeanHomeImpl extends IDOFactory implements 
 		return this.findByPrimaryKey(pk);
 	}
 
-	@Override
 	public Collection findRefunds(IWTimestamp from, IWTimestamp to) throws FinderException {
 		com.idega.data.IDOEntity entity = this.idoCheckOutPooledEntity();
 		java.util.Collection ids = ((TPosAuthorisationEntriesBeanBMPBean) entity).ejbFindRefunds(from, to);
@@ -58,7 +53,6 @@ public class TPosAuthorisationEntriesBeanHomeImpl extends IDOFactory implements 
 		return this.getEntityCollectionForPrimaryKeys(ids);
 	}
 
-	@Override
 	public Collection findByDates(IWTimestamp from, IWTimestamp to) throws FinderException {
 		com.idega.data.IDOEntity entity = this.idoCheckOutPooledEntity();
 		java.util.Collection ids = ((TPosAuthorisationEntriesBeanBMPBean) entity).ejbFindByDates(from, to);
@@ -66,7 +60,6 @@ public class TPosAuthorisationEntriesBeanHomeImpl extends IDOFactory implements 
 		return this.getEntityCollectionForPrimaryKeys(ids);
 	}
 
-	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntryByUniqueId(String uniqueId) {
 		try {
 			com.idega.data.IDOEntity entity = this.idoCheckOutPooledEntity();
@@ -80,7 +73,6 @@ public class TPosAuthorisationEntriesBeanHomeImpl extends IDOFactory implements 
 		return null;
 	}
 
-	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntryByMetaData(String key, String value) throws FinderException {
 		try {
 			com.idega.data.IDOEntity entity = this.idoCheckOutPooledEntity();

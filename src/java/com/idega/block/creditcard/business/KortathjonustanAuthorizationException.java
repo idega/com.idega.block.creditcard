@@ -38,12 +38,11 @@ public class KortathjonustanAuthorizationException extends CreditCardAuthorizati
 		super(arg0);
 	}
 
-	@Override
 	public String getLocalizedMessage(IWResourceBundle iwrb) {
 		String message = "Kortathjonustan errormessage = " + this.getErrorMessage() + ", number = " + this.getErrorNumber() + ", display = " + this.getDisplayError();
 		Logger.getLogger(getClass().getName()).warning(message);
 		if (IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("credit_card.report_exceptions", false)) {
-			CoreUtil.sendExceptionNotification(message, this);
+			CoreUtil.sendExceptionNotification(null, null, message, this);
 		}
 
 		int number = -2;

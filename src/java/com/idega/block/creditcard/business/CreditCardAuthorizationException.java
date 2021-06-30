@@ -83,7 +83,7 @@ public class CreditCardAuthorizationException extends Exception {
 		String message = "Message: " + _errorMessage + ", error number: " + _errorNumber + ", display error: " + _displayError;
 		Logger.getLogger(getClass().getName()).warning(message);
 		if (IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("credit_card.report_exceptions", false)) {
-			CoreUtil.sendExceptionNotification(message, this);
+			CoreUtil.sendExceptionNotification(null, null, message, this);
 		}
 	}
 

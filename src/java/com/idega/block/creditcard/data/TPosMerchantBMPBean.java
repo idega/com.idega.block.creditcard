@@ -35,12 +35,12 @@ private static final String _EntityName = "TPOS_MERCHANT";
   public TPosMerchantBMPBean() {
   }
 
-  @Override
+  
 public String getType() {
   	return MERCHANT_TYPE_TPOS;
   }
 
-  @Override
+  
 public void initializeAttributes() {
     addAttribute(getIDColumnName());
     addAttribute(_ColumnNameName,"Merchant Name", true, true, String.class);
@@ -59,110 +59,110 @@ public void initializeAttributes() {
     addAttribute(COLUMN_AUTHORIZATION_TERMINAL, "Authorization terminal", true, true, String.class);
 }
 
-@Override
+
 public String getAuthorizationTerminal() {
 	return getStringColumnValue(COLUMN_AUTHORIZATION_TERMINAL);
 }
 
-@Override
+
 public void setAuthorizationTerminal(String authorizationTerminal) {
 	setColumn(COLUMN_AUTHORIZATION_TERMINAL, authorizationTerminal);
 }
 
-@Override
+
 public String getSuccessRedirectURL() {
 	return getStringColumnValue(COLUMN_SUCCESS_REDIRECT_URL);
 }
 
-@Override
+
 public void setSuccessRedirectURL(String successRedirectURL) {
 	setColumn(COLUMN_SUCCESS_REDIRECT_URL, successRedirectURL);
 }
 
 
-  @Override
+  
 public String getEntityName() {
     return _EntityName;
   }
 
   /** SETTERS */
-  @Override
+  
 public void setName(String name) {
     setMerchantName(name);
   }
 
-  @Override
+  
 public void setMerchantName(String name) {
     setColumn(_ColumnNameName, name);
   }
 
-  @Override
+  
 public void setMerchantID(String id) {
     setColumn(_ColumnNameMerchantID, id);
   }
 
-  @Override
+  
 public void setLocationID(String id) {
     setColumn(_ColumnNameLocationID, id);
   }
 
-  @Override
+  
 public void setUserID(String id) {
     setColumn(_ColumnNameUser, id);
   }
 
-  @Override
+  
 public void setPassword(String password) {
     setColumn(_ColumnNamePassword, password);
   }
 
-  @Override
+  
 public void setPosID(String id) {
     setColumn(_ColumnNamePosID, id);
   }
 
-  @Override
+  
 public void setKeyReceivedPassword(String keyRcvPassw) {
     setColumn(_ColumnNameKeyReceivedPassword, keyRcvPassw);
   }
 
   /** GETTERS */
-  @Override
+  
 public String getName() {
     return getMerchantName();
   }
 
-  @Override
+  
 public String getMerchantName() {
     return getStringColumnValue(_ColumnNameName);
   }
 
-  @Override
+  
 public String getMerchantID() {
     return getStringColumnValue(_ColumnNameMerchantID);
   }
 
-  @Override
+  
 public String getLocationID() {
     return getStringColumnValue(_ColumnNameLocationID);
   }
 
-  @Override
+  
 public String getUserID() {
     return getStringColumnValue(_ColumnNameUser);
   }
 
-  @Override
+  
 public String getPassword() {
     return getStringColumnValue(_ColumnNamePassword);
   }
 
-  @Override
+  
 public String getPosID() {
     return getStringColumnValue(_ColumnNamePosID);
   }
 
-  @Override
+  
 public String getKeyReceivedPassword() {
     return getStringColumnValue(_ColumnNameKeyReceivedPassword);
   }
@@ -171,7 +171,7 @@ public String getKeyReceivedPassword() {
 	/* (non-Javadoc)
 	 * @see com.idega.block.tpos.business.CreditCardMerchant#getLocation()
 	 */
-	@Override
+	
 	public String getLocation() {
 		return getLocationID();
 	}
@@ -180,7 +180,7 @@ public String getKeyReceivedPassword() {
 	/* (non-Javadoc)
 	 * @see com.idega.block.tpos.business.CreditCardMerchant#getUser()
 	 */
-	@Override
+	
 	public String getUser() {
 		return getUserID();
 	}
@@ -189,7 +189,7 @@ public String getKeyReceivedPassword() {
 	/* (non-Javadoc)
 	 * @see com.idega.block.tpos.business.CreditCardMerchant#getTerminalID()
 	 */
-	@Override
+	
 	public String getTerminalID() {
 		return getPosID();
 	}
@@ -198,7 +198,7 @@ public String getKeyReceivedPassword() {
 	/* (non-Javadoc)
 	 * @see com.idega.block.tpos.business.CreditCardMerchant#getExtraInfo()
 	 */
-	@Override
+	
 	public String getExtraInfo() {
 		return getKeyReceivedPassword();
 	}
@@ -207,7 +207,7 @@ public String getKeyReceivedPassword() {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setLocation(java.lang.String)
 	 */
-	@Override
+	
 	public void setLocation(String location) {
 		setLocationID(location);
 	}
@@ -216,7 +216,7 @@ public String getKeyReceivedPassword() {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setUser(java.lang.String)
 	 */
-	@Override
+	
 	public void setUser(String user) {
 		setUserID(user);
 	}
@@ -225,7 +225,7 @@ public String getKeyReceivedPassword() {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setTerminalID(java.lang.String)
 	 */
-	@Override
+	
 	public void setTerminalID(String terminalID) {
 		setPosID(terminalID);
 	}
@@ -234,7 +234,7 @@ public String getKeyReceivedPassword() {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#setExtraInfo(java.lang.String)
 	 */
-	@Override
+	
 	public void setExtraInfo(String extra) {
 		setKeyReceivedPassword(extra);
 	}
@@ -242,7 +242,7 @@ public String getKeyReceivedPassword() {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getStartDate()
 	 */
-	@Override
+	
 	public Timestamp getStartDate() {
 		return getTimestampColumnValue(_ColumnStartDate);
 	}
@@ -250,7 +250,7 @@ public String getKeyReceivedPassword() {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getEndDate()
 	 */
-	@Override
+	
 	public Timestamp getEndDate() {
 		return getTimestampColumnValue(_ColumnEndDate);
 	}
@@ -258,7 +258,7 @@ public String getKeyReceivedPassword() {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#IsDeleted()
 	 */
-	@Override
+	
 	public boolean getIsDeleted() {
 		return getBooleanColumnValue(COLUMN_IS_DELETED);
 	}
@@ -274,7 +274,7 @@ public String getKeyReceivedPassword() {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#getModificationDate()
 	 */
-	@Override
+	
 	public Timestamp getModificationDate() {
 		return getTimestampColumnValue(_ColumnModifiedDate);
 	}
@@ -286,7 +286,7 @@ public String getKeyReceivedPassword() {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#store()
 	 */
-	@Override
+	
 	public void store() {
 		setModificationDate(IWTimestamp.RightNow().getTimestamp());
 		if (getStartDate() == null) {
@@ -298,7 +298,7 @@ public String getKeyReceivedPassword() {
 	/**
 	 * @see com.idega.block.creditcard.data.CreditCardMerchant#remove()
 	 */
-	@Override
+	
 	public void remove() throws RemoveException {
 		setModificationDate(IWTimestamp.RightNow().getTimestamp());
 		setEndDate(IWTimestamp.RightNow().getTimestamp());
@@ -306,17 +306,17 @@ public String getKeyReceivedPassword() {
 		store();
 	}
 
-	@Override
+	
 	public void setSharedSecret(String secret) {
 		setColumn(COLUMN_SHARED_SECRET, secret);
 	}
 
-	@Override
+	
 	public String getSharedSecret() {
 		return getStringColumnValue(COLUMN_SHARED_SECRET);
 	}
 
-	@Override
+	
 	public Integer getId() {
 		Object pk = getPrimaryKey();
 		return (Integer) pk;

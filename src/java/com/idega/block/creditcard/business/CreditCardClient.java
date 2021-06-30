@@ -29,7 +29,7 @@ public interface CreditCardClient {
 	 * The collection contains String declared in CreditCardBusiness.
 	 * @return Collection of Card Types that client supports
 	 */
-	public Collection<String> getValidCardTypes();
+	public Collection getValidCardTypes();
 
 	/**
 	 * This method returns the CreditCardMerchant used by this client.

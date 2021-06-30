@@ -24,7 +24,6 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 
 	public static float amountMultiplier = 100;
 
-	@Override
 	public Object getPrimaryKey();
 
 	public double getAmount();
@@ -41,8 +40,12 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 	public String getCardExpires();
 
 	public String getCardNumber();
+	
+	public void setCardNumber(String cardNumber);
 
 	public String getBrandName();
+	
+	public void setBrandName(String brandName);
 
 	public String getAuthorizationCode();
 
@@ -81,5 +84,11 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 	public void setTransactionId(String transactionId);
 
 	public String getTransactionId();
+	
+	public void setServerResponse(String serverResponse);
+	
+	public void setCurrency(String currency);
+	
+	public void setAmount(double amount);
 
 }

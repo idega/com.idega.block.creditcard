@@ -27,7 +27,6 @@ public class AuthEntryData {
 		this.uniqueId = uniqueId;
 	}
 
-	@Override
 	public String toString() {
 		return "Auth. code: " + getAuthCode() + ", unique ID: " + getUniqueId();
 	}
