@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.idega.block.creditcard.CreditCardUtil;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.trade.stockroom.data.Supplier;
 import com.idega.core.contact.data.Phone;
@@ -14,7 +15,9 @@ import com.idega.presentation.PresentationObjectContainer;
 import com.idega.presentation.Table;
 import com.idega.presentation.text.HorizontalRule;
 import com.idega.presentation.text.Text;
+import com.idega.util.CoreConstants;
 import com.idega.util.IWTimestamp;
+import com.idega.util.StringUtil;
 import com.idega.util.text.TextSoap;
 
 /**
@@ -150,7 +153,9 @@ public class Receipt extends PresentationObjectContainer {
 			 * table.add(getText("*"),1,row); } } } else {
 			 */
 
-			table.add(getText("-"), 1, row);
+			String cardNumber = this._entries.getCardNumber();
+			String maskedNumber = CreditCardUtil.getMaskedCreditCardNumber(cardNumber);
+			table.add(getText(StringUtil.isEmpty(maskedNumber) ? CoreConstants.MINUS : maskedNumber), 1, row);
 			// }
 
 			String expire = "";
@@ -160,8 +165,8 @@ public class Receipt extends PresentationObjectContainer {
 			 */
 			expire = this._entries.getCardExpires();
 			// }
-			table.add(getText(this.iwrb.getLocalizedString("valid", "Valid") + Text.NON_BREAKING_SPACE), 2, row);
-			table.add(getText(expire.substring(2, 4) + "/" + expire.substring(0, 2)), 2, row);
+			table.add(getText(StringUtil.isEmpty(expire) ? CoreConstants.EMPTY : (this.iwrb.getLocalizedString("valid", "Valid") + Text.NON_BREAKING_SPACE)), 2, row);
+			table.add(getText(StringUtil.isEmpty(expire) ? CoreConstants.EMPTY : (expire.substring(2, 4) + CoreConstants.SLASH + expire.substring(0, 2))), 2, row);
 
 			++row;
 			table.add(getText(Text.NON_BREAKING_SPACE), 1, row);

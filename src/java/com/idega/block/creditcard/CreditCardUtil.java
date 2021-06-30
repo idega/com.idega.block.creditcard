@@ -11,7 +11,9 @@ public class CreditCardUtil {
 			return null;
 		}
 
-		return creditCardNumber.length() <= 4 ? creditCardNumber : "****-****-****-".concat(creditCardNumber.substring(creditCardNumber.length() - 4));
+		return creditCardNumber.length() <= 4 ?
+				"****-****-****-".concat(creditCardNumber) :
+				"****-****-****-".concat(creditCardNumber.substring(creditCardNumber.length() - 4));
 	}
 
 	public static final String getMaskedSecurityCode(String securityCode) {
