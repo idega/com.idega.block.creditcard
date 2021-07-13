@@ -783,13 +783,13 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	private String getValitorPayCardPaymentWithVerificationWebServiceURL(IWMainApplicationSettings settings) {
 		String valitorPayCardPaymentWithVerificationWebServiceURL = settings.getProperty(
 				"valitorpay.url.card_payment_with_verification",
-				"https://uat.valitorpay.com/Payment/CardPaymentWithVerification"
+				"https://valitorpay.com/Payment/CardPaymentWithVerification"
 		);
 		return valitorPayCardPaymentWithVerificationWebServiceURL;
 	}
 
 	private String getValitorPayApiVersion(IWMainApplicationSettings settings) {
-		String valitorPayApiVersion = settings.getProperty("valitorpay.api_version", "1.0");
+		String valitorPayApiVersion = settings.getProperty("valitorpay.api_version", "2.0");
 		return valitorPayApiVersion;
 	}
 
@@ -801,7 +801,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	private String getValitorPayPayWithVirtualCardWebServiceURL(IWMainApplicationSettings settings) {
 		String valitorPayCardPaymentWithVerificationWebServiceURL = settings.getProperty(
 				"valitorpay.url.virtual_card_payment",
-				"https://uat.valitorpay.com/Payment/VirtualCardPayment"
+				"https://valitorpay.com/Payment/VirtualCardPayment"
 		);
 		return valitorPayCardPaymentWithVerificationWebServiceURL;
 	}
