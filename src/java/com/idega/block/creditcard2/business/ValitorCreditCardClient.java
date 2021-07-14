@@ -391,9 +391,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				throw ex;
 			}
 
+			CreditCardMerchant ccMerchant = getCreditCardMerchant();
+
 			String valitorPayCardPaymentWithVerificationWebServiceURL = getValitorPayCardPaymentWithVerificationWebServiceURL(settings);
 			String valitorPayApiVersion = getValitorPayApiVersion(settings);
-			String valitorPayApiKey = getValitorPayApiKey(settings);
+			String valitorPayApiKey = ccMerchant.getSharedSecret();
 
 			//Get the ValitorPay payment data
 			ValitorPayPaymentData valitorPayPaymentData = getValitorPayPaymentData(
@@ -507,9 +509,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				throw ex;
 			}
 
+			CreditCardMerchant ccMerchant = getCreditCardMerchant();
+
 			String valitorPayWithVirtualCardWebServiceURL = getValitorPayPayWithVirtualCardWebServiceURL(settings);
 			String valitorPayApiVersion = getValitorPayApiVersion(settings);
-			String valitorPayApiKey = getValitorPayApiKey(settings);
+			String valitorPayApiKey = ccMerchant.getSharedSecret();
 
 			//Get the ValitorPay payment data
 			ValitorPayPaymentData valitorPayPaymentData = getValitorPayWithVirtualCardPaymentData(
@@ -800,11 +804,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	private String getValitorPayApiVersion(IWMainApplicationSettings settings) {
 		String valitorPayApiVersion = settings.getProperty("valitorpay.api_version", "2.0");
 		return valitorPayApiVersion;
-	}
-
-	private String getValitorPayApiKey(IWMainApplicationSettings settings) {
-		String valitorPayApiKey = settings.getProperty("valitorpay.api_key", "VPUAT.avI9NMNHxj+X2JJn16ckUwZ+wOUXo8btfSBYvQpzogg=");
-		return valitorPayApiKey;
 	}
 
 	private String getValitorPayPayWithVirtualCardWebServiceURL(IWMainApplicationSettings settings) {
