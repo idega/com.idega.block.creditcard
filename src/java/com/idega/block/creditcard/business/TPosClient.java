@@ -25,6 +25,7 @@ import com.idega.block.creditcard.data.TPosAuthorisationEntriesBean;
 import com.idega.block.creditcard.data.TPosAuthorisationEntriesBeanHome;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
+import com.idega.block.creditcard.model.SaleOption;
 import com.idega.data.IDOLookup;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
@@ -284,7 +285,7 @@ public class TPosClient implements CreditCardClient {
 	 */
 	@Override
 	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires,
-			String ccVerifyNumber, double amount, String currency, String referenceNumber) throws TPosException {
+			String ccVerifyNumber, double amount, String currency, String referenceNumber, SaleOption... options) throws TPosException {
 		return (doAuth(cardnumber, monthExpires, yearExpires, ccVerifyNumber, amount, currency, "1", null, null,
 				referenceNumber));
 	}

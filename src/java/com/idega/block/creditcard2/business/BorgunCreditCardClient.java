@@ -24,6 +24,7 @@ import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
+import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard2.data.beans.BorgunAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
 import com.idega.block.creditcard2.data.dao.impl.BorgunAuthorisationEntryDAO;
@@ -363,7 +364,8 @@ public class BorgunCreditCardClient implements CreditCardClient {
 			String ccVerifyNumber,
 			double amount,
 			String currency,
-			String referenceNumber
+			String referenceNumber,
+			SaleOption... options
 	) throws CreditCardAuthorizationException {
 		Authorization service = new Authorization();
 		AuthorizationPortType port = service.getHeimirPubWsAuthorizationPort();

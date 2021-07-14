@@ -360,7 +360,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String ccVerifyNumber,
 			double amount,
 			String currency,
-			String referenceNumber
+			String referenceNumber,
+			SaleOption... options
 	) throws CreditCardAuthorizationException {
 		String details = null;
 		try {
@@ -404,7 +405,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					ccVerifyNumber,
 					amount,
 					currency,
-					referenceNumber
+					referenceNumber,
+					options
 			);
 			if (valitorPayPaymentData == null) {
 				String error = "ERROR: Can not construct ValitorPay payment data. " + details;
@@ -429,7 +431,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 							new AdvancedProperty(null, valitorPayApiVersion, "valitorpay-api-version"),
 							new AdvancedProperty(null, "APIKey ".concat(valitorPayApiKey), RequestUtil.HEADER_AUTHORIZATION)
 					),
-					null
+					null,
+					new AdvancedProperty(null, referenceNumber, "merchantReferenceId")
 			);
 
 			//Get ValitorPay response data
@@ -605,7 +608,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String ccVerifyNumber,
 			double amount,
 			String currency,
-			String referenceNumber
+			String referenceNumber,
+			SaleOption... options
 	) throws CreditCardAuthorizationException {
 		//According the ValitorPay, amount should be provided in minor currency unit:
 		//EXPLANATION: The total amount of the payment specified in a minor currency unit. This means that GBP is quoted in pence, USD in cents, DKK in öre, ISK in aurar etc.
@@ -633,7 +637,12 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		}
 
 		//Create the data bean to send to ValitorPay
-		ValitorPayVirtualCardData virtualCardData = new ValitorPayVirtualCardData(ValitorPayVirtualCardData.SUBSEQUENT_TRANSACTION_TYPE);
+		boolean createVirtualCard = false;
+		if (!ArrayUtil.isEmpty(options)) {
+			List<SaleOption> tmp = Arrays.asList(options);
+			createVirtualCard = tmp.contains(SaleOption.CREATE_VIRTUAL_CARD);
+		}
+		ValitorPayVirtualCardData virtualCardData = createVirtualCard ? new ValitorPayVirtualCardData(ValitorPayVirtualCardData.SUBSEQUENT_TRANSACTION_TYPE) : null;
 		ValitorPayPaymentData valitorPayPaymentData = new ValitorPayPaymentData(
 				merchantReentryUrl,
 				merchantWebhookUrl,
