@@ -72,5 +72,13 @@ public class ValitorWebhookResponseDataData implements Serializable {
 	public void setResponseDescription(String responseDescription) {
 		this.ResponseDescription = responseDescription;
 	}
+	@Override
+	public String toString() {
+		return "Callback payload data: transaction ID: " + getTransactionId() + ", AuthorizationCode: " + getAuthorizationCode() +
+				", TransactionLifecycleId: " + getTransactionLifecycleId() + ", AcquirerReferenceNumber: " + getAcquirerReferenceNumber() +
+				", VirtualCardNumber: " + getVirtualCardNumber() + ", VirtualCardCreationResponseCode: " + getVirtualCardCreationResponseCode() +
+				", VirtualCardCreationResponseDescription: " + getVirtualCardCreationResponseDescription() + ", MerchantReferenceId: " + getMerchantReferenceId() +
+				", ResponseCode: " + getResponseCode() + ", ResponseDescription: " + getResponseDescription();
+	}
 
 }
