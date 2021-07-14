@@ -15,14 +15,16 @@ public class ValitorWebhookResponseDataData implements Serializable {
 
 	private static final long serialVersionUID = -6985835352807317377L;
 
-	private String TransactionId;			//As "914217598109"
-	private String AuthorizationCode;		//As "HOSTOK"
-	private String TransactionLifecycleId;	//As "ABC123"
-	private String AcquirerReferenceNumber;	//As "123456"
-	private String VirtualCardNumber;		//As "99999999-9999-9999-9999-999999999999"
-	private String MerchantReferenceId;		//As "00000000-0000-0000-0000-000000000000"
-	private String ResponseCode;			//As "00-I"
-	private String ResponseDescription;		//As "Authorized"
+	private String TransactionId;							//As "914217598109"
+	private String AuthorizationCode;						//As "HOSTOK"
+	private String TransactionLifecycleId;					//As "ABC123"
+	private String AcquirerReferenceNumber;					//As "123456"
+	private String VirtualCardNumber;						//As "99999999-9999-9999-9999-999999999999"
+	private String VirtualCardCreationResponseCode;			//	"V1"
+	private String VirtualCardCreationResponseDescription;	//	"Success creating merchant virtual card."
+	private String MerchantReferenceId;						//As "00000000-0000-0000-0000-000000000000"
+	private String ResponseCode;							//As "00-I"
+	private String ResponseDescription;						//As "Authorized"
 
 	public String getTransactionId() {
 		return TransactionId;
@@ -72,6 +74,19 @@ public class ValitorWebhookResponseDataData implements Serializable {
 	public void setResponseDescription(String responseDescription) {
 		this.ResponseDescription = responseDescription;
 	}
+	public String getVirtualCardCreationResponseCode() {
+		return VirtualCardCreationResponseCode;
+	}
+	public void setVirtualCardCreationResponseCode(String virtualCardCreationResponseCode) {
+		VirtualCardCreationResponseCode = virtualCardCreationResponseCode;
+	}
+	public String getVirtualCardCreationResponseDescription() {
+		return VirtualCardCreationResponseDescription;
+	}
+	public void setVirtualCardCreationResponseDescription(String virtualCardCreationResponseDescription) {
+		VirtualCardCreationResponseDescription = virtualCardCreationResponseDescription;
+	}
+
 	@Override
 	public String toString() {
 		return "Callback payload data: transaction ID: " + getTransactionId() + ", AuthorizationCode: " + getAuthorizationCode() +
