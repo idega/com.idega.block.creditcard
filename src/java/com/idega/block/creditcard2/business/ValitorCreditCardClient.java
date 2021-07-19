@@ -41,6 +41,7 @@ import com.idega.idegaweb.IWMainApplicationSettings;
 import com.idega.restful.util.ConnectionUtil;
 import com.idega.util.ArrayUtil;
 import com.idega.util.CoreConstants;
+import com.idega.util.CoreUtil;
 import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
 import com.idega.util.RequestUtil;
@@ -274,6 +275,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				String error = "ERROR: Some of the mandatory data is not provided. " + details;
 				LOGGER.warning(error);
 				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "DATA_NOT_PROVIDED");
+				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
 
@@ -282,6 +284,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				String error = "ERROR: Can not get the application settings. " + details;
 				LOGGER.warning(error);
 				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "APP_SETTINGS");
+				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
 
@@ -308,6 +311,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				String error = "ERROR: Can not construct ValitorPay payment data. " + details;
 				LOGGER.warning(error);
 				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
+				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
 
@@ -341,6 +345,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				CreditCardAuthorizationException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
 				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
 				LOGGER.warning(error);
+				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
 
@@ -361,10 +366,12 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String error = "ERROR: ValitorPay payment failed. " + details;
 			LOGGER.warning(error);
 			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
+			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
 		} catch (Throwable e) {
 			String error = "Message: " + e.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
 
 			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, e);
 			ex.setErrorNumber("UNKNOWN");
@@ -373,7 +380,14 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public AuthEntryData doSaleWithCardToken(String cardToken, String transactionId, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
+	public AuthEntryData doSaleWithCardToken(
+			String cardToken,
+			String transactionId,
+			double amount,
+			String currency,
+			String referenceNumber,
+			Object parentPaymentPK
+	) throws CreditCardAuthorizationException {
 		String details = null;
 		try {
 			details = "Card token: " + cardToken + ", transaction ID: " + transactionId +
@@ -389,6 +403,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				String error = "ERROR: Some of the mandatory data is not provided. " + details;
 				LOGGER.warning(error);
 				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "DATA_NOT_PROVIDED");
+				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
 
@@ -397,6 +412,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				String error = "ERROR: Can not get the application settings. " + details;
 				LOGGER.warning(error);
 				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "APP_SETTINGS");
+				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
 
@@ -420,6 +436,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				String error = "ERROR: Can not construct ValitorPay payment with virtual card data. " + details;
 				LOGGER.warning(error);
 				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
+				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
 
@@ -452,6 +469,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				CreditCardAuthorizationException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
 				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
 				LOGGER.warning(error);
+				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
 
@@ -474,10 +492,12 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String error = "ERROR: ValitorPay virtual card payment failed. " + details;
 			LOGGER.warning(error);
 			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
+			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
 		} catch (Throwable e) {
 			String error = "Message: " + e.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
 
 			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, e);
 			ex.setErrorNumber("UNKNOWN");
@@ -644,6 +664,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		} catch (Throwable e) {
 			String error = "Error reading from response " + response + ". Message: " + e.getMessage();
 			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
 			throw new CreditCardAuthorizationException(error, e);
 		} finally {
 			IOUtil.close(stream);
@@ -679,9 +700,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			getAuthDAO().store(auth);
 			return auth.getId() == null ? null : auth;
 		} catch (Exception e) {
-			LOGGER.log(Level.WARNING, "Could not store the ValitorAuthorisationEntry after the ValidtoPay transaction. "
+			String error = "Could not store the ValitorAuthorisationEntry after the ValidtoPay transaction. "
 					+ "valitorPayResponseData: " + response.toString()
-					+ ". valitorPayPaymentData: " + payment, e);
+					+ ". valitorPayPaymentData: " + payment;
+			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
 		}
 		return null;
 	}
