@@ -262,7 +262,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		try {
 			details = "Name on card: " + nameOnCard + ", card number: " + CreditCardUtil.getMaskedCreditCardNumber(cardNumber) +
 			", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires + ", CVC: " + ccVerifyNumber + ", amount: " + amount +
-			", currency: " + currency + ", reference number: " + referenceNumber;
+			", currency: " + currency + ", reference number: " + referenceNumber +
+			(ArrayUtil.isEmpty(options) ? CoreConstants.EMPTY : ", sale options: " + Arrays.asList(options));
 			if (
 					StringUtil.isEmpty(cardNumber) ||
 					StringUtil.isEmpty(monthExpires) ||
