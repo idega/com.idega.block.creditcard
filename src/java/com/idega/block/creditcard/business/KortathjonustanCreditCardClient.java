@@ -23,6 +23,7 @@ import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesHome;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
+import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.trade.business.CurrencyHolder;
 import com.idega.core.idgenerator.business.UUIDGenerator;
 import com.idega.data.IDOLookup;
@@ -289,7 +290,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 
 	@Override
 	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires,
-			String ccVerifyNumber, double amount, String currency, String referenceNumber)
+			String ccVerifyNumber, double amount, String currency, String referenceNumber, SaleOption... options)
 					throws CreditCardAuthorizationException {
 		try {
 			IWTimestamp stamp = IWTimestamp.RightNow();

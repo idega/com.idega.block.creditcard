@@ -21,6 +21,7 @@ import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
+import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
 import com.idega.block.creditcard2.data.beans.ValitorDebitAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.ValitorDebitMerchant;
@@ -269,7 +270,7 @@ public class ValitorDebitCardClient implements CreditCardClient {
 	//nameOnCard = kennitala, ccVerifyNumber = type of card
 	@Override
 	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires,
-			String ccVerifyNumber, double amount, String currency, String referenceNumber)
+			String ccVerifyNumber, double amount, String currency, String referenceNumber, SaleOption... options)
 					throws CreditCardAuthorizationException {
 		TegundKorts cardType = TegundKorts.fromValue(ccVerifyNumber);
 		try {

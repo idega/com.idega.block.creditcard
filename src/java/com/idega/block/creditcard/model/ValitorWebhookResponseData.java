@@ -69,16 +69,7 @@ public class ValitorWebhookResponseData implements Serializable {
 				+ ", isLife: " + IsLife
 				+ ", timestamp: " + Timestamp;
 		if (getData() != null) {
-			returnStr = returnStr +
-					". ValitorWebhookResponseDataData. "
-					+ "transactionId: " + getData().getTransactionId()
-					+ ", authorizationCode: " + getData().getAuthorizationCode()
-					+ ", transactionLifecycleId: " + getData().getTransactionLifecycleId()
-					+ ", acquirerReferenceNumber: " + getData().getAcquirerReferenceNumber()
-					+ ", virtualCardNumber: " + getData().getVirtualCardNumber()
-					+ ", merchantReferenceId: " + getData().getMerchantReferenceId()
-					+ ", responseCode: " + getData().getResponseCode()
-					+ ", responseDescription: " + getData().getResponseDescription();
+			returnStr = returnStr + ". " + getData();
 		}
 
 		return returnStr;
