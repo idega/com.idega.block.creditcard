@@ -45,6 +45,8 @@ import com.idega.util.DBUtil;
 				+ ValitorAuthorisationEntry.parentProp + " = :" + ValitorAuthorisationEntry.parentProp),
 		@NamedQuery(name = ValitorAuthorisationEntry.GET_BY_AUTH_CODE, query = "from ValitorAuthorisationEntry bae where bae."
 				+ ValitorAuthorisationEntry.authCodeProp + " = :" + ValitorAuthorisationEntry.authCodeProp),
+		@NamedQuery(name = ValitorAuthorisationEntry.GET_BY_UNIQUE_ID, query = "from ValitorAuthorisationEntry bae where bae."
+				+ ValitorAuthorisationEntry.uniqueIdProp + " = :" + ValitorAuthorisationEntry.uniqueIdProp),
 		@NamedQuery(name = ValitorAuthorisationEntry.GET_BY_DATES, query = "from ValitorAuthorisationEntry bae where bae."
 				+ ValitorAuthorisationEntry.dateProp + " >= :" + ValitorAuthorisationEntry.dateFromProp + " and "
 				+ ValitorAuthorisationEntry.dateProp + " <=:" + ValitorAuthorisationEntry.dateToProp),
@@ -68,9 +70,11 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	public static final String GET_BY_ID = "ValitorAuthorisationEntry.getByID";
 	public static final String GET_BY_PARENT_ID = "ValitorAuthorisationEntry.getByParentID";
 	public static final String GET_BY_AUTH_CODE = "ValitorAuthorisationEntry.getByAuthCode";
+	public static final String GET_BY_UNIQUE_ID = "ValitorAuthorisationEntry.getByUniqueId";
 	public static final String idProp = "id";
 	public static final String parentProp = "parent";
 	public static final String authCodeProp = "authCode";
+	public static final String uniqueIdProp = "uniqueId";
 	public static final String GET_BY_DATES = "ValitorAuthorisationEntry.GET_BY_DATES";
 	public static final String GET_REFUNDS_BY_DATES = "ValitorAuthorisationEntry.GET_REFUNDS_BY_DATES";
 	public static final String dateProp = "date";

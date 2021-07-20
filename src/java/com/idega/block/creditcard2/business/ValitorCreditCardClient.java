@@ -762,9 +762,9 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String serverResponse = new Gson().toJson(response);
 			serverResponse = serverResponse.length() > 255 ? serverResponse.substring(0, 255) : serverResponse;
 			auth.setServerResponse(serverResponse);
-			auth.setAuthCode(payment.getMerchantReferenceId()); //response.getAuthorizationCode() //TODO: We need to store merchant reference id as authorisation code, to get the entry later
+			auth.setAuthCode(response.getAuthorizationCode());
 			auth.setDate(new IWTimestamp().getDate());
-			auth.setUniqueId(payment.getMerchantReferenceId());		//	TODO: is this correct?
+			auth.setUniqueId(payment.getMerchantReferenceId());		//	TODO: We should get the authorization entry by unique id later, not by auth code, because merchant reference id is saved as unique id only
 			if (response.getIsSuccess() != null && response.getIsSuccess().booleanValue() == false){
 				auth.setErrorNumber(response.getResponseCode());
 				auth.setErrorText(response.getResponseDescription());

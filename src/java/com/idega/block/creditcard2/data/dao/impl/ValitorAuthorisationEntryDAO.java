@@ -34,8 +34,11 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl
 
 	@Override
 	public CreditCardAuthorizationEntry findByAuthorizationCode(String code, Date date) {
-		return getSingleResult(ValitorAuthorisationEntry.GET_BY_AUTH_CODE, ValitorAuthorisationEntry.class,
-				new Param(ValitorAuthorisationEntry.authCodeProp, code));
+		//TODO: Searching by unique id, because unique id property contains the merchant reference id, which is needed.
+		return getSingleResult(ValitorAuthorisationEntry.GET_BY_UNIQUE_ID, ValitorAuthorisationEntry.class,
+				new Param(ValitorAuthorisationEntry.uniqueIdProp, code));
+//		return getSingleResult(ValitorAuthorisationEntry.GET_BY_AUTH_CODE, ValitorAuthorisationEntry.class,
+//				new Param(ValitorAuthorisationEntry.authCodeProp, code));
 	}
 
 	@Override
