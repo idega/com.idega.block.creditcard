@@ -65,7 +65,6 @@ public class ValitorPayPaymentData implements Serializable {
 		this.cvc = cvc;
 		this.cardholderDeviceType = cardholderDeviceType;
 		this.virtualCardData = virtualCardData;
-		//this.displayName = displayName;
 	}
 
 	public ValitorPayPaymentData(
