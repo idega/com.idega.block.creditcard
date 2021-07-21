@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.idega.block.creditcard.CreditCardUtil;
 import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.creditcard.business.CreditCardClient;
+import com.idega.block.creditcard.business.ValitorPayException;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.model.AuthEntryData;
@@ -44,6 +45,7 @@ import com.idega.util.CoreConstants;
 import com.idega.util.CoreUtil;
 import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
+import com.idega.util.ListUtil;
 import com.idega.util.RequestUtil;
 import com.idega.util.StringUtil;
 import com.idega.util.datastructures.map.MapUtil;
@@ -275,7 +277,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			) {
 				String error = "ERROR: Some of the mandatory data is not provided. " + details;
 				LOGGER.warning(error);
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "DATA_NOT_PROVIDED");
+				ValitorPayException ex = new ValitorPayException(error, "DATA_NOT_PROVIDED");
 				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
@@ -284,7 +286,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (settings == null) {
 				String error = "ERROR: Can not get the application settings. " + details;
 				LOGGER.warning(error);
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "APP_SETTINGS");
+				ValitorPayException ex = new ValitorPayException(error, "APP_SETTINGS");
 				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
@@ -311,7 +313,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (valitorPayPaymentData == null) {
 				String error = "ERROR: Can not construct ValitorPay payment data. " + details;
 				LOGGER.warning(error);
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
+				ValitorPayException ex = new ValitorPayException(error, "PAYMENT_DATA");
 				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
@@ -343,7 +345,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				//Error response
-				CreditCardAuthorizationException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
+				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
 				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
 				LOGGER.warning(error);
 				CoreUtil.sendExceptionNotification(error, ex);
@@ -366,7 +368,13 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 			String error = "ERROR: ValitorPay payment failed. " + details;
 			LOGGER.warning(error);
-			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
+			ValitorPayException ex = new ValitorPayException(error, "PAYMENT_DATA");
+			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
+				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
+			}
+			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseDescription())) {
+				ex.setErrorMessage(valitorPayResponseData.getResponseDescription());
+			}
 			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
 		} catch (Throwable e) {
@@ -374,7 +382,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			LOGGER.log(Level.WARNING, error, e);
 			CoreUtil.sendExceptionNotification(error, e);
 
-			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, e);
+			ValitorPayException ex = new ValitorPayException(error, e);
 			ex.setErrorNumber("UNKNOWN");
 			throw ex;
 		}
@@ -403,7 +411,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			) {
 				String error = "ERROR: Some of the mandatory data is not provided. " + details;
 				LOGGER.warning(error);
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "DATA_NOT_PROVIDED");
+				ValitorPayException ex = new ValitorPayException(error, "DATA_NOT_PROVIDED");
 				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
@@ -412,7 +420,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (settings == null) {
 				String error = "ERROR: Can not get the application settings. " + details;
 				LOGGER.warning(error);
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "APP_SETTINGS");
+				ValitorPayException ex = new ValitorPayException(error, "APP_SETTINGS");
 				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
@@ -436,7 +444,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (valitorPayPaymentData == null) {
 				String error = "ERROR: Can not construct ValitorPay payment with virtual card data. " + details;
 				LOGGER.warning(error);
-				CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
+				ValitorPayException ex = new ValitorPayException(error, "PAYMENT_DATA");
 				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
@@ -467,7 +475,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				//Error response
-				CreditCardAuthorizationException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
+				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
 				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
 				LOGGER.warning(error);
 				CoreUtil.sendExceptionNotification(error, ex);
@@ -492,7 +500,13 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 			String error = "ERROR: ValitorPay virtual card payment failed. " + details;
 			LOGGER.warning(error);
-			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, "PAYMENT_DATA");
+			ValitorPayException ex = new ValitorPayException(error, "PAYMENT_DATA");
+			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
+				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
+			}
+			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseDescription())) {
+				ex.setErrorMessage(valitorPayResponseData.getResponseDescription());
+			}
 			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
 		} catch (Throwable e) {
@@ -500,7 +514,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			LOGGER.log(Level.WARNING, error, e);
 			CoreUtil.sendExceptionNotification(error, e);
 
-			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(error, e);
+			ValitorPayException ex = new ValitorPayException(error, e);
 			ex.setErrorNumber("UNKNOWN");
 			throw ex;
 		}
@@ -611,13 +625,56 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		return serverUrl;
 	}
 
-	private CreditCardAuthorizationException handleValitorPayErrorResponse(ClientResponse response, ValitorPayResponseData valitorPayResponseData) {
-		CreditCardAuthorizationException ex = null;
-		if (response == null) {
-			ex = new CreditCardAuthorizationException("ERROR: ValitorPay response was empty.", "RESPONSE_ERROR");
+	private ValitorPayException handleValitorPayErrorResponse(ClientResponse response, ValitorPayResponseData valitorPayResponseData) {
+		ValitorPayException ex = null;
 
-		} else if (response.getStatus() == Status.INTERNAL_SERVER_ERROR.getStatusCode()) {
-			String errorMsg = "ERROR: ValitorPay response was - Internal server error. ";
+		//No response from ValitorPay
+		if (response == null) {
+			ex = new ValitorPayException("ValitorPay response was empty", "RESPONSE_ERROR");
+			return ex;
+		}
+
+
+		//Checking for the error code/responseCode and error messages
+		if (valitorPayResponseData != null) {
+			String errorCode = CoreConstants.EMPTY;
+			String errorMessage = CoreConstants.EMPTY;
+			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
+				errorCode = valitorPayResponseData.getResponseCode();
+			}
+			Map<String, List<String>> errorMap = valitorPayResponseData.getErrors();
+			if (!MapUtil.isEmpty(errorMap)) {
+				for (Map.Entry<String, List<String>> errorMsgMapEntry : errorMap.entrySet()) {
+					List<String> errorMessagesList = errorMsgMapEntry.getValue();
+					if (!ListUtil.isEmpty(errorMessagesList)) {
+						for (String errMsgIn : errorMessagesList) {
+							if (!StringUtil.isEmpty(errMsgIn)) {
+								if (!StringUtil.isEmpty(errorMessage)) {
+									if (!errorMessage.endsWith(CoreConstants.DOT)) {
+										errorMessage += CoreConstants.DOT;
+									}
+									errorMessage += CoreConstants.SPACE;
+								}
+								errorMessage += errMsgIn;
+							}
+						}
+					}
+				}
+			} else if (!StringUtil.isEmpty(valitorPayResponseData.getResponseDescription())) {
+				errorMessage = valitorPayResponseData.getResponseDescription();
+			}
+
+			//Create the exception, if needed data is available
+			if (!StringUtil.isEmpty(errorCode) || !StringUtil.isEmpty(errorMessage)) {
+				ex = new ValitorPayException(errorMessage, errorCode);
+				return ex;
+			}
+		}
+
+
+		//In case no response code nor the error messages
+		if (response.getStatus() == Status.INTERNAL_SERVER_ERROR.getStatusCode()) {
+			String errorMsg = "ValitorPay response was - Internal server error. ";
 			if (valitorPayResponseData != null) {
 				if (!StringUtil.isEmpty(valitorPayResponseData.getMessage())) {
 					errorMsg += " MESSAGE: ";
@@ -628,10 +685,10 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					errorMsg += valitorPayResponseData.getCorrelationID();
 				}
 			}
-			ex = new CreditCardAuthorizationException(errorMsg, "RESPONSE_ERROR");
+			ex = new ValitorPayException(errorMsg, "INTERNAL_SERVER_ERROR_RESPONSE_ERROR");
 
 		} else if (response.getStatus() == Status.BAD_REQUEST.getStatusCode()) {
-			String errorMsg = "ERROR: ValitorPay response was - Bad request. ";
+			String errorMsg = "ValitorPay response was - Bad request. ";
 			if (valitorPayResponseData != null) {
 				if (!StringUtil.isEmpty(valitorPayResponseData.getTitle())) {
 					errorMsg += " TITLE: ";
@@ -642,11 +699,12 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					errorMsg += valitorPayResponseData.getErrors();
 				}
 			}
-			ex = new CreditCardAuthorizationException(errorMsg, "RESPONSE_ERROR");
+			ex = new ValitorPayException(errorMsg, "BAD_REQUEST_RESPONSE_ERROR");
 
 		} else {
-			ex = new CreditCardAuthorizationException("ERROR: ValitorPay - unknown error. Response code: " + response.getStatus(), "RESPONSE_ERROR");
+			ex = new ValitorPayException("ValitorPay - unknown error. Response code: " + response.getStatus(), "UNKNOWN_RESPONSE_ERROR");
 		}
+
 		return ex;
 	}
 
@@ -666,7 +724,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String error = "Error reading from response " + response + ". Message: " + e.getMessage();
 			LOGGER.log(Level.WARNING, error, e);
 			CoreUtil.sendExceptionNotification(error, e);
-			throw new CreditCardAuthorizationException(error, e);
+			throw new ValitorPayException(error, e);
 		} finally {
 			IOUtil.close(stream);
 			IOUtil.close(reader);
