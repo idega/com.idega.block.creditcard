@@ -21,8 +21,7 @@ import com.idega.util.StringUtil;
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 @Transactional(readOnly = true)
 @SpringBeanName(ValitorAuthorisationEntryDAO.BEAN_NAME)
-public class ValitorAuthorisationEntryDAO extends GenericDaoImpl
-		implements AuthorisationEntriesDAO<ValitorAuthorisationEntry> {
+public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements AuthorisationEntriesDAO<ValitorAuthorisationEntry> {
 
 	public static final String BEAN_NAME = "ValitorAuthorisationEntryDAO";
 
@@ -34,11 +33,31 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl
 
 	@Override
 	public CreditCardAuthorizationEntry findByAuthorizationCode(String code, Date date) {
-		//TODO: Searching by unique id, because unique id property contains the merchant reference id, which is needed.
-		return getSingleResult(ValitorAuthorisationEntry.GET_BY_UNIQUE_ID, ValitorAuthorisationEntry.class,
-				new Param(ValitorAuthorisationEntry.uniqueIdProp, code));
-//		return getSingleResult(ValitorAuthorisationEntry.GET_BY_AUTH_CODE, ValitorAuthorisationEntry.class,
-//				new Param(ValitorAuthorisationEntry.authCodeProp, code));
+		CreditCardAuthorizationEntry entry = null;
+		try {
+			//	Searching by unique id, because unique id property contains the merchant reference id, which is needed.
+			entry = getSingleResult(
+					ValitorAuthorisationEntry.GET_BY_UNIQUE_ID,
+					ValitorAuthorisationEntry.class,
+					new Param(ValitorAuthorisationEntry.uniqueIdProp, code)
+			);
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting auth. entry by unique ID " + code, e);
+		}
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			entry = getSingleResult(
+					ValitorAuthorisationEntry.GET_BY_AUTH_CODE,
+					ValitorAuthorisationEntry.class,
+					new Param(ValitorAuthorisationEntry.authCodeProp, code)
+			);
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting auth. entry by auth. code " + code, e);
+		}
+		return entry;
 	}
 
 	@Override

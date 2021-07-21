@@ -100,7 +100,17 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			FyrirtaekjagreidslurSoap port = service.getFyrirtaekjagreidslurSoap();
 			Map<String, Object> req_ctx = ((BindingProvider) port).getRequestContext();
 			req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, this.url);
-			SyndarkortnumerSkilabod result = port.faSyndarkortnumer(merchant.getUser(), merchant.getPassword(), merchant.getExtraInfo(), merchant.getMerchantID(), merchant.getTerminalID(), cardnumber, expirationDate, ccv, null);
+			SyndarkortnumerSkilabod result = port.faSyndarkortnumer(
+					merchant.getUser(),
+					merchant.getPassword(),
+					merchant.getExtraInfo(),
+					merchant.getMerchantID(),
+					merchant.getTerminalID(),
+					cardnumber,
+					expirationDate,
+					ccv,
+					null
+			);
 
 			if (result.getVillunumer()==0) {
 				return result.getSyndarkortnumer();
@@ -125,8 +135,17 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			FyrirtaekjagreidslurSoap port = service.getFyrirtaekjagreidslurSoap();
 			Map<String, Object> req_ctx = ((BindingProvider) port).getRequestContext();
 			req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, this.url);
-			HeimildSkilabod result = port.faEndurgreitt(merchant.getUser(), merchant.getPassword(), merchant.getExtraInfo(), merchant.getMerchantID(), merchant.getTerminalID(), cardnumber, amount+"", currency, null);
-
+			HeimildSkilabod result = port.faEndurgreitt(
+					merchant.getUser(),
+					merchant.getPassword(),
+					merchant.getExtraInfo(),
+					merchant.getMerchantID(),
+					merchant.getTerminalID(),
+					cardnumber,
+					amount+"",
+					currency,
+					null
+			);
 
 			ValitorAuthorisationEntry auth = new ValitorAuthorisationEntry();
 			auth.setAuthCode(result.getKvittun().getHeimildarnumer());
@@ -178,7 +197,17 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			FyrirtaekjagreidslurSoap port = service.getFyrirtaekjagreidslurSoap();
 			Map<String, Object> req_ctx = ((BindingProvider) port).getRequestContext();
 			req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, this.url);
-			HeimildSkilabod result = port.faOgildingu(merchant.getUser(), merchant.getPassword(), merchant.getExtraInfo(), merchant.getMerchantID(), merchant.getTerminalID(), authEnt.getCardNumber(), authEnt.getCurrency(), String.valueOf(authEnt.getAmount()), resp);
+			HeimildSkilabod result = port.faOgildingu(
+					merchant.getUser(),
+					merchant.getPassword(),
+					merchant.getExtraInfo(),
+					merchant.getMerchantID(),
+					merchant.getTerminalID(),
+					authEnt.getCardNumber(),
+					authEnt.getCurrency(),
+					String.valueOf(authEnt.getAmount()),
+					resp
+			);
 
 			ValitorAuthorisationEntry auth = new ValitorAuthorisationEntry();
 			auth.setAmount(authEnt.getAmount());
@@ -239,7 +268,13 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
+	public String getPropertiesToCaptureWebPayment(
+			String currency,
+			double amount,
+			Timestamp timestamp,
+			String reference,
+			String approvalCode
+	) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
@@ -738,7 +773,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			ValitorAuthorisationEntry auth = this.auth == null ? new ValitorAuthorisationEntry() : this.auth;
 			auth.setAmount(Double.valueOf(payment.getAmount()));
 			if (virtualCardPayment) {
-				auth.setCardNumber(payment.getVirtualCardNumber()); //FIXME: Using virtual card number instead of real card number
+				auth.setCardNumber(payment.getVirtualCardNumber());
 			} else {
 				auth.setCardNumber(CreditCardUtil.getMaskedCreditCardNumber(payment.getCardNumber()));
 			}
@@ -750,7 +785,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			IWTimestamp timestamp = new IWTimestamp();
 			auth.setDate(timestamp.getDate());
 			auth.setTimestamp(timestamp.getTimestamp());
-			auth.setUniqueId(payment.getMerchantReferenceId());		//	TODO: We should get the authorization entry by unique id later, not by auth code, because merchant reference id is saved as unique id only
+			auth.setUniqueId(payment.getMerchantReferenceId());		//	Authorization entry must be resolved by unique id. Merchant reference id is saved as unique id only
 			if (response.getIsSuccess() != null && response.getIsSuccess().booleanValue() == false){
 				auth.setErrorNumber(response.getResponseCode());
 				auth.setErrorText(response.getResponseDescription());
