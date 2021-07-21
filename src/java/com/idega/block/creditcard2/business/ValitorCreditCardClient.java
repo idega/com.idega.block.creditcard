@@ -296,6 +296,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			SaleOption... options
 	) throws CreditCardAuthorizationException {
 		String details = null;
+		ValitorPayResponseData valitorPayResponseData = null;
 		try {
 			details = "Name on card: " + nameOnCard + ", card number: " + CreditCardUtil.getMaskedCreditCardNumber(cardNumber) +
 			", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires + ", CVC: " + ccVerifyNumber + ", amount: " + amount +
@@ -371,7 +372,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			);
 
 			//Get ValitorPay response data
-			ValitorPayResponseData valitorPayResponseData = null;
 			if (response != null) {
 				valitorPayResponseData = getValitorPayResponseData(response);
 			}
@@ -418,7 +418,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			CoreUtil.sendExceptionNotification(error, e);
 
 			ValitorPayException ex = new ValitorPayException(error, e);
-			ex.setErrorNumber("UNKNOWN");
+			ex.setErrorMessage(e.getMessage());
+			ex.setErrorNumber(valitorPayResponseData != null && !StringUtil.isEmpty(valitorPayResponseData.getResponseCode()) ? valitorPayResponseData.getResponseCode() : CoreConstants.EMPTY);
 			throw ex;
 		}
 	}
@@ -433,6 +434,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			Object parentPaymentPK
 	) throws CreditCardAuthorizationException {
 		String details = null;
+		ValitorPayResponseData valitorPayResponseData = null;
 		try {
 			details = "Card token: " + cardToken + ", transaction ID: " + transactionId +
 			", amount: " + amount + "currency: " + currency + ", reference number: " + referenceNumber + ", parent payment PK: " + parentPaymentPK;
@@ -501,7 +503,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			);
 
 			//Get ValitorPay response data
-			ValitorPayResponseData valitorPayResponseData = null;
 			if (response != null) {
 				valitorPayResponseData = getValitorPayResponseData(response);
 			}
@@ -550,7 +551,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			CoreUtil.sendExceptionNotification(error, e);
 
 			ValitorPayException ex = new ValitorPayException(error, e);
-			ex.setErrorNumber("UNKNOWN");
+			ex.setErrorMessage(e.getMessage());
+			ex.setErrorNumber(valitorPayResponseData != null && !StringUtil.isEmpty(valitorPayResponseData.getResponseCode()) ? valitorPayResponseData.getResponseCode() : CoreConstants.EMPTY);
 			throw ex;
 		}
 	}
@@ -661,6 +663,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	}
 
 	private ValitorPayException handleValitorPayErrorResponse(ClientResponse response, ValitorPayResponseData valitorPayResponseData) {
+		LOGGER.info("Handling the ValitorPay error response for valitorPayResponseData: " + valitorPayResponseData.toString());
+
 		ValitorPayException ex = null;
 
 		//No response from ValitorPay
