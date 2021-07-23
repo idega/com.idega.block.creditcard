@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
+import com.idega.util.CoreConstants;
 import com.idega.util.CoreUtil;
 import com.idega.util.StringUtil;
 
@@ -45,6 +46,13 @@ public class ValitorPayException extends CreditCardAuthorizationException {
 			Logger.getLogger(getClass().getName()).warning(message);
 			if (IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("credit_card.report_exceptions", false)) {
 				CoreUtil.sendExceptionNotification(message, this);
+			}
+
+			String errorMessageTmp = CoreConstants.EMPTY;
+			if (!StringUtil.isEmpty(this.getErrorMessage())) {
+				errorMessageTmp = this.getErrorMessage();
+			} else if (!StringUtil.isEmpty(this.getDisplayError())) {
+				errorMessageTmp = this.getDisplayError();
 			}
 
 			if (!StringUtil.isEmpty(this.getErrorNumber())) {
@@ -435,13 +443,13 @@ public class ValitorPayException extends CreditCardAuthorizationException {
 						return (iwrb.getLocalizedString("valitor_pay.error_code.C8", "The card does not support 3DSecure."));
 
 					default:
-						Logger.getLogger(getClass().getName()).info("Error number is not defined, showing the error message: " + this.getErrorMessage());
-						return this.getErrorMessage();
+						Logger.getLogger(getClass().getName()).info("Error number is not defined, showing the error message: " + errorMessageTmp);
+						return errorMessageTmp;
 				}
 
 			} else {
-				Logger.getLogger(getClass().getName()).info("Error number is not defined, showing the error message: " + this.getErrorMessage());
-				return this.getErrorMessage();
+				Logger.getLogger(getClass().getName()).info("Error number is not defined, showing the error message: " + errorMessageTmp);
+				return errorMessageTmp;
 			}
 	  }
 }
