@@ -24,6 +24,7 @@ import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesHome;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard.model.SaleOption;
+import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.block.trade.business.CurrencyHolder;
 import com.idega.core.idgenerator.business.UUIDGenerator;
 import com.idega.data.IDOLookup;
@@ -1255,6 +1256,18 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 				throw cce;
 			}
 		}
+	}
+
+	@Override
+	public VirtualCard doCreateVirtualCard(String cardNumber, Integer monthExpires, Integer yearExpires,
+			String ccVerifyNumber, double amount, String currency) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public VirtualCard doUpdateCard(VirtualCard card, Integer monthExpires, Integer yearExpires,
+			String firstTransactionLifecycleId) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 }

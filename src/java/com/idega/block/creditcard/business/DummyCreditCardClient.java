@@ -17,6 +17,7 @@ import com.idega.block.creditcard.data.DummyAuthorisationEntriesHome;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard.model.SaleOption;
+import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.block.trade.business.CurrencyHolder;
 import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
@@ -373,6 +374,18 @@ public class DummyCreditCardClient implements CreditCardClient {
 
 	@Override
 	public AuthEntryData doSaleWithCardToken(String cardToken, String transactionId, double amount, String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public VirtualCard doCreateVirtualCard(String cardNumber, Integer monthExpires, Integer yearExpires,
+			String ccVerifyNumber, double amount, String currency) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public VirtualCard doUpdateCard(VirtualCard card, Integer monthExpires, Integer yearExpires,
+			String firstTransactionLifecycleId) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 

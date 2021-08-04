@@ -35,6 +35,7 @@ import com.idega.block.creditcard.model.ValitorPayVirtualCardAdditionalData;
 import com.idega.block.creditcard.model.ValitorPayVirtualCardData;
 import com.idega.block.creditcard2.data.beans.ValitorAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.ValitorMerchant;
+import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.block.creditcard2.data.dao.impl.ValitorAuthorisationEntryDAO;
 import com.idega.builder.bean.AdvancedProperty;
 import com.idega.idegaweb.IWMainApplication;
@@ -826,6 +827,18 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				DEFAULT_URL + "/VirtualCardPayment"
 		);
 		return valitorPayCardPaymentWithVerificationWebServiceURL;
+	}
+
+	@Override
+	public VirtualCard doCreateVirtualCard(String cardNumber, Integer monthExpires, Integer yearExpires,
+			String ccVerifyNumber, double amount, String currency) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public VirtualCard doUpdateCard(VirtualCard card, Integer monthExpires, Integer yearExpires,
+			String firstTransactionLifecycleId) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 }
