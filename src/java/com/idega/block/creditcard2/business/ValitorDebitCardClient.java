@@ -432,4 +432,10 @@ public class ValitorDebitCardClient implements CreditCardClient {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
+	@Override
+	public String doVerifyCard(String cardNumber, Integer monthExpires, Integer yearExpires, double amount,
+			String currency) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
 }

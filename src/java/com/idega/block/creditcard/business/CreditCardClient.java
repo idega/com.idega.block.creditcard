@@ -151,4 +151,6 @@ public interface CreditCardClient {
 
 	public VirtualCard doUpdateCard(VirtualCard card, Integer monthExpires, Integer yearExpires, String firstTransactionLifecycleId) throws CreditCardAuthorizationException;
 
+	public String doVerifyCard(String cardNumber, Integer monthExpires, Integer yearExpires, double amount, String currency) throws CreditCardAuthorizationException;
+
 }
