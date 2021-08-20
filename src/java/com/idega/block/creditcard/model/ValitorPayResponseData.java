@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import com.idega.util.CoreConstants;
+
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -19,6 +21,7 @@ public class ValitorPayResponseData implements Serializable {
 
 	//RESPONSE - 200
 	private String verificationHtml;
+	private String cardVerificationRawResponse; //Verification HTML from CardVerification request
 	private String postUrl;
 	private String verificationStatus;
 	private Boolean isSuccess;
@@ -26,6 +29,7 @@ public class ValitorPayResponseData implements Serializable {
 	private String responseDescription;
 	private String responseTime;
 	private String correlationID;
+	private String virtualCard;
 
 	//For virtual card payment
 	private String acquirerReferenceNumber;
@@ -131,10 +135,27 @@ public class ValitorPayResponseData implements Serializable {
 		this.errors = errors;
 	}
 
+
+
+	public String getVirtualCard() {
+		return virtualCard;
+	}
+	public void setVirtualCard(String virtualCard) {
+		this.virtualCard = virtualCard;
+	}
+	public String getCardVerificationRawResponse() {
+		return cardVerificationRawResponse;
+	}
+	public void setCardVerificationRawResponse(String cardVerificationRawResponse) {
+		this.cardVerificationRawResponse = cardVerificationRawResponse;
+	}
+
+
 	@Override
 	public String toString() {
 		String returnStr = "ValitorPayResponseData. ";
-		returnStr = returnStr + " verificationHtml: " + verificationHtml
+		returnStr = returnStr + " verificationHtml: " + (verificationHtml != null ? verificationHtml : CoreConstants.EMPTY)
+				+ ", cardVerificationRawResponse: " + (cardVerificationRawResponse != null ? cardVerificationRawResponse : CoreConstants.EMPTY)
 				+ ", postUrl: " + postUrl
 				+ ", verificationStatus: " + verificationStatus
 				+ ", isSuccess: " + isSuccess
@@ -146,6 +167,7 @@ public class ValitorPayResponseData implements Serializable {
 				+ ", transactionID: " + transactionID
 				+ ", authorizationCode: " + authorizationCode
 				+ ", transactionLifecycleId: " + transactionLifecycleId
+				+ ", virtualCard: " + getVirtualCard()
 				+ ", title: " + title
 				+ ", errors: " + errors;
 		return returnStr;

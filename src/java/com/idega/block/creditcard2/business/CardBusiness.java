@@ -37,4 +37,15 @@ public interface CardBusiness {
 
 	public VirtualCard createVirtualCard(String identifier, User owner, String cardUniqueId);
 
+	public VirtualCard createVirtualCard(
+			String cardUniqueId,
+			String token,
+			User owner,
+			String transactionId,
+			String card4,
+			String brand,
+			Integer expireYear,
+			Integer expireMonth,
+			Boolean enabled
+	);
 }

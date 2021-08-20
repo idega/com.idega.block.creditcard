@@ -41,8 +41,15 @@ public interface CreditCardBusiness extends IBOService {
 	public final static String CARD_TYPE_JCB = CreditCardType.JCB.name();
 	public final static String CARD_TYPE_AMERICAN_EXPRESS = CreditCardType.AMERICAN_EXRESS.name();
 
+	public final static String CARD_VERIFICATION_TYPE_CARD = CardVerificationType.CARD.name();
+	public final static String CARD_VERIFICATION_TYPE_VIRTUAL_CARD = CardVerificationType.VIRTUAL_CARD.name();
+
 	public enum CreditCardType {
 		VISA, ELECTRON, DINERS, DANKORT, MASTERCARD, JCB, AMERICAN_EXRESS;
+	}
+
+	public enum CardVerificationType {
+		CARD, VIRTUAL_CARD;
 	}
 
 	/**

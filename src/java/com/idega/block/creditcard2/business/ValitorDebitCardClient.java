@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 
 import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.creditcard.business.CreditCardClient;
+import com.idega.block.creditcard.business.VerificationData;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.model.AuthEntryData;
@@ -422,7 +423,7 @@ public class ValitorDebitCardClient implements CreditCardClient {
 
 	@Override
 	public VirtualCard doCreateVirtualCard(String cardNumber, Integer monthExpires, Integer yearExpires,
-			String ccVerifyNumber, double amount, String currency) throws CreditCardAuthorizationException {
+			String ccVerifyNumber, double amount, String currency, VerificationData verificationData) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
@@ -434,7 +435,7 @@ public class ValitorDebitCardClient implements CreditCardClient {
 
 	@Override
 	public String doVerifyCard(String cardNumber, Integer monthExpires, Integer yearExpires, double amount,
-			String currency) throws CreditCardAuthorizationException {
+			String currency, String verificationType, String referenceNumber) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 

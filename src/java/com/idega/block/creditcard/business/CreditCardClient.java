@@ -146,11 +146,12 @@ public interface CreditCardClient {
 			Integer yearExpires,
 			String ccVerifyNumber,
 			double amount,
-			String currency
+			String currency,
+			VerificationData verificationData
 	) throws CreditCardAuthorizationException;
 
 	public VirtualCard doUpdateCard(VirtualCard card, Integer monthExpires, Integer yearExpires, String firstTransactionLifecycleId) throws CreditCardAuthorizationException;
 
-	public String doVerifyCard(String cardNumber, Integer monthExpires, Integer yearExpires, double amount, String currency) throws CreditCardAuthorizationException;
+	public String doVerifyCard(String cardNumber, Integer monthExpires, Integer yearExpires, double amount, String currency, String verificationType, String referenceNumber) throws CreditCardAuthorizationException;
 
 }

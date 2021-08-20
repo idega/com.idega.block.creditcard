@@ -1260,7 +1260,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 
 	@Override
 	public VirtualCard doCreateVirtualCard(String cardNumber, Integer monthExpires, Integer yearExpires,
-			String ccVerifyNumber, double amount, String currency) throws CreditCardAuthorizationException {
+			String ccVerifyNumber, double amount, String currency, VerificationData verificationData) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
@@ -1272,7 +1272,7 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 
 	@Override
 	public String doVerifyCard(String cardNumber, Integer monthExpires, Integer yearExpires, double amount,
-			String currency) throws CreditCardAuthorizationException {
+			String currency, String verificationType, String referenceNumber) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 

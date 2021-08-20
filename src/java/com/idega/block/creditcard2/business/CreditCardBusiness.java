@@ -805,4 +805,38 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		return null;
 	}
 
+	@Override
+	@Transactional(readOnly = false)
+	public VirtualCard createVirtualCard(
+			String cardUniqueId,
+			String token,
+			User owner,
+			String transactionId,
+			String card4,
+			String brand,
+			Integer expireYear,
+			Integer expireMonth,
+			Boolean enabled
+	) {
+		try {
+			VirtualCard vCard = new VirtualCard();
+			vCard.setUniqueId(cardUniqueId);
+			vCard.setToken(token);
+			vCard.setOwner(owner);
+			vCard.setTransactionId(transactionId);
+			vCard.setLast4(card4);
+			vCard.setBrand(brand);
+			vCard.setOwner(owner);
+			vCard.setExpYear(expireYear);
+			vCard.setExpMonth(expireMonth);
+			vCard.setEnabled(enabled);
+
+			creditCardInformationDAO.persist(vCard);
+			return vCard.getId() == null ? null : vCard;
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error creating new virtual card with identifier/uniqueId: " + cardUniqueId + ", card token: " + token, e);
+		}
+		return null;
+	}
+
 }

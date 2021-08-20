@@ -160,6 +160,19 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "success")
 	private Boolean success;
 
+	@Column(name = "transaction_lifecycle_id")
+	private String transactionLifecycleId;
+
+	@Column(name = "md_status")
+	private String mdStatus;
+
+	@Column(name = "cavv")
+	private String cavv;
+
+	@Column(name = "xid")
+	private String xid;
+
+
 	@Override
 	public String getTransactionId() {
 		return transactionId;
@@ -312,6 +325,9 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	}
 
 	public void setErrorText(String errorText) {
+		if (errorText.length() >= 255) {
+			errorText = errorText.substring(0, 253);
+		}
 		this.errorText = errorText;
 	}
 
@@ -597,6 +613,42 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public void setSuccess(Boolean success) {
 		this.success = success;
+	}
+
+
+
+	public String getTransactionLifecycleId() {
+		return transactionLifecycleId;
+	}
+
+	public void setTransactionLifecycleId(String transactionLifecycleId) {
+		this.transactionLifecycleId = transactionLifecycleId;
+	}
+
+
+
+	public String getMdStatus() {
+		return mdStatus;
+	}
+
+	public void setMdStatus(String mdStatus) {
+		this.mdStatus = mdStatus;
+	}
+
+	public String getCavv() {
+		return cavv;
+	}
+
+	public void setCavv(String cavv) {
+		this.cavv = cavv;
+	}
+
+	public String getXid() {
+		return xid;
+	}
+
+	public void setXid(String xid) {
+		this.xid = xid;
 	}
 
 	@Override

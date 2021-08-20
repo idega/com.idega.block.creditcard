@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,15 +21,19 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.Gson;
+import com.idega.block.creditcard.CreditCardConstants;
 import com.idega.block.creditcard.CreditCardUtil;
 import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard.business.ValitorPayException;
+import com.idega.block.creditcard.business.VerificationData;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard.model.SaleOption;
+import com.idega.block.creditcard.model.ValitorPayCardVerificationData;
+import com.idega.block.creditcard.model.ValitorPayCardVerificationResponseData;
 import com.idega.block.creditcard.model.ValitorPayPaymentData;
 import com.idega.block.creditcard.model.ValitorPayResponseData;
 import com.idega.block.creditcard.model.ValitorPayVirtualCardAdditionalData;
@@ -330,12 +335,30 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 			CreditCardMerchant ccMerchant = getCreditCardMerchant();
 
-			String valitorPayCardPaymentWithVerificationWebServiceURL = getValitorPayCardPaymentWithVerificationWebServiceURL(settings);
+			String valitorPayCardPaymentWebServiceURL = getValitorPayCardPaymentWebServiceURL(settings);
 			String valitorPayApiVersion = getValitorPayApiVersion(settings);
 			String valitorPayApiKey = ccMerchant.getSharedSecret();
 
+			//Get the card verification data from credit card authorization entry metadata to use in payment
+			CreditCardAuthorizationEntry creditCardAuthorizationEntry = getAuthDAO().findByAuthorizationCode(referenceNumber, null);
+			ValitorAuthorisationEntry valitorAuthorisationEntry = null;
+			if (creditCardAuthorizationEntry != null) {
+				valitorAuthorisationEntry = (ValitorAuthorisationEntry) creditCardAuthorizationEntry;
+			}
+			ValitorPayCardVerificationResponseData valitorPayCardVerificationResponseData = null;
+			if (valitorAuthorisationEntry != null) {
+				valitorPayCardVerificationResponseData = new ValitorPayCardVerificationResponseData(
+						valitorAuthorisationEntry.getCavv(),
+						valitorAuthorisationEntry.getMdStatus(),
+						valitorAuthorisationEntry.getXid()
+						//creditCardAuthorizationEntry.getMetaData(CreditCardConstants.METADATA_CARD_VERIFICATION_CAVV),
+						//creditCardAuthorizationEntry.getMetaData(CreditCardConstants.METADATA_CARD_VERIFICATION_MDSTATUS),
+						//creditCardAuthorizationEntry.getMetaData(CreditCardConstants.METADATA_CARD_XID)
+				);
+			}
+
 			//Get the ValitorPay payment data
-			ValitorPayPaymentData valitorPayPaymentData = getValitorPayPaymentData(
+			ValitorPayPaymentData valitorPayPaymentData = getValitorPayPaymentDataForPaymentAfterVerification(
 					settings,
 					nameOnCard,
 					cardNumber,
@@ -345,6 +368,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					amount,
 					currency,
 					referenceNumber,
+					valitorPayCardVerificationResponseData,
 					options
 			);
 			if (valitorPayPaymentData == null) {
@@ -357,9 +381,9 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 			//Call the ValitorPay web service
 			String postJSON = new Gson().toJson(valitorPayPaymentData);
-			LOGGER.info("Calling ValitorPay (" + valitorPayCardPaymentWithVerificationWebServiceURL + ") with data: " + postJSON);
+			LOGGER.info("Calling ValitorPay (" + valitorPayCardPaymentWebServiceURL + ") with data: " + postJSON);
 			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
-					valitorPayCardPaymentWithVerificationWebServiceURL,
+					valitorPayCardPaymentWebServiceURL,
 					StringUtil.isEmpty(postJSON) ? null : Long.valueOf(postJSON.length()),
 					MediaType.APPLICATION_JSON,
 					HttpMethod.POST,
@@ -376,7 +400,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (response != null) {
 				valitorPayResponseData = getValitorPayResponseData(response);
 			}
-			LOGGER.info("After calling ValitorPay (" + valitorPayCardPaymentWithVerificationWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
+			LOGGER.info("After calling ValitorPay (" + valitorPayCardPaymentWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
 
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
@@ -391,7 +415,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			//OK response
 			if (
 					valitorPayResponseData != null &&
-					!StringUtil.isEmpty(valitorPayResponseData.getVerificationHtml()) &&
 					valitorPayResponseData.getIsSuccess() != null &&
 					valitorPayResponseData.getIsSuccess().booleanValue() == true
 			) {
@@ -399,7 +422,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				storeValitorAuthorizationEntry(valitorPayResponseData, valitorPayPaymentData, false);
 
 				//Return the verification HTML
-				return valitorPayResponseData.getVerificationHtml();
+				return valitorPayResponseData.getAuthorizationCode();
 			}
 
 			String error = "ERROR: ValitorPay payment failed. " + details;
@@ -413,6 +436,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
+		} catch (ValitorPayException eV) {
+			throw eV;
 		} catch (Throwable e) {
 			String error = "Message: " + e.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, e);
@@ -469,11 +494,13 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String valitorPayApiVersion = getValitorPayApiVersion(settings);
 			String valitorPayApiKey = ccMerchant.getSharedSecret();
 
+			String uniqueBase64EncodedUUID = !StringUtil.isEmpty(transactionId) ? Base64.getEncoder().encodeToString(transactionId.getBytes()) : transactionId;
+
 			//Get the ValitorPay payment data
 			ValitorPayPaymentData valitorPayPaymentData = getValitorPayWithVirtualCardPaymentData(
 					settings,
 					cardToken,
-					transactionId,
+					uniqueBase64EncodedUUID,
 					amount,
 					currency,
 					referenceNumber,
@@ -526,8 +553,15 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					valitorPayResponseData.getIsSuccess().booleanValue() == true
 			) {
 				//Save the transaction
-				if (StringUtil.isEmpty(valitorPayPaymentData.getMerchantReferenceId()) && valitorPayPaymentData.getVirtualCardAdditionalData() != null) {
-					valitorPayPaymentData.setMerchantReferenceId(valitorPayPaymentData.getVirtualCardAdditionalData().getMerchantReferenceData());
+				if (StringUtil.isEmpty(valitorPayPaymentData.getMerchantReferenceId()) && valitorPayPaymentData.getVirtualCardPaymentAdditionalData() != null) {
+					valitorPayPaymentData.setMerchantReferenceId(valitorPayPaymentData.getVirtualCardPaymentAdditionalData().getMerchantReferenceData());
+				}
+				//Decode the merchant reference id
+				if (!StringUtil.isEmpty(valitorPayPaymentData.getMerchantReferenceId())) {
+					byte[] decodedMerchantReferenceId = Base64.getDecoder().decode(valitorPayPaymentData.getMerchantReferenceId());
+					if (decodedMerchantReferenceId != null) {
+						valitorPayPaymentData.setMerchantReferenceId(new String(decodedMerchantReferenceId));
+					}
 				}
 				storeValitorAuthorizationEntry(valitorPayResponseData, valitorPayPaymentData, true);
 
@@ -546,6 +580,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
+		} catch (ValitorPayException eV) {
+			throw eV;
 		} catch (Throwable e) {
 			String error = "Message: " + e.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, e);
@@ -567,6 +603,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		return null;
 	}
 
+	@SuppressWarnings("unused")
 	private ValitorPayPaymentData getValitorPayPaymentData(
 			IWMainApplicationSettings settings,
 			String nameOnCard,
@@ -577,6 +614,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			double amount,
 			String currency,
 			String referenceNumber,
+			ValitorPayCardVerificationResponseData valitorPayCardVerificationResponseData,
 			SaleOption... options
 	) throws CreditCardAuthorizationException {
 		//According the ValitorPay, amount should be provided in minor currency unit:
@@ -621,7 +659,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				monthExpires,
 				yearExpires,
 				ccVerifyNumber,
-				ValitorPayPaymentData.CARD_HOLDER_DEVICE_TYPE_WWW,
+				CreditCardConstants.CARD_HOLDER_DEVICE_TYPE_WWW,
 				virtualCardData,
 				nameOnCard
 		);
@@ -645,7 +683,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		//Create the data bean to send to ValitorPay
 		ValitorPayVirtualCardAdditionalData virtualCardAdditionalData = new ValitorPayVirtualCardAdditionalData(transactionId);
 		ValitorPayPaymentData valitorPayPaymentData = new ValitorPayPaymentData(
-				ValitorPayPaymentData.OPERATION_SALE,
+				CreditCardConstants.OPERATION_SALE,
 				currency,
 				amountInt,
 				cardToken,
@@ -714,21 +752,21 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 		//In case no response code nor the error messages
 		if (response.getStatus() == Status.INTERNAL_SERVER_ERROR.getStatusCode()) {
-			String errorMsg = "ValitorPay response was - Internal server error. ";
+			String errorMsg = "ValitorPay response was - Internal server error.";
 			if (valitorPayResponseData != null) {
 				if (!StringUtil.isEmpty(valitorPayResponseData.getMessage())) {
 					errorMsg += " MESSAGE: ";
 					errorMsg += valitorPayResponseData.getMessage();
 				}
-				if (!StringUtil.isEmpty(valitorPayResponseData.getCorrelationID())) {
-					errorMsg += " Correlation id: ";
-					errorMsg += valitorPayResponseData.getCorrelationID();
-				}
+				//if (!StringUtil.isEmpty(valitorPayResponseData.getCorrelationID())) {
+				//	errorMsg += " Correlation id: ";
+				//	errorMsg += valitorPayResponseData.getCorrelationID();
+				//}
 			}
 			ex = new ValitorPayException(errorMsg, "INTERNAL_SERVER_ERROR_RESPONSE_ERROR");
 
 		} else if (response.getStatus() == Status.BAD_REQUEST.getStatusCode()) {
-			String errorMsg = "ValitorPay response was - Bad request. ";
+			String errorMsg = "ValitorPay response was - Bad request.";
 			if (valitorPayResponseData != null) {
 				if (!StringUtil.isEmpty(valitorPayResponseData.getTitle())) {
 					errorMsg += " TITLE: ";
@@ -775,7 +813,30 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 	private ValitorAuthorisationEntry storeValitorAuthorizationEntry(ValitorPayResponseData response, ValitorPayPaymentData payment, boolean virtualCardPayment) {
 		try {
-			ValitorAuthorisationEntry auth = this.auth == null ? new ValitorAuthorisationEntry() : this.auth;
+			//ValitorAuthorisationEntry auth = this.auth == null ? new ValitorAuthorisationEntry() : this.auth;
+
+			ValitorAuthorisationEntry auth = this.auth;
+			String merchantReferenceId = null;
+			if (payment != null) {
+				if (!StringUtil.isEmpty(payment.getMerchantReferenceId())) {
+					merchantReferenceId = payment.getMerchantReferenceId();
+				} else if (payment.getAdditionalData() != null && !StringUtil.isEmpty(payment.getAdditionalData().getMerchantReferenceData())) {
+					byte[] decodedRefId = Base64.getDecoder().decode(payment.getAdditionalData().getMerchantReferenceData());
+					if (decodedRefId != null) {
+						merchantReferenceId = new String(decodedRefId);
+					}
+				}
+				if (!StringUtil.isEmpty(merchantReferenceId)) {
+					CreditCardAuthorizationEntry creditCardAuthorizationEntry = getAuthDAO().findByAuthorizationCode(merchantReferenceId, null);
+					if (creditCardAuthorizationEntry != null) {
+						auth = (ValitorAuthorisationEntry) creditCardAuthorizationEntry;
+					}
+				}
+			}
+			if (auth == null) {
+				auth = new ValitorAuthorisationEntry();
+			}
+
 			auth.setAmount(Double.valueOf(payment.getAmount()));
 			if (virtualCardPayment) {
 				auth.setCardNumber(payment.getVirtualCardNumber());
@@ -790,12 +851,20 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			IWTimestamp timestamp = new IWTimestamp();
 			auth.setDate(timestamp.getDate());
 			auth.setTimestamp(timestamp.getTimestamp());
-			auth.setUniqueId(payment.getMerchantReferenceId());		//	Authorization entry must be resolved by unique id. Merchant reference id is saved as unique id only
+			if (!StringUtil.isEmpty(merchantReferenceId)) {
+				auth.setUniqueId(merchantReferenceId);		//	Authorization entry must be resolved by unique id. Merchant reference id is saved as unique id only
+			}
 			if (response.getIsSuccess() != null && response.getIsSuccess().booleanValue() == false){
 				auth.setErrorNumber(response.getResponseCode());
 				auth.setErrorText(response.getResponseDescription());
 			}
 			auth.setMerchant((ValitorMerchant) merchant);
+			if (!StringUtil.isEmpty(response.getTransactionID())) {
+				auth.setTransactionId(response.getTransactionID());
+			}
+			if (!StringUtil.isEmpty(response.getTransactionLifecycleId())) {
+				auth.setTransactionLifecycleId(response.getTransactionLifecycleId());
+			}
 			getAuthDAO().store(auth);
 			return auth.getId() == null ? null : auth;
 		} catch (Exception e) {
@@ -804,14 +873,48 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					+ ". valitorPayPaymentData: " + payment;
 			LOGGER.log(Level.WARNING, error, e);
 			CoreUtil.sendExceptionNotification(error, e);
+		} finally {
+			CoreUtil.clearAllCaches();
 		}
 		return null;
+	}
+
+	private String getDefaultValitorPayURL(IWMainApplicationSettings settings, String type) {
+		if (StringUtil.isEmpty(type)) {
+			return DEFAULT_URL;
+		} else {
+			if (type.equalsIgnoreCase("PAYMENT")) {
+				return settings.getProperty(
+						"valitorpay.url.default.payment",
+						"https://valitorpay.com/Payment"
+				);
+			} else if (type.equalsIgnoreCase("VIRTUAL_CARD")) {
+				return settings.getProperty(
+						"valitorpay.url.default.virtual_card",
+						"https://valitorpay.com/VirtualCard"
+				);
+			} else {
+				return settings.getProperty(
+						"valitorpay.url.default.verification",
+						"https://valitorpay.com"
+				);
+			}
+		}
+	}
+
+
+	private String getValitorPayCardPaymentWebServiceURL(IWMainApplicationSettings settings) {
+		String valitorPayCardPaymentWebServiceURL = settings.getProperty(
+				"valitorpay.url.card_payment",
+				getDefaultValitorPayURL(settings, "PAYMENT") + "/CardPayment"
+		);
+		return valitorPayCardPaymentWebServiceURL;
 	}
 
 	private String getValitorPayCardPaymentWithVerificationWebServiceURL(IWMainApplicationSettings settings) {
 		String valitorPayCardPaymentWithVerificationWebServiceURL = settings.getProperty(
 				"valitorpay.url.card_payment_with_verification",
-				DEFAULT_URL + "/CardPaymentWithVerification"
+				getDefaultValitorPayURL(settings, "PAYMENT") + "/CardPaymentWithVerification"
 		);
 		return valitorPayCardPaymentWithVerificationWebServiceURL;
 	}
@@ -824,27 +927,716 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	private String getValitorPayPayWithVirtualCardWebServiceURL(IWMainApplicationSettings settings) {
 		String valitorPayCardPaymentWithVerificationWebServiceURL = settings.getProperty(
 				"valitorpay.url.virtual_card_payment",
-				DEFAULT_URL + "/VirtualCardPayment"
+				getDefaultValitorPayURL(settings, "PAYMENT") + "/VirtualCardPayment"
 		);
 		return valitorPayCardPaymentWithVerificationWebServiceURL;
 	}
 
-	@Override
-	public VirtualCard doCreateVirtualCard(String cardNumber, Integer monthExpires, Integer yearExpires,
-			String ccVerifyNumber, double amount, String currency) throws CreditCardAuthorizationException {
-		throw new CreditCardAuthorizationException("Not implemented");
+	private String getValitorPayCardVerificationWebServiceURL(IWMainApplicationSettings settings) {
+		String valitorPayCardVerificationWebServiceURL = settings.getProperty(
+				"valitorpay.url.card_verification",
+				getDefaultValitorPayURL(settings, "VERIFICATION") + "/CardVerification"
+		);
+		return valitorPayCardVerificationWebServiceURL;
 	}
 
-	@Override
-	public VirtualCard doUpdateCard(VirtualCard card, Integer monthExpires, Integer yearExpires,
-			String firstTransactionLifecycleId) throws CreditCardAuthorizationException {
-		throw new CreditCardAuthorizationException("Not implemented");
+	private String getValitorPayUpdateExpirationDateWebServiceURL(IWMainApplicationSettings settings) {
+		String valitorPayUpdateExpirationDateWebServiceURL = settings.getProperty(
+				"valitorpay.url.update_card_expiration_date",
+				getDefaultValitorPayURL(settings, "VIRTUAL_CARD") + "/UpdateExpirationDate"
+		);
+		return valitorPayUpdateExpirationDateWebServiceURL;
 	}
 
-	@Override
-	public String doVerifyCard(String cardNumber, Integer monthExpires, Integer yearExpires, double amount,
-			String currency) throws CreditCardAuthorizationException {
-		throw new CreditCardAuthorizationException("Not implemented");
+	private String getValitorPayUpdateTransactionLifeCycleIdWebServiceURL(IWMainApplicationSettings settings) {
+		String valitorPayUpdateTransactionLifeCycleIdWebServiceURL = settings.getProperty(
+				"valitorpay.url.update_transaction_lifecycle_id",
+				getDefaultValitorPayURL(settings, "VIRTUAL_CARD") + "/UpdateTransactionLifecycleId"
+		);
+		return valitorPayUpdateTransactionLifeCycleIdWebServiceURL;
 	}
+
+	private String getValitorPayCreateVirtualCardWebServiceURL(IWMainApplicationSettings settings) {
+		String valitorPayCreateVirtualCardWebServiceURL = settings.getProperty(
+				"valitorpay.url.create_virtual_card",
+				getDefaultValitorPayURL(settings, "VIRTUAL_CARD") + "/CreateVirtualCard"
+		);
+		return valitorPayCreateVirtualCardWebServiceURL;
+	}
+
+
+
+	@Override
+	public String doVerifyCard(
+			String cardNumber,
+			Integer monthExpires,
+			Integer yearExpires,
+			double amount,
+			String currency,
+			String verificationType,
+			String referenceNumber
+	) throws CreditCardAuthorizationException {
+
+		String details = null;
+		ValitorPayResponseData valitorPayResponseData = null;
+		try {
+			details = "Card number: " + CreditCardUtil.getMaskedCreditCardNumber(cardNumber) +
+			", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires + ", amount: " + amount +
+			", currency: " + currency;
+			if (
+					StringUtil.isEmpty(cardNumber) ||
+					StringUtil.isEmpty(currency) ||
+					monthExpires == null ||
+					yearExpires == null ||
+					amount < 0
+			) {
+				String error = "ERROR: Some of the mandatory data is not provided. " + details;
+				LOGGER.warning(error);
+				ValitorPayException ex = new ValitorPayException(error, "DATA_NOT_PROVIDED");
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			IWMainApplicationSettings settings = getSettings();
+			if (settings == null) {
+				String error = "ERROR: Can not get the application settings. " + details;
+				LOGGER.warning(error);
+				ValitorPayException ex = new ValitorPayException(error, "APP_SETTINGS");
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			CreditCardMerchant ccMerchant = getCreditCardMerchant();
+
+			if (StringUtil.isEmpty(verificationType)) {
+				verificationType = com.idega.block.creditcard.business.CreditCardBusiness.CARD_VERIFICATION_TYPE_CARD;
+			}
+
+			String valitorPayCardVerificationWebServiceURL = getValitorPayCardVerificationWebServiceURL(settings);
+			String valitorPayApiVersion = getValitorPayApiVersion(settings);
+			String valitorPayApiKey = ccMerchant.getSharedSecret();
+
+			LOGGER.info("Key/Identifier/MD before encoding and calling ValitorPay verification web service: " + referenceNumber);
+
+			String uniqueBase64EncodedUUID = !StringUtil.isEmpty(referenceNumber) ? Base64.getEncoder().encodeToString(referenceNumber.getBytes()) : referenceNumber;
+
+			//Get the ValitorPay payment data
+			ValitorPayCardVerificationData valitorPayCardVerificationData = getValitorPayCardVerificationData(
+					settings,
+					cardNumber,
+					null, //Virtual card token
+					amount,
+					monthExpires,
+					yearExpires,
+					currency,
+					CreditCardConstants.CARD_HOLDER_DEVICE_TYPE_WWW,
+					null,
+					null,
+					uniqueBase64EncodedUUID,
+					null,
+					verificationType
+			);
+			if (valitorPayCardVerificationData == null) {
+				String error = "ERROR: Can not construct ValitorPay verification data. " + details;
+				LOGGER.warning(error);
+				ValitorPayException ex = new ValitorPayException(error, "VERIFICATION_DATA");
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			IWTimestamp merchantReferenceIdStamp = new IWTimestamp();
+			String merchantReferenceId = merchantReferenceIdStamp.getDateString(CreditCardConstants.FULL_DATE_TIME_NO_DELIMITERS_STRING);
+
+			//Call the ValitorPay web service
+			String postJSON = new Gson().toJson(valitorPayCardVerificationData);
+			LOGGER.info("Calling ValitorPay (" + valitorPayCardVerificationWebServiceURL + ") with data: " + postJSON);
+			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
+					valitorPayCardVerificationWebServiceURL,
+					StringUtil.isEmpty(postJSON) ? null : Long.valueOf(postJSON.length()),
+					MediaType.APPLICATION_JSON,
+					HttpMethod.POST,
+					postJSON,
+					Arrays.asList(
+							new AdvancedProperty(null, valitorPayApiVersion, "valitorpay-api-version"),
+							new AdvancedProperty(null, "APIKey ".concat(valitorPayApiKey), RequestUtil.HEADER_AUTHORIZATION)
+					),
+					null,
+					new AdvancedProperty(null, merchantReferenceId, "merchantReferenceId")
+			);
+
+			//Get ValitorPay response data
+			if (response != null) {
+				valitorPayResponseData = getValitorPayResponseData(response);
+			}
+			LOGGER.info("After calling ValitorPay (" + valitorPayCardVerificationWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
+
+			//Handle ValitorPay response
+			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
+				//Error response
+				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				LOGGER.warning(error);
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			//OK response
+			if (
+					valitorPayResponseData != null &&
+					(!StringUtil.isEmpty(valitorPayResponseData.getVerificationHtml()) || !StringUtil.isEmpty(valitorPayResponseData.getCardVerificationRawResponse())) &&
+					valitorPayResponseData.getIsSuccess() != null &&
+					valitorPayResponseData.getIsSuccess().booleanValue() == true
+			) {
+				//Save the transaction
+				if (!StringUtil.isEmpty(verificationType) && verificationType.equalsIgnoreCase(com.idega.block.creditcard.business.CreditCardBusiness.CARD_VERIFICATION_TYPE_CARD)) {
+					storeValitorAuthorizationEntryAfterCardVerification(valitorPayResponseData, valitorPayCardVerificationData, false);
+				}
+
+				//Return the verification HTML
+				return !StringUtil.isEmpty(valitorPayResponseData.getCardVerificationRawResponse()) ? valitorPayResponseData.getCardVerificationRawResponse() : valitorPayResponseData.getVerificationHtml();
+			}
+
+			String error = "ERROR: ValitorPay payment failed. " + details;
+			LOGGER.warning(error);
+			ValitorPayException ex = new ValitorPayException(error, "VERIFICATION_DATA");
+			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
+				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
+			}
+			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseDescription())) {
+				ex.setErrorMessage(valitorPayResponseData.getResponseDescription());
+			}
+			CoreUtil.sendExceptionNotification(error, ex);
+			throw ex;
+		} catch (ValitorPayException eV) {
+			throw eV;
+		} catch (Throwable e) {
+			String error = "Message: " + e.getMessage() + ", " + details;
+			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
+
+			ValitorPayException ex = new ValitorPayException(error, e);
+			ex.setErrorMessage(e.getMessage());
+			ex.setErrorNumber(valitorPayResponseData != null && !StringUtil.isEmpty(valitorPayResponseData.getResponseCode()) ? valitorPayResponseData.getResponseCode() : CoreConstants.EMPTY);
+			throw ex;
+		}
+	}
+
+
+	private ValitorPayCardVerificationData getValitorPayCardVerificationData(
+			IWMainApplicationSettings settings,
+			String cardNumber,
+			String virtualCard,
+			double amount,
+			Integer expirationMonth,
+			Integer expirationYear,
+			String currency,
+			String cardholderDeviceType,
+			String agreementNumber,
+			String terminalId,
+			String md,
+			String exponent,
+			String verificationType
+	) throws CreditCardAuthorizationException {
+		//According the ValitorPay, amount should be provided in minor currency unit:
+		//EXPLANATION: The total amount of the payment specified in a minor currency unit. This means that GBP is quoted in pence, USD in cents, DKK in öre, ISK in aurar etc.
+		Integer amountInt = CreditCardUtil.getAmountWithExponents(amount, "2");
+
+		//Creating MerchantWebhookUrl
+		String authenticationURL = getServerUrl(settings);
+		String merchantWebhookWebServiceUrl = CoreConstants.EMPTY;
+		if (!StringUtil.isEmpty(verificationType) && verificationType.equalsIgnoreCase(com.idega.block.creditcard.business.CreditCardBusiness.CARD_VERIFICATION_TYPE_VIRTUAL_CARD)) {
+			merchantWebhookWebServiceUrl = settings.getProperty("valitorpay.mwu.virt_card", "portal/c4c/payment/callback/hook/virtual");
+		} else {
+			merchantWebhookWebServiceUrl = settings.getProperty("valitorpay.mwu.card", "portal/c4c/payment/callback/hook");
+		}
+		if (authenticationURL.endsWith(CoreConstants.SLASH)) {
+			authenticationURL += merchantWebhookWebServiceUrl;
+		} else {
+			authenticationURL += CoreConstants.SLASH;
+			authenticationURL += merchantWebhookWebServiceUrl;
+		}
+
+		ValitorPayCardVerificationData valitorPayCardVerificationData = new ValitorPayCardVerificationData(
+				cardNumber,
+				virtualCard,
+				amountInt > 0 ? new Double(amountInt).intValue() : 0,
+				expirationMonth != null ? String.valueOf(expirationMonth) : CoreConstants.EMPTY,
+				expirationYear != null ? String.valueOf(expirationYear) : CoreConstants.EMPTY,
+				currency,
+				CreditCardConstants.CARD_HOLDER_DEVICE_TYPE_WWW,
+				authenticationURL,
+				agreementNumber,
+				terminalId,
+				md,
+				exponent,
+				settings.getProperty("valitorpay.card_verification.authentication_success_url", "https://cloud4club.com/"),
+				settings.getProperty("valitorpay.card_verification.authentication_failed_url", "https://cloud4club.com/")
+		);
+
+		return valitorPayCardVerificationData;
+	}
+
+
+	private ValitorAuthorisationEntry storeValitorAuthorizationEntryAfterCardVerification(ValitorPayResponseData response, ValitorPayCardVerificationData verificationData, boolean virtualCardPayment) {
+		try {
+			ValitorAuthorisationEntry auth = this.auth == null ? new ValitorAuthorisationEntry() : this.auth;
+
+			auth.setAmount(Double.valueOf(verificationData.getAmount()));
+			if (!StringUtil.isEmpty(verificationData.getVirtualCard())) {
+				auth.setCardNumber(verificationData.getVirtualCard());
+			} else {
+				auth.setCardNumber(CreditCardUtil.getMaskedCreditCardNumber(verificationData.getCardNumber()));
+			}
+			auth.setCurrency(verificationData.getCurrency());
+			String serverResponse = new Gson().toJson(response);
+			serverResponse = serverResponse.length() > 255 ? serverResponse.substring(0, 255) : serverResponse;
+			auth.setServerResponse(serverResponse);
+			auth.setAuthCode(response.getAuthorizationCode());
+			IWTimestamp timestamp = new IWTimestamp();
+			auth.setDate(timestamp.getDate());
+			auth.setTimestamp(timestamp.getTimestamp());
+			auth.setUniqueId(verificationData.getDecodedMd());		//	Authorization entry must be resolved by unique id. Merchant reference id is saved as unique id only
+			if (response.getIsSuccess() != null && response.getIsSuccess().booleanValue() == false){
+				auth.setErrorNumber(response.getResponseCode());
+				auth.setErrorText(response.getResponseDescription());
+			}
+			auth.setMerchant((ValitorMerchant) merchant);
+			if (!StringUtil.isEmpty(response.getTransactionID())) {
+				auth.setTransactionId(response.getTransactionID());
+			}
+			if (!StringUtil.isEmpty(response.getTransactionLifecycleId())) {
+				auth.setTransactionLifecycleId(response.getTransactionLifecycleId());
+			}
+			getAuthDAO().store(auth);
+			return auth.getId() == null ? null : auth;
+		} catch (Exception e) {
+			String error = "Could not store the ValitorAuthorisationEntry after the ValidtoPay card verification transaction. "
+					+ "valitorPayResponseData: " + response.toString()
+					+ ". verificationData: " + verificationData;
+			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
+		}
+		return null;
+	}
+
+	private ValitorPayPaymentData getValitorPayPaymentDataForPaymentAfterVerification(
+			IWMainApplicationSettings settings,
+			String nameOnCard,
+			String cardNumber,
+			String monthExpires,
+			String yearExpires,
+			String ccVerifyNumber,
+			double amount,
+			String currency,
+			String referenceNumber,
+			ValitorPayCardVerificationResponseData valitorPayCardVerificationResponseData,
+			SaleOption... options
+	) throws CreditCardAuthorizationException {
+		//According the ValitorPay, amount should be provided in minor currency unit:
+		//EXPLANATION: The total amount of the payment specified in a minor currency unit. This means that GBP is quoted in pence, USD in cents, DKK in öre, ISK in aurar etc.
+		Integer amountInt = CreditCardUtil.getAmountWithExponents(amount, "2");
+
+		String uniqueBase64EncodedUUID = !StringUtil.isEmpty(referenceNumber) ? Base64.getEncoder().encodeToString(referenceNumber.getBytes()) : referenceNumber;
+
+		ValitorPayPaymentData valitorPayPaymentData = new ValitorPayPaymentData(
+				uniqueBase64EncodedUUID,
+				amountInt,
+				currency,
+				cardNumber,
+				monthExpires,
+				yearExpires,
+				ccVerifyNumber,
+				null, //CreditCardConstants.CARD_HOLDER_DEVICE_TYPE_WWW,
+				valitorPayCardVerificationResponseData,
+				nameOnCard
+		);
+		valitorPayPaymentData.setOperation(CreditCardConstants.OPERATION_SALE);
+		valitorPayPaymentData.setTransactionType(CreditCardConstants.TRANSACTION_TYPE_ECOMMERCE);
+
+		return valitorPayPaymentData;
+	}
+
+
+
+
+	@Override
+	public VirtualCard doUpdateCard(
+			VirtualCard card,
+			Integer monthExpires,
+			Integer yearExpires,
+			String firstTransactionLifecycleId
+	) throws CreditCardAuthorizationException {
+		String details = null;
+		ValitorPayResponseData valitorPayResponseData = null;
+		try {
+			if (
+					card == null ||
+					StringUtil.isEmpty(card.getUniqueId()) ||
+					StringUtil.isEmpty(card.getToken()) ||
+					monthExpires == null ||
+					yearExpires == null
+			) {
+				String error = "ERROR: Some of the mandatory data is not provided. " + details;
+				LOGGER.warning(error);
+				ValitorPayException ex = new ValitorPayException(error, "DATA_NOT_PROVIDED");
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			details = "Update virtual card. Virtual card UUID: " + card.getUniqueId()
+				+ ", ValitorPay virtual card UUID/token: " + card.getToken()
+				+ ", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires;
+
+			LOGGER.info("Updating virtual card expiration date on ValitorPay. Data: " + details);
+
+			IWMainApplicationSettings settings = getSettings();
+			if (settings == null) {
+				String error = "ERROR: Can not get the application settings. " + details;
+				LOGGER.warning(error);
+				ValitorPayException ex = new ValitorPayException(error, "APP_SETTINGS");
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			CreditCardMerchant ccMerchant = getCreditCardMerchant();
+
+			String valitorPayUpdateCardExpirationDateWebServiceURL = getValitorPayUpdateExpirationDateWebServiceURL(settings);
+			String valitorPayApiVersion = getValitorPayApiVersion(settings);
+			String valitorPayApiKey = ccMerchant.getSharedSecret();
+
+			//Get the ValitorPay update card data
+			ValitorPayVirtualCardData valitorPayVirtualCardData = new ValitorPayVirtualCardData(
+					card.getToken(),
+					monthExpires,
+					yearExpires,
+					null,
+					null,
+					null
+			);
+//			if (valitorPayVirtualCardData == null) {
+//				String error = "ERROR: Can not construct ValitorPayVirtualCardData data to update the virtual card. " + details;
+//				LOGGER.warning(error);
+//				ValitorPayException ex = new ValitorPayException(error, "VIRTUAL_CARD_UPDATE_DATA");
+//				CoreUtil.sendExceptionNotification(error, ex);
+//				throw ex;
+//			}
+
+			//Call the ValitorPay web service
+			String postJSON = new Gson().toJson(valitorPayVirtualCardData);
+			LOGGER.info("Calling ValitorPay (" + valitorPayUpdateCardExpirationDateWebServiceURL + ") with data: " + postJSON);
+			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
+					valitorPayUpdateCardExpirationDateWebServiceURL,
+					StringUtil.isEmpty(postJSON) ? null : Long.valueOf(postJSON.length()),
+					MediaType.APPLICATION_JSON,
+					HttpMethod.POST,
+					postJSON,
+					Arrays.asList(
+							new AdvancedProperty(null, valitorPayApiVersion, "valitorpay-api-version"),
+							new AdvancedProperty(null, "APIKey ".concat(valitorPayApiKey), RequestUtil.HEADER_AUTHORIZATION)
+					),
+					null
+			);
+
+			//Get ValitorPay response data
+			if (response != null) {
+				valitorPayResponseData = getValitorPayResponseData(response);
+			}
+			LOGGER.info("After calling ValitorPay (" + valitorPayUpdateCardExpirationDateWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
+
+			//Handle ValitorPay response
+			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
+				//Error response
+				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				LOGGER.warning(error);
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			//OK response
+			if (
+					valitorPayResponseData != null &&
+					valitorPayResponseData.getIsSuccess() != null &&
+					valitorPayResponseData.getIsSuccess().booleanValue() == true
+			) {
+				//*** Update the transaction life cycle id, if needed ***
+				if (!StringUtil.isEmpty(firstTransactionLifecycleId)) {
+					updateTransactionLifecycleId(card, firstTransactionLifecycleId);
+				}
+
+				//Return
+				return card;
+			}
+
+			ValitorPayException ex = null;
+			String error = "ERROR: ValitorPay update expiration date web service call failed. " + details
+						+ ". Valitor response error: " + (valitorPayResponseData != null && !StringUtil.isEmpty(valitorPayResponseData.getResponseDescription()) ? valitorPayResponseData.getResponseDescription() : CoreConstants.EMPTY);
+			LOGGER.warning(error);
+			if (valitorPayResponseData != null && !StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
+				ex = new ValitorPayException(valitorPayResponseData.getResponseCode(), valitorPayResponseData.getResponseDescription());
+			} else {
+				ex = new ValitorPayException(error, "UPDATE_CARD_EXPIRATION_DATE_FAILED");
+			}
+			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
+				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
+			}
+			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseDescription())) {
+				ex.setErrorMessage(valitorPayResponseData.getResponseDescription());
+			}
+			CoreUtil.sendExceptionNotification(error, ex);
+			throw ex;
+		} catch (ValitorPayException eV) {
+			throw eV;
+		} catch (Throwable e) {
+			String error = "Message: " + e.getMessage() + ", " + details;
+			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
+
+			ValitorPayException ex = new ValitorPayException(error, e);
+			ex.setErrorMessage(e.getMessage());
+			ex.setErrorNumber(valitorPayResponseData != null && !StringUtil.isEmpty(valitorPayResponseData.getResponseCode()) ? valitorPayResponseData.getResponseCode() : CoreConstants.EMPTY);
+			throw ex;
+		}
+	}
+
+	private String updateTransactionLifecycleId(VirtualCard card, String firstTransactionLifecycleId) {
+		String details = null;
+		ValitorPayResponseData valitorPayResponseData = null;
+		try {
+			if (
+					card == null ||
+					StringUtil.isEmpty(card.getUniqueId()) ||
+					StringUtil.isEmpty(card.getToken())
+			) {
+				String error = "ERROR: Some of the mandatory data is not provided for updating transaction life cycle id.";
+				LOGGER.warning(error);
+				return null;
+			}
+
+			details = "Update transaction life cycle id. Virtual card UUID: " + card.getUniqueId()
+				+ ", ValitorPay virtual card UUID/token: " + card.getToken()
+				+ ", firstTransactionLifecycleId: " + firstTransactionLifecycleId;
+
+			IWMainApplicationSettings settings = getSettings();
+			if (settings == null) {
+				String error = "ERROR: Can not get the application settings. " + details;
+				LOGGER.warning(error);
+				ValitorPayException ex = new ValitorPayException(error, "APP_SETTINGS");
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			LOGGER.info("Updating transaction life cycle id. Data: " + details);
+
+
+			CreditCardMerchant ccMerchant = getCreditCardMerchant();
+			String valitorPayUpdateTransactionLifeCycleIdWebServiceURL = getValitorPayUpdateTransactionLifeCycleIdWebServiceURL(settings);
+			String valitorPayApiVersion = getValitorPayApiVersion(settings);
+			String valitorPayApiKey = ccMerchant.getSharedSecret();
+
+			//Get the ValitorPay update card data
+			ValitorPayVirtualCardData valitorPayVirtualCardData = new ValitorPayVirtualCardData(
+					card.getToken(),
+					firstTransactionLifecycleId,
+					null,
+					null,
+					null
+			);
+
+			//Call the ValitorPay web service
+			String postJSON = new Gson().toJson(valitorPayVirtualCardData);
+			LOGGER.info("Calling ValitorPay (" + valitorPayUpdateTransactionLifeCycleIdWebServiceURL + ") with data: " + postJSON);
+			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
+					valitorPayUpdateTransactionLifeCycleIdWebServiceURL,
+					StringUtil.isEmpty(postJSON) ? null : Long.valueOf(postJSON.length()),
+					MediaType.APPLICATION_JSON,
+					HttpMethod.POST,
+					postJSON,
+					Arrays.asList(
+							new AdvancedProperty(null, valitorPayApiVersion, "valitorpay-api-version"),
+							new AdvancedProperty(null, "APIKey ".concat(valitorPayApiKey), RequestUtil.HEADER_AUTHORIZATION)
+					),
+					null
+			);
+
+			//Get ValitorPay response data
+			if (response != null) {
+				valitorPayResponseData = getValitorPayResponseData(response);
+			}
+			LOGGER.info("After calling ValitorPay (" + valitorPayUpdateTransactionLifeCycleIdWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
+
+			//Handle ValitorPay response
+			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
+				//Error response
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				LOGGER.warning(error);
+				return null;
+			}
+
+			//OK response
+			if (
+					valitorPayResponseData != null &&
+					!StringUtil.isEmpty(valitorPayResponseData.getVerificationHtml()) &&
+					valitorPayResponseData.getIsSuccess() != null &&
+					valitorPayResponseData.getIsSuccess().booleanValue() == true
+			) {
+				//Return
+				return valitorPayResponseData.getTransactionLifecycleId();
+			}
+
+			String error = "ERROR: ValitorPay update transaction life cycle id web service call failed. " + details;
+			LOGGER.warning(error);
+			return null;
+		} catch (Throwable e) {
+			String error = "Message: " + e.getMessage() + ", " + details;
+			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
+		}
+		return null;
+	}
+
+
+	@Override
+	public VirtualCard doCreateVirtualCard(
+			String cardNumber,
+			Integer monthExpires,
+			Integer yearExpires,
+			String ccVerifyNumber,
+			double amount,
+			String currency,
+			VerificationData verificationData
+	) throws CreditCardAuthorizationException {
+		String details = null;
+		ValitorPayResponseData valitorPayResponseData = null;
+		try {
+			details = "Card number: " + CreditCardUtil.getMaskedCreditCardNumber(cardNumber) +
+			", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires + ", CVC: " + ccVerifyNumber + ", amount: " + amount +
+			", currency: " + currency;
+			if (verificationData != null) {
+				details = details + ". Verification data. cavv: " + verificationData.getCavv()
+				 + ", mdstatus: " + verificationData.getMdStatus()
+				 + ", xid: " + verificationData.getXid();
+			}
+			if (
+					verificationData == null ||
+					StringUtil.isEmpty(cardNumber) ||
+					monthExpires == null ||
+					yearExpires == null ||
+					StringUtil.isEmpty(ccVerifyNumber)
+			) {
+				String error = "ERROR: Some of the mandatory data is not provided. " + details;
+				LOGGER.warning(error);
+				ValitorPayException ex = new ValitorPayException(error, "DATA_NOT_PROVIDED");
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			IWMainApplicationSettings settings = getSettings();
+			if (settings == null) {
+				String error = "ERROR: Can not get the application settings. " + details;
+				LOGGER.warning(error);
+				ValitorPayException ex = new ValitorPayException(error, "APP_SETTINGS");
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			CreditCardMerchant ccMerchant = getCreditCardMerchant();
+
+			String valitorPayCreateVirtualCardWebServiceURL = getValitorPayCreateVirtualCardWebServiceURL(settings);
+			String valitorPayApiVersion = getValitorPayApiVersion(settings);
+			String valitorPayApiKey = ccMerchant.getSharedSecret();
+
+			//Set the verification data
+			ValitorPayCardVerificationData valitorPayCardVerificationData = null;
+			if (verificationData != null) {
+				valitorPayCardVerificationData = new ValitorPayCardVerificationData(
+						verificationData.getCavv(),
+						null, //verificationData.getMdStatus(),
+						verificationData.getXid()
+				);
+			}
+
+
+			//Get the ValitorPay create virtual card data
+			ValitorPayVirtualCardData valitorPayCreateVirtualCardData = new ValitorPayVirtualCardData(
+					cardNumber,
+					monthExpires,
+					yearExpires,
+					ccVerifyNumber,
+					valitorPayCardVerificationData
+			);
+
+			//Call the ValitorPay web service
+			String postJSON = new Gson().toJson(valitorPayCreateVirtualCardData);
+			LOGGER.info("Calling ValitorPay (" + valitorPayCreateVirtualCardWebServiceURL + ") with data: " + postJSON);
+			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
+					valitorPayCreateVirtualCardWebServiceURL,
+					StringUtil.isEmpty(postJSON) ? null : Long.valueOf(postJSON.length()),
+					MediaType.APPLICATION_JSON,
+					HttpMethod.POST,
+					postJSON,
+					Arrays.asList(
+							new AdvancedProperty(null, valitorPayApiVersion, "valitorpay-api-version"),
+							new AdvancedProperty(null, "APIKey ".concat(valitorPayApiKey), RequestUtil.HEADER_AUTHORIZATION)
+					),
+					null
+			);
+
+			//Get ValitorPay response data
+			if (response != null) {
+				valitorPayResponseData = getValitorPayResponseData(response);
+			}
+			LOGGER.info("After calling ValitorPay (" + valitorPayCreateVirtualCardWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
+
+			//Handle ValitorPay response
+			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
+				//Error response
+				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				LOGGER.warning(error);
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			//OK response
+			if (
+					valitorPayResponseData != null &&
+					valitorPayResponseData.getIsSuccess() != null &&
+					valitorPayResponseData.getIsSuccess().booleanValue() == true
+					&& !StringUtil.isEmpty(valitorPayResponseData.getVirtualCard())
+			) {
+				//Return the updated virtual card
+				VirtualCard virtualCard = new VirtualCard();
+				virtualCard.setToken(valitorPayResponseData.getVirtualCard());
+				return virtualCard;
+			}
+
+			String error = "ERROR: ValitorPay creating of virtual card failed. " + details;
+			LOGGER.warning(error);
+			ValitorPayException ex = new ValitorPayException(error, "CREATE_VIRTUAL_CARD_FAILED");
+			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
+				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
+			}
+			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseDescription())) {
+				ex.setErrorMessage(valitorPayResponseData.getResponseDescription());
+			}
+			CoreUtil.sendExceptionNotification(error, ex);
+			throw ex;
+		} catch (ValitorPayException eV) {
+			throw eV;
+		} catch (Throwable e) {
+			String error = "Message: " + e.getMessage() + ", " + details;
+			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
+
+			ValitorPayException ex = new ValitorPayException(error, e);
+			ex.setErrorMessage(e.getMessage());
+			ex.setErrorNumber(valitorPayResponseData != null && !StringUtil.isEmpty(valitorPayResponseData.getResponseCode()) ? valitorPayResponseData.getResponseCode() : CoreConstants.EMPTY);
+			throw ex;
+		}
+	}
+
+
+
 
 }

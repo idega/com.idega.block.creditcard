@@ -61,6 +61,8 @@ public class ValitorPayException extends CreditCardAuthorizationException {
 				Logger.getLogger(getClass().getName()).info("Checking the ValitorPay errors by 2 first error number letters: " + errorNumberFinal);
 
 				switch (errorNumberFinal) {
+					case "VERIFICATION_DATA":
+						return (iwrb.getLocalizedString("valitor_pay.error_code.VERIFICATION_DATA", "Problems occured while crrating verification data."));
 					case "DATA_NOT_PROVIDED":
 						return (iwrb.getLocalizedString("valitor_pay.error_code.DATA_NOT_PROVIDED","Some of the mandatory data is not provided"));
 					case "APP_SETTINGS":
@@ -75,6 +77,13 @@ public class ValitorPayException extends CreditCardAuthorizationException {
 						return (iwrb.getLocalizedString("valitor_pay.error_code.BAD_REQUEST_RESPONSE_ERROR","ValitorPay response was - Bad request"));
 					case "INTERNAL_SERVER_ERROR_RESPONSE_ERROR":
 						return (iwrb.getLocalizedString("valitor_pay.error_code.INTERNAL_SERVER_ERROR_RESPONSE_ERROR","ValitorPay response was - Internal server error"));
+					case "VIRTUAL_CARD_UPDATE_DATA":
+						return (iwrb.getLocalizedString("valitor_pay.error_code.VIRTUAL_CARD_UPDATE_DATA","Could not construct the virtual card data for update."));
+					case "UPDATE_CARD_EXPIRATION_DATE_FAILED":
+						return (iwrb.getLocalizedString("valitor_pay.error_code.UPDATE_CARD_EXPIRATION_DATE_FAILED","Could not update the card expiration date."));
+					case "CREATE_VIRTUAL_CARD_FAILED":
+						return (iwrb.getLocalizedString("valitor_pay.error_code.CREATE_VIRTUAL_CARD_FAILED","Could not create a virtual card."));
+
 					case "A0":
 						return (iwrb.getLocalizedString("valitor_pay.error_code.A0", "User cannot be authenticated or action was not authorized."));
 					case "A1":
