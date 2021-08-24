@@ -430,10 +430,13 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			ValitorPayException ex = new ValitorPayException(error, "PAYMENT_DATA");
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
 				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
+				error = error + ". Error number: " + valitorPayResponseData.getResponseCode();
 			}
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseDescription())) {
 				ex.setErrorMessage(valitorPayResponseData.getResponseDescription());
+				error = error + ". Error message: " + valitorPayResponseData.getResponseDescription();
 			}
+			LOGGER.warning(error);
 			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
 
@@ -582,10 +585,13 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			ValitorPayException ex = new ValitorPayException(error, "PAYMENT_DATA");
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
 				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
+				error = error + ". Error number: " + valitorPayResponseData.getResponseCode();
 			}
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseDescription())) {
 				ex.setErrorMessage(valitorPayResponseData.getResponseDescription());
+				error = error + ". Error message: " + valitorPayResponseData.getResponseDescription();
 			}
+			LOGGER.warning(error);
 			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
 
@@ -1108,14 +1114,16 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 
 			String error = "ERROR: ValitorPay payment failed. " + details;
-			LOGGER.warning(error);
 			ValitorPayException ex = new ValitorPayException(error, "VERIFICATION_DATA");
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
 				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
+				error = error + ". Error number: " + valitorPayResponseData.getResponseCode();
 			}
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseDescription())) {
 				ex.setErrorMessage(valitorPayResponseData.getResponseDescription());
+				error = error + ". Error message: " + valitorPayResponseData.getResponseDescription();
 			}
+			LOGGER.warning(error);
 			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
 
@@ -1398,10 +1406,13 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
 				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
+				error = error + ". Error number: " + valitorPayResponseData.getResponseCode();
 			}
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseDescription())) {
 				ex.setErrorMessage(valitorPayResponseData.getResponseDescription());
+				error = error + ". Error message: " + valitorPayResponseData.getResponseDescription();
 			}
+			LOGGER.warning(error);
 			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
 
@@ -1638,14 +1649,16 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 
 			String error = "ERROR: ValitorPay creating of virtual card failed. " + details;
-			LOGGER.warning(error);
 			ValitorPayException ex = new ValitorPayException(error, "CREATE_VIRTUAL_CARD_FAILED");
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
 				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
+				error = error + ". Error number: " + valitorPayResponseData.getResponseCode();
 			}
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseDescription())) {
 				ex.setErrorMessage(valitorPayResponseData.getResponseDescription());
+				error = error + ". Error message: " + valitorPayResponseData.getResponseDescription();
 			}
+			LOGGER.warning(error);
 			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
 
