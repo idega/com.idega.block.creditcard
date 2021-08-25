@@ -443,7 +443,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		} catch (ValitorPayException eV) {
 			String error = "ValitorPay error message: " + eV.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, eV);
-			CoreUtil.sendExceptionNotification(error, eV);
+			//CoreUtil.sendExceptionNotification(error, eV);
 			throw eV;
 
 		} catch (Throwable e) {
@@ -598,7 +598,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		} catch (ValitorPayException eV) {
 			String error = "ValitorPay error message: " + eV.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, eV);
-			CoreUtil.sendExceptionNotification(error, eV);
+			//CoreUtil.sendExceptionNotification(error, eV);
 			throw eV;
 
 		} catch (Throwable e) {
@@ -1130,7 +1130,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		} catch (ValitorPayException eV) {
 			String error = "ValitorPay error message: " + eV.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, eV);
-			CoreUtil.sendExceptionNotification(error, eV);
+			//CoreUtil.sendExceptionNotification(error, eV);
 			throw eV;
 
 		} catch (Throwable e) {
@@ -1419,7 +1419,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		} catch (ValitorPayException eV) {
 			String error = "ValitorPay error message: " + eV.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, eV);
-			CoreUtil.sendExceptionNotification(error, eV);
+			//CoreUtil.sendExceptionNotification(error, eV);
 			throw eV;
 
 		} catch (Throwable e) {
@@ -1665,7 +1665,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		} catch (ValitorPayException eV) {
 			String error = "ValitorPay error message: " + eV.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, eV);
-			CoreUtil.sendExceptionNotification(error, eV);
+			//CoreUtil.sendExceptionNotification(error, eV);
 			throw eV;
 
 		} catch (Throwable e) {
