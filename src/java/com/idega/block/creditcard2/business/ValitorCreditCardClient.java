@@ -715,11 +715,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	}
 
 	private String getServerUrl(IWMainApplicationSettings settings) {
-		String serverUrl = settings.getProperty(
-				IWMainApplication.PROPERTY_DEFAULT_SERVICE_URL,
-				 "https://cloud4club.com"
-		);
-		return serverUrl;
+		return settings.getProperty(IWMainApplication.PROPERTY_DEFAULT_SERVICE_URL);
 	}
 
 	private ValitorPayException handleValitorPayErrorResponse(ClientResponse response, ValitorPayResponseData valitorPayResponseData) {
@@ -1182,6 +1178,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			authenticationURL += merchantWebhookWebServiceUrl;
 		}
 
+		String serverURL = getServerUrl(settings);
 		ValitorPayCardVerificationData valitorPayCardVerificationData = new ValitorPayCardVerificationData(
 				cardNumber,
 				virtualCard,
@@ -1195,8 +1192,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				terminalId,
 				md,
 				exponent,
-				settings.getProperty("valitorpay.card_verification.authentication_success_url", "https://cloud4club.com/"),
-				settings.getProperty("valitorpay.card_verification.authentication_failed_url", "https://cloud4club.com/")
+				settings.getProperty("valitorpay.card_verification.authentication_success_url", serverURL),
+				settings.getProperty("valitorpay.card_verification.authentication_failed_url", serverURL)
 		);
 
 		return valitorPayCardVerificationData;
