@@ -118,7 +118,7 @@ public class VirtualCard implements Serializable {
 	private String uniqueId;
 
 	@Column(name = "enabled")
-	private Boolean enabled;
+	private Boolean enabled = Boolean.TRUE;
 
 	public VirtualCard() {
 		super();
