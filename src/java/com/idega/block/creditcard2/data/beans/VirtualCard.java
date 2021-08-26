@@ -270,7 +270,8 @@ public class VirtualCard implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Virtual card with token " + getToken();
+		return "Virtual card token '" + getToken() + "'. Last 4: " + getLast4() + ", valid to (MM/YY): " + getExpMonth() + "/" + getExpYear() + ", brand: " + getBrand() +
+				". Unique ID: " + getUniqueId();
 	}
 
 }
