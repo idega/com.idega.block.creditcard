@@ -381,7 +381,20 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 			//Call the ValitorPay web service
 			String postJSON = new Gson().toJson(valitorPayPaymentData);
-			LOGGER.info("Calling ValitorPay (" + valitorPayCardPaymentWebServiceURL + ") with data: " + postJSON);
+			String postJSONForLogging = new Gson().toJson(getValitorPayPaymentDataForPaymentAfterVerification(
+					settings,
+					nameOnCard,
+					CreditCardUtil.getMaskedCreditCardNumber(cardNumber),
+					monthExpires,
+					yearExpires,
+					ccVerifyNumber,
+					amount,
+					currency,
+					referenceNumber,
+					valitorPayCardVerificationResponseData,
+					options
+			));
+			LOGGER.info("Calling ValitorPay (" + valitorPayCardPaymentWebServiceURL + ") with data: " + postJSONForLogging);
 			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
 					valitorPayCardPaymentWebServiceURL,
 					StringUtil.isEmpty(postJSON) ? null : Long.valueOf(postJSON.length()),
@@ -1060,7 +1073,22 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 			//Call the ValitorPay web service
 			String postJSON = new Gson().toJson(valitorPayCardVerificationData);
-			LOGGER.info("Calling ValitorPay (" + valitorPayCardVerificationWebServiceURL + ") with data: " + postJSON);
+			String postJSONForLogging = new Gson().toJson(getValitorPayCardVerificationData(
+					settings,
+					CreditCardUtil.getMaskedCreditCardNumber(cardNumber),
+					null, //Virtual card token
+					amount,
+					monthExpires,
+					yearExpires,
+					currency,
+					CreditCardConstants.CARD_HOLDER_DEVICE_TYPE_WWW,
+					null,
+					null,
+					uniqueBase64EncodedUUID,
+					null,
+					verificationType
+			));
+			LOGGER.info("Calling ValitorPay (" + valitorPayCardVerificationWebServiceURL + ") with data: " + postJSONForLogging);
 			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
 					valitorPayCardVerificationWebServiceURL,
 					StringUtil.isEmpty(postJSON) ? null : Long.valueOf(postJSON.length()),
@@ -1602,7 +1630,14 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 			//Call the ValitorPay web service
 			String postJSON = new Gson().toJson(valitorPayCreateVirtualCardData);
-			LOGGER.info("Calling ValitorPay (" + valitorPayCreateVirtualCardWebServiceURL + ") with data: " + postJSON);
+			String postJSONForLogging = new Gson().toJson(new ValitorPayVirtualCardData(
+					CreditCardUtil.getMaskedCreditCardNumber(cardNumber),
+					monthExpires,
+					yearExpires,
+					ccVerifyNumber,
+					valitorPayCardVerificationData
+			));
+			LOGGER.info("Calling ValitorPay (" + valitorPayCreateVirtualCardWebServiceURL + ") with data: " + postJSONForLogging);
 			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
 					valitorPayCreateVirtualCardWebServiceURL,
 					StringUtil.isEmpty(postJSON) ? null : Long.valueOf(postJSON.length()),
