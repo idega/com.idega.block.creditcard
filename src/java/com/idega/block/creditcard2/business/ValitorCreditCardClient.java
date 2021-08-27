@@ -18,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.ws.BindingProvider;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.Gson;
@@ -827,8 +826,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			reader = stream == null ? null : new InputStreamReader(stream);
 			if (reader != null) {
 				valitorPayResponseData = new Gson().fromJson(reader, ValitorPayResponseData.class);
-				String responseFromTheServer = IOUtils.toString(stream);
-				LOGGER.info("Response from ValitorPay: " + responseFromTheServer);
 			}
 		} catch (Throwable e) {
 			String error = "Error reading from response " + response + ". Message: " + e.getMessage();
