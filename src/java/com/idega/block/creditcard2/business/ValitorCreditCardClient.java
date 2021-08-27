@@ -3,6 +3,7 @@ package com.idega.block.creditcard2.business;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Base64;
@@ -21,6 +22,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.idega.block.creditcard.CreditCardConstants;
 import com.idega.block.creditcard.CreditCardUtil;
 import com.idega.block.creditcard.business.CreditCardAuthorizationException;
@@ -380,8 +382,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 
 			//Call the ValitorPay web service
-			String postJSON = new Gson().toJson(valitorPayPaymentData);
-			String postJSONForLogging = new Gson().toJson(getValitorPayPaymentDataForPaymentAfterVerification(
+			String postJSON = getJSON(valitorPayPaymentData);
+			String postJSONForLogging = getJSON(getValitorPayPaymentDataForPaymentAfterVerification(
 					settings,
 					nameOnCard,
 					CreditCardUtil.getMaskedCreditCardNumber(cardNumber),
@@ -539,7 +541,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 
 			//Call the ValitorPay web service
-			String postJSON = new Gson().toJson(valitorPayPaymentData);
+			String postJSON = getJSON(valitorPayPaymentData);
 			LOGGER.info("Calling ValitorPay (" + valitorPayWithVirtualCardWebServiceURL + ") with data: " + postJSON);
 			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
 					valitorPayWithVirtualCardWebServiceURL,
@@ -872,7 +874,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setCardNumber(CreditCardUtil.getMaskedCreditCardNumber(payment.getCardNumber()));
 			}
 			auth.setCurrency(payment.getCurrency());
-			String serverResponse = new Gson().toJson(response);
+			String serverResponse = getJSON(response);
 			serverResponse = serverResponse.length() > 255 ? serverResponse.substring(0, 255) : serverResponse;
 			auth.setServerResponse(serverResponse);
 			auth.setAuthCode(response.getAuthorizationCode());
@@ -1072,8 +1074,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String merchantReferenceId = merchantReferenceIdStamp.getDateString(CreditCardConstants.FULL_DATE_TIME_NO_DELIMITERS_STRING);
 
 			//Call the ValitorPay web service
-			String postJSON = new Gson().toJson(valitorPayCardVerificationData);
-			String postJSONForLogging = new Gson().toJson(getValitorPayCardVerificationData(
+			String postJSON = getJSON(valitorPayCardVerificationData);
+			String postJSONForLogging = getJSON(getValitorPayCardVerificationData(
 					settings,
 					CreditCardUtil.getMaskedCreditCardNumber(cardNumber),
 					null, //Virtual card token
@@ -1242,7 +1244,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setCardNumber(CreditCardUtil.getMaskedCreditCardNumber(verificationData.getCardNumber()));
 			}
 			auth.setCurrency(verificationData.getCurrency());
-			String serverResponse = new Gson().toJson(response);
+			String serverResponse = getJSON(response);
 			serverResponse = serverResponse.length() > 255 ? serverResponse.substring(0, 255) : serverResponse;
 			auth.setServerResponse(serverResponse);
 			auth.setAuthCode(response.getAuthorizationCode());
@@ -1373,7 +1375,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 //			}
 
 			//Call the ValitorPay web service
-			String postJSON = new Gson().toJson(valitorPayVirtualCardData);
+			String postJSON = getJSON(valitorPayVirtualCardData);
 			LOGGER.info("Calling ValitorPay (" + valitorPayUpdateCardExpirationDateWebServiceURL + ") with data: " + postJSON);
 			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
 					valitorPayUpdateCardExpirationDateWebServiceURL,
@@ -1507,7 +1509,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			);
 
 			//Call the ValitorPay web service
-			String postJSON = new Gson().toJson(valitorPayVirtualCardData);
+			String postJSON = getJSON(valitorPayVirtualCardData);
 			LOGGER.info("Calling ValitorPay (" + valitorPayUpdateTransactionLifeCycleIdWebServiceURL + ") with data: " + postJSON);
 			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
 					valitorPayUpdateTransactionLifeCycleIdWebServiceURL,
@@ -1556,6 +1558,17 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			CoreUtil.sendExceptionNotification(error, e);
 		}
 		return null;
+	}
+
+	private String getJSON(Serializable object) {
+		if (object == null) {
+			return null;
+		}
+
+		return new GsonBuilder()
+				.disableHtmlEscaping()
+				.create()
+				.toJson(object);
 	}
 
 	@Override
@@ -1629,8 +1642,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			);
 
 			//Call the ValitorPay web service
-			String postJSON = new Gson().toJson(valitorPayCreateVirtualCardData);
-			String postJSONForLogging = new Gson().toJson(new ValitorPayVirtualCardData(
+			String postJSON = getJSON(valitorPayCreateVirtualCardData);
+			String postJSONForLogging = getJSON(new ValitorPayVirtualCardData(
 					CreditCardUtil.getMaskedCreditCardNumber(cardNumber),
 					monthExpires,
 					yearExpires,

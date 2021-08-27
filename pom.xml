@@ -35,6 +35,10 @@
       <artifactId>com.idega.restful</artifactId>
     </dependency>
     <dependency>
+	    <groupId>com.google.code.gson</groupId>
+	    <artifactId>gson</artifactId>
+	</dependency>
+    <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
       <version>${commons-httpclient-commons-httpclient-version}</version>
