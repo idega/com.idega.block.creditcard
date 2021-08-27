@@ -450,6 +450,10 @@ public class ValitorPayException extends CreditCardAuthorizationException {
 						return (iwrb.getLocalizedString("valitor_pay.error_code.C7", "There was an error in response from MPI."));
 					case "C8":
 						return (iwrb.getLocalizedString("valitor_pay.error_code.C8", "The card does not support 3DSecure."));
+					case "30":
+						return (iwrb.getLocalizedString("valitor_pay.error_code.30", "Format error."));
+					case "30-I":
+						return (iwrb.getLocalizedString("valitor_pay.error_code.30_I", "Format error."));
 
 					default:
 						Logger.getLogger(getClass().getName()).info("Error number is not defined, showing the error message: " + errorMessageTmp);
