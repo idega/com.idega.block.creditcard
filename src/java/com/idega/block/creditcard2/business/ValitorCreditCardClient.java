@@ -867,6 +867,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			auth.setAmount(Double.valueOf(payment.getAmount()));
 			if (virtualCardPayment) {
 				auth.setCardNumber(payment.getVirtualCardNumber());
+				auth.setSuccess(Boolean.TRUE);
 			} else {
 				auth.setCardNumber(CreditCardUtil.getMaskedCreditCardNumber(payment.getCardNumber()));
 			}
