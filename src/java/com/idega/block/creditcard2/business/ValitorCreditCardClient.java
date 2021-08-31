@@ -358,6 +358,10 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				);
 			}
 
+			if (monthExpires.length() == 1) {
+				monthExpires = String.valueOf(0).concat(monthExpires);
+			}
+
 			//Get the ValitorPay payment data
 			ValitorPayPaymentData valitorPayPaymentData = getValitorPayPaymentDataForPaymentAfterVerification(
 					settings,
@@ -1207,11 +1211,15 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		}
 
 		String serverURL = getServerUrl(settings);
+		String expMonth = expirationMonth != null ? String.valueOf(expirationMonth) : CoreConstants.EMPTY;
+		if (expMonth.length() == 1) {
+			expMonth = String.valueOf(0).concat(expMonth);
+		}
 		ValitorPayCardVerificationData valitorPayCardVerificationData = new ValitorPayCardVerificationData(
 				cardNumber,
 				virtualCard,
 				amountInt > 0 ? new Double(amountInt).intValue() : 0,
-				expirationMonth != null ? String.valueOf(expirationMonth) : CoreConstants.EMPTY,
+				expMonth,
 				expirationYear != null ? String.valueOf(expirationYear) : CoreConstants.EMPTY,
 				currency,
 				CreditCardConstants.CARD_HOLDER_DEVICE_TYPE_WWW,

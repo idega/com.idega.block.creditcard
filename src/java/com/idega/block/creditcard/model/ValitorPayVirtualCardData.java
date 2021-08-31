@@ -36,8 +36,6 @@ public class ValitorPayVirtualCardData implements Serializable {
 		this.subsequentTransactionType = subsequentTransactionType;
 	}
 
-
-
 	public ValitorPayVirtualCardData(
 			String virtualCardNumber,
 			Integer expirationMonth,
@@ -71,8 +69,6 @@ public class ValitorPayVirtualCardData implements Serializable {
 		this.firstTransactionLifecycleId = firstTransactionLifecycleId;
 	}
 
-
-
 	public ValitorPayVirtualCardData(
 			String cardNumber,
 			Integer expirationMonth,
@@ -95,8 +91,6 @@ public class ValitorPayVirtualCardData implements Serializable {
 	public void setSubsequentTransactionType(String subsequentTransactionType) {
 		this.subsequentTransactionType = subsequentTransactionType;
 	}
-
-
 
 	public String getVirtualCardNumber() {
 		return virtualCardNumber;
@@ -146,8 +140,6 @@ public class ValitorPayVirtualCardData implements Serializable {
 		this.terminalId = terminalId;
 	}
 
-
-
 	public String getVirtualCard() {
 		return virtualCard;
 	}
@@ -164,8 +156,6 @@ public class ValitorPayVirtualCardData implements Serializable {
 		this.firstTransactionLifecycleId = firstTransactionLifecycleId;
 	}
 
-
-
 	public String getCardNumber() {
 		return cardNumber;
 	}
@@ -173,9 +163,6 @@ public class ValitorPayVirtualCardData implements Serializable {
 	public void setCardNumber(String cardNumber) {
 		this.cardNumber = cardNumber;
 	}
-
-
-
 
 	public ValitorPayCardVerificationData getCardVerificationData() {
 		return cardVerificationData;
@@ -192,7 +179,6 @@ public class ValitorPayVirtualCardData implements Serializable {
 	public void setCvc(String cvc) {
 		this.cvc = cvc;
 	}
-
 
 	@Override
 	public String toString() {

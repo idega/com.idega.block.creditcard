@@ -111,7 +111,6 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 		setCardholderDeviceType(cardholderDeviceType);
 	}
 
-
 	public String getMerchantReentryUrl() {
 		return merchantReentryUrl;
 	}
@@ -145,7 +144,6 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 		this.cvc = cvc;
 	}
 
-
 	public ValitorPayVirtualCardData getVirtualCardData() {
 		return virtualCardData;
 	}
@@ -153,7 +151,6 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 	public void setVirtualCardData(ValitorPayVirtualCardData virtualCardData) {
 		this.virtualCardData = virtualCardData;
 	}
-
 
 	public String getOperation() {
 		return operation;
@@ -171,9 +168,6 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 		this.virtualCardNumber = virtualCardNumber;
 	}
 
-
-
-
 	public ValitorPayVirtualCardAdditionalData getVirtualCardPaymentAdditionalData() {
 		return virtualCardPaymentAdditionalData;
 	}
@@ -182,7 +176,6 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 		this.virtualCardPaymentAdditionalData = virtualCardPaymentAdditionalData;
 	}
 
-
 	public ValitorPayCardVerificationResponseData getCardVerificationData() {
 		return cardVerificationData;
 	}
@@ -190,8 +183,6 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 	public void setCardVerificationData(ValitorPayCardVerificationResponseData cardVerificationData) {
 		this.cardVerificationData = cardVerificationData;
 	}
-
-
 
 	public ValitorPayPaymentAdditionalData getAdditionalData() {
 		return additionalData;
