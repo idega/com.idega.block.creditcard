@@ -16,4 +16,8 @@ public interface VerificationData extends Serializable {
 
 	public void setXid(String xid);
 
+	public String getDsTransId();
+
+	public void setDsTransId(String dsTransId);
+
 }

@@ -351,7 +351,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				valitorPayCardVerificationResponseData = new ValitorPayCardVerificationResponseData(
 						valitorAuthorisationEntry.getCavv(),
 						valitorAuthorisationEntry.getMdStatus(),
-						valitorAuthorisationEntry.getXid()
+						valitorAuthorisationEntry.getXid(),
+						valitorAuthorisationEntry.getDsTransID()
 						//creditCardAuthorizationEntry.getMetaData(CreditCardConstants.METADATA_CARD_VERIFICATION_CAVV),
 						//creditCardAuthorizationEntry.getMetaData(CreditCardConstants.METADATA_CARD_VERIFICATION_MDSTATUS),
 						//creditCardAuthorizationEntry.getMetaData(CreditCardConstants.METADATA_CARD_XID)
@@ -1633,7 +1634,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				valitorPayCardVerificationData = new ValitorPayCardVerificationData(
 						verificationData.getCavv(),
 						null, //verificationData.getMdStatus(),
-						verificationData.getXid()
+						verificationData.getXid(),
+						verificationData.getDsTransId()
 				);
 			}
 

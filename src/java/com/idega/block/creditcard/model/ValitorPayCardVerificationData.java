@@ -26,6 +26,7 @@ public class ValitorPayCardVerificationData extends ValitorPayMainRequestData im
 	private String cavv;
 	private String mdStatus;
 	private String xid;
+	private String dsTransId;
 
 
 	public ValitorPayCardVerificationData() {
@@ -69,11 +70,12 @@ public class ValitorPayCardVerificationData extends ValitorPayMainRequestData im
 
 
 
-	public ValitorPayCardVerificationData(String cavv, String mdStatus, String xid) {
+	public ValitorPayCardVerificationData(String cavv, String mdStatus, String xid, String dsTransId) {
 		super();
 		this.cavv = cavv;
 		this.mdStatus = mdStatus;
 		this.xid = xid;
+		this.dsTransId = dsTransId;
 
 		setCardholderDeviceType(null);
 		setCurrency(null);
@@ -181,6 +183,15 @@ public class ValitorPayCardVerificationData extends ValitorPayMainRequestData im
 		return md;
 	}
 
+
+
+	public String getDsTransId() {
+		return dsTransId;
+	}
+
+	public void setDsTransId(String dsTransId) {
+		this.dsTransId = dsTransId;
+	}
 
 	@Override
 	public String toString() {

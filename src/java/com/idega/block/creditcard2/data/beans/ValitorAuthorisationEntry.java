@@ -172,6 +172,8 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "xid")
 	private String xid;
 
+	@Column(name = "dsTransID")
+	private String dsTransID;
 
 	@Override
 	public String getTransactionId() {
@@ -649,6 +651,16 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public void setXid(String xid) {
 		this.xid = xid;
+	}
+
+
+
+	public String getDsTransID() {
+		return dsTransID;
+	}
+
+	public void setDsTransID(String dsTransID) {
+		this.dsTransID = dsTransID;
 	}
 
 	@Override

@@ -8,6 +8,7 @@ public class ValitorPayCardVerificationResponseData implements VerificationData 
 	private String cavv;
 	private String mdStatus;
 	private String xid;
+	private String dsTransId;
 
 
 	public ValitorPayCardVerificationResponseData() {
@@ -17,13 +18,15 @@ public class ValitorPayCardVerificationResponseData implements VerificationData 
 	public ValitorPayCardVerificationResponseData(
 			String cavv,
 			String mdStatus,
-			String xid
+			String xid,
+			String dsTransId
 	) {
 		this();
 
 		this.cavv = cavv;
 		this.mdStatus = mdStatus;
 		this.xid = xid;
+		this.dsTransId = dsTransId;
 	}
 
 
@@ -57,11 +60,22 @@ public class ValitorPayCardVerificationResponseData implements VerificationData 
 		this.xid = xid;
 	}
 
+
+
+	public String getDsTransId() {
+		return dsTransId;
+	}
+
+	public void setDsTransId(String dsTransId) {
+		this.dsTransId = dsTransId;
+	}
+
 	@Override
 	public String toString() {
 		return	"cavv: " + getCavv() +
 				", mdStatus: " + getMdStatus() +
-				". xid: " + getXid();
+				". xid: " + getXid() +
+				". dsTransId: " + getDsTransId();
 	}
 
 }
