@@ -445,7 +445,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 
 			String error = "ERROR: ValitorPay payment failed. " + details;
-			LOGGER.warning(error);
 			ValitorPayException ex = new ValitorPayException(error, "PAYMENT_DATA");
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
 				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
@@ -462,7 +461,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		} catch (ValitorPayException eV) {
 			String error = "ValitorPay error message: " + eV.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, eV);
-			//CoreUtil.sendExceptionNotification(error, eV);
 			throw eV;
 
 		} catch (Throwable e) {
@@ -600,7 +598,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 
 			String error = "ERROR: ValitorPay virtual card payment failed. " + details;
-			LOGGER.warning(error);
 			ValitorPayException ex = new ValitorPayException(error, "PAYMENT_DATA");
 			if (!StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
 				ex.setErrorNumber(valitorPayResponseData.getResponseCode());
@@ -617,7 +614,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		} catch (ValitorPayException eV) {
 			String error = "ValitorPay error message: " + eV.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, eV);
-			//CoreUtil.sendExceptionNotification(error, eV);
 			throw eV;
 
 		} catch (Throwable e) {
@@ -748,7 +744,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			return ex;
 		}
 
-
 		//Checking for the error code/responseCode and error messages
 		if (valitorPayResponseData != null) {
 			String errorCode = CoreConstants.EMPTY;
@@ -784,7 +779,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				return ex;
 			}
 		}
-
 
 		//In case no response code nor the error messages
 		if (response.getStatus() == Status.INTERNAL_SERVER_ERROR.getStatusCode()) {
@@ -1159,7 +1153,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		} catch (ValitorPayException eV) {
 			String error = "ValitorPay error message: " + eV.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, eV);
-			//CoreUtil.sendExceptionNotification(error, eV);
 			throw eV;
 
 		} catch (Throwable e) {
@@ -1432,7 +1425,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String error = "ERROR: ValitorPay update expiration date web service call failed. " + details
 						+ ". Valitor response error: " + (valitorPayResponseData != null && !StringUtil.isEmpty(valitorPayResponseData.getResponseDescription()) ?
 								valitorPayResponseData.getResponseDescription() : CoreConstants.EMPTY);
-			LOGGER.warning(error);
 			if (valitorPayResponseData != null && !StringUtil.isEmpty(valitorPayResponseData.getResponseCode())) {
 				ex = new ValitorPayException(valitorPayResponseData.getResponseCode(), valitorPayResponseData.getResponseDescription());
 			} else {
@@ -1453,7 +1445,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		} catch (ValitorPayException eV) {
 			String error = "ValitorPay error message: " + eV.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, eV);
-			//CoreUtil.sendExceptionNotification(error, eV);
 			throw eV;
 
 		} catch (Throwable e) {
