@@ -422,7 +422,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			LOGGER.info("After calling ValitorPay (" + valitorPayCardPaymentWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
 
 			//Handle ValitorPay response
-			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
+			if (
+					response == null
+					|| response.getStatus() != Status.OK.getStatusCode()
+					|| (valitorPayResponseData != null && valitorPayResponseData.getIsSuccess() != null && valitorPayResponseData.getIsSuccess().booleanValue() == false)
+			) {
 				//Error response
 				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
 				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
@@ -567,7 +571,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			LOGGER.info("After calling ValitorPay (" + valitorPayWithVirtualCardWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
 
 			//Handle ValitorPay response
-			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
+			if (
+					response == null
+					|| response.getStatus() != Status.OK.getStatusCode()
+					|| (valitorPayResponseData != null && valitorPayResponseData.getIsSuccess() != null && valitorPayResponseData.getIsSuccess().booleanValue() == false)
+			) {
 				//Error response
 				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
 				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
@@ -1115,7 +1123,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			LOGGER.info("After calling ValitorPay (" + valitorPayCardVerificationWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
 
 			//Handle ValitorPay response
-			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
+			if (
+					response == null
+					|| response.getStatus() != Status.OK.getStatusCode()
+					|| (valitorPayResponseData != null && valitorPayResponseData.getIsSuccess() != null && valitorPayResponseData.getIsSuccess().booleanValue() == false)
+			) {
 				//Error response
 				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
 				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
@@ -1404,7 +1416,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			LOGGER.info("After calling ValitorPay (" + valitorPayUpdateCardExpirationDateWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
 
 			//Handle ValitorPay response
-			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
+			if (
+					response == null
+					|| response.getStatus() != Status.OK.getStatusCode()
+					|| (valitorPayResponseData != null && valitorPayResponseData.getIsSuccess() != null && valitorPayResponseData.getIsSuccess().booleanValue() == false)
+			) {
 				//Error response
 				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
 				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
@@ -1538,7 +1554,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			LOGGER.info("After calling ValitorPay (" + valitorPayUpdateTransactionLifeCycleIdWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
 
 			//Handle ValitorPay response
-			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
+			if (
+					response == null
+					|| response.getStatus() != Status.OK.getStatusCode()
+					|| (valitorPayResponseData != null && valitorPayResponseData.getIsSuccess() != null && valitorPayResponseData.getIsSuccess().booleanValue() == false)
+			) {
 				//Error response
 				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
 				LOGGER.warning(error);
@@ -1679,7 +1699,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			LOGGER.info("After calling ValitorPay (" + valitorPayCreateVirtualCardWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
 
 			//Handle ValitorPay response
-			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
+			if (
+					response == null
+					|| response.getStatus() != Status.OK.getStatusCode()
+					|| (valitorPayResponseData != null && valitorPayResponseData.getIsSuccess() != null && valitorPayResponseData.getIsSuccess().booleanValue() == false)
+			) {
 				//Error response
 				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData);
 				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
