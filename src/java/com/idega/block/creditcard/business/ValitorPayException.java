@@ -18,6 +18,7 @@ import com.idega.util.CoreUtil;
 import com.idega.util.StringUtil;
 
 public class ValitorPayException extends CreditCardAuthorizationException {
+
 	private static final long serialVersionUID = -1727056429379653439L;
 
 	public ValitorPayException() {
@@ -28,7 +29,7 @@ public class ValitorPayException extends CreditCardAuthorizationException {
 	    super(message);
 	}
 
-    public ValitorPayException(String message, Throwable cause) {
+    public ValitorPayException(Throwable cause, String message) {
 	  	super(message, cause);
 	}
 
@@ -38,6 +39,10 @@ public class ValitorPayException extends CreditCardAuthorizationException {
 
 	public ValitorPayException(String message, String errorNumber) {
 		super(message, errorNumber);
+	}
+
+	public ValitorPayException(Throwable cause, String message, String errorNumber) {
+		super(cause, message, errorNumber);
 	}
 
 	@Override
