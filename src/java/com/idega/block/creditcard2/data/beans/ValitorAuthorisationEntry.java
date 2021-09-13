@@ -382,7 +382,6 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Override
 	public void store() throws IDOStoreException {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -412,7 +411,6 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Override
 	public void setDatasource(String datasource) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -599,8 +597,6 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 		setAuthCode(authCode);
 	}
 
-
-
 	public String getRedirectionUrl() {
 		return redirectionUrl;
 	}
@@ -617,8 +613,6 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 		this.success = success;
 	}
 
-
-
 	public String getTransactionLifecycleId() {
 		return transactionLifecycleId;
 	}
@@ -626,8 +620,6 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	public void setTransactionLifecycleId(String transactionLifecycleId) {
 		this.transactionLifecycleId = transactionLifecycleId;
 	}
-
-
 
 	public String getMdStatus() {
 		return mdStatus;
@@ -652,8 +644,6 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	public void setXid(String xid) {
 		this.xid = xid;
 	}
-
-
 
 	public String getDsTransID() {
 		return dsTransID;
