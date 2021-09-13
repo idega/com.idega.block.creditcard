@@ -57,8 +57,11 @@ public class ValitorPayException extends CreditCardAuthorizationException {
 
 			if (!StringUtil.isEmpty(this.getErrorNumber())) {
 				//Take into account only 2 first error number letter/numbers
-				String errorNumberFinal = this.getErrorNumber().substring(0, 2);
-				Logger.getLogger(getClass().getName()).info("Checking the ValitorPay errors by 2 first error number letters: " + errorNumberFinal);
+				String errorNumberFinal = this.getErrorNumber();
+				if (!StringUtil.isEmpty(errorNumberFinal) && errorNumberFinal.contains(CoreConstants.MINUS)) {
+					errorNumberFinal = errorNumberFinal.substring(0, 2);
+				}
+				Logger.getLogger(getClass().getName()).info("Checking the ValitorPay errors by error code: " + errorNumberFinal + ". Full error code: " + this.getErrorNumber());
 
 				switch (errorNumberFinal) {
 					case "VERIFICATION_DATA":
@@ -317,6 +320,8 @@ public class ValitorPayException extends CreditCardAuthorizationException {
 					case "N4":
 						return (iwrb.getLocalizedString("valitor_pay.error_code.N4", "Cashback request exceeds Issuer limit."));
 					case "N7":
+						return (iwrb.getLocalizedString("valitor_pay.error_code.N7", "Decline for CVV2 failure."));
+					case "N7-I":
 						return (iwrb.getLocalizedString("valitor_pay.error_code.N7", "Decline for CVV2 failure."));
 					case "N8":
 						return (iwrb.getLocalizedString("valitor_pay.error_code.N8", "Transaction amount exceeds pre-authorized approval amount."));
