@@ -485,9 +485,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (
 					StringUtil.isEmpty(cardToken) ||
 					StringUtil.isEmpty(transactionId) ||
-					parentPaymentPK == null ||
 					StringUtil.isEmpty(currency) ||
-					StringUtil.isEmpty(referenceNumber) ||
 					amount < 0
 			) {
 				String error = "ERROR: Some of the mandatory data is not provided. " + details;
@@ -520,9 +518,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					cardToken,
 					uniqueBase64EncodedUUID,
 					amount,
-					currency,
-					referenceNumber,
-					parentPaymentPK
+					currency
 			);
 			if (valitorPayPaymentData == null) {
 				String error = "ERROR: Can not construct ValitorPay payment with virtual card data. " + details;
@@ -686,9 +682,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String cardToken,
 			String transactionId,
 			double amount,
-			String currency,
-			String referenceNumber,
-			Object parentPaymentPK
+			String currency
 	) throws CreditCardAuthorizationException {
 		//According the ValitorPay, amount should be provided in minor currency unit:
 		//EXPLANATION: The total amount of the payment specified in a minor currency unit. This means that GBP is quoted in pence, USD in cents, DKK in öre, ISK in aurar etc.
