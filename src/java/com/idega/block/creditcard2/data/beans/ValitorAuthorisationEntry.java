@@ -35,6 +35,7 @@ import com.idega.data.IDOEntityDefinition;
 import com.idega.data.IDOStoreException;
 import com.idega.data.bean.Metadata;
 import com.idega.util.DBUtil;
+import com.idega.util.StringUtil;
 
 @Entity
 @Table(name = ValitorAuthorisationEntry.TABLE_NAME)
@@ -327,7 +328,7 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	}
 
 	public void setErrorText(String errorText) {
-		if (errorText.length() >= 255) {
+		if (!StringUtil.isEmpty(errorText) && errorText.length() >= 255) {
 			errorText = errorText.substring(0, 253);
 		}
 		this.errorText = errorText;
