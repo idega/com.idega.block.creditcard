@@ -43,7 +43,7 @@ import com.idega.util.StringUtil;
 	),
 	@NamedQuery(
 			name = VirtualCard.QUERY_FIND_BY_OWNER,
-			query = "select vc from VirtualCard vc where vc.owner.userID = :" + VirtualCard.PARAM_OWNER_ID + " and vc.transactionId is not null and vc.token is not null order by vc.created desc"
+			query = "select vc from VirtualCard vc where vc.owner.userID = :" + VirtualCard.PARAM_OWNER_ID + " and vc.token is not null order by vc.created desc"
 	),
 	@NamedQuery(
 			name = VirtualCard.QUERY_FIND_ACTIVE_BY_OWNER,

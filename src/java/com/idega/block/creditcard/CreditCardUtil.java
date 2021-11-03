@@ -1,12 +1,45 @@
 package com.idega.block.creditcard;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.trade.business.CurrencyHolder;
+import com.idega.builder.bean.AdvancedProperty;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.util.CoreConstants;
+import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
 
 public class CreditCardUtil {
+
+	public static final String getCardBrand(String cardNumber) {
+		cardNumber = StringHandler.getNumbersOnly(cardNumber);
+		if (StringUtil.isEmpty(cardNumber)) {
+			return null;
+		}
+
+		List<AdvancedProperty> data = Arrays.asList(
+				new AdvancedProperty("Visa", "^4[0-9]{0,}$"),
+				new AdvancedProperty("MasterCard", "^(5[1-5]|222[1-9]|22[3-9]|2[3-6]|27[01]|2720)[0-9]{0,}$"),
+				new AdvancedProperty("JCB", "^(?:2131|1800|35)[0-9]{0,}$"),
+				new AdvancedProperty("Amex", "^3[47][0-9]{0,}$"),
+				new AdvancedProperty("Diners", "^3(?:0[0-59]{1}|[689])[0-9]{0,}$"),
+				new AdvancedProperty("Maestro", "^(5[06789]|6)[0-9]{0,}$"),
+				new AdvancedProperty("Discover", "^(6011|65|64[4-9]|62212[6-9]|6221[3-9]|622[2-8]|6229[01]|62292[0-5])[0-9]{0,}$")
+		);
+		for (AdvancedProperty patternData: data) {
+			Pattern pattern = Pattern.compile(patternData.getValue());
+			Matcher matcher = pattern.matcher(cardNumber);
+			if (matcher.matches()) {
+				return patternData.getId();
+			}
+		}
+
+		return null;
+	}
 
 	public static final String getMaskedCreditCardNumber(String creditCardNumber) {
 		if (StringUtil.isEmpty(creditCardNumber)) {
