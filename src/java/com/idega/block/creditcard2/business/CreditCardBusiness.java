@@ -233,7 +233,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 
 	public Collection<Image> getCreditCardTypeImages(CreditCardClient client) {
 		Collection<String> types = client.getValidCardTypes();
-		Collection<Image> images = new ArrayList<Image>();
+		Collection<Image> images = new ArrayList<>();
 		if (types != null && !types.isEmpty()) {
 			Iterator<String> iter = types.iterator();
 			IWBundle bundle = getBundle();
@@ -568,7 +568,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 
 	private List<CreditCardInformation> getCreditCardInformationEntityList(
 			Collection<com.idega.block.trade.data.CreditCardInformation> coll) {
-		List<CreditCardInformation> result = new ArrayList<CreditCardInformation>();
+		List<CreditCardInformation> result = new ArrayList<>();
 		CreditCardInformationDAO ccInfoHome = ELUtil.getInstance().getBean(CreditCardInformationDAO.BEAN_NAME);
 		if (coll != null) {
 			Iterator<com.idega.block.trade.data.CreditCardInformation> iter = coll.iterator();
@@ -811,6 +811,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 			String cardUniqueId,
 			String token,
 			User owner,
+			Integer groupId,
 			String transactionId,
 			String card4,
 			String brand,
@@ -819,10 +820,30 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 			Boolean enabled
 	) {
 		try {
-			VirtualCard vCard = new VirtualCard();
+			if (owner == null || StringUtil.isEmpty(token)) {
+				getLogger().warning("Owner or token not provided");
+				return null;
+			}
+
+			List<VirtualCard> cards = creditCardInformationDAO.getResultList(VirtualCard.QUERY_FIND_BY_OWNER, VirtualCard.class, new Param(VirtualCard.PARAM_OWNER_ID, owner.getId()));
+			VirtualCard vCard = null;
+			if (!ListUtil.isEmpty(cards)) {
+				for (Iterator<VirtualCard> iter = cards.iterator(); (vCard == null && iter.hasNext());) {
+					vCard = iter.next();
+					String cardToken = vCard.getToken();
+					if (StringUtil.isEmpty(cardToken) && !cardToken.equals(token)) {
+						vCard = null;
+					}
+				}
+			}
+
+			if (vCard == null) {
+				vCard = new VirtualCard();
+			}
 			vCard.setUniqueId(cardUniqueId);
 			vCard.setToken(token);
 			vCard.setOwner(owner);
+			vCard.setGroupId(groupId);
 			vCard.setTransactionId(transactionId);
 			vCard.setLast4(card4);
 			vCard.setBrand(brand);
@@ -830,8 +851,15 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 			vCard.setExpYear(expireYear);
 			vCard.setExpMonth(expireMonth);
 			vCard.setEnabled(enabled);
+			vCard.setDeleted(Boolean.FALSE);
+			vCard.setDeletedWhen(null);
+			vCard.setDeletedBy(null);
 
-			creditCardInformationDAO.persist(vCard);
+			if (vCard.getId() == null) {
+				creditCardInformationDAO.persist(vCard);
+			} else {
+				creditCardInformationDAO.merge(vCard);
+			}
 			return vCard.getId() == null ? null : vCard;
 		} catch (Exception e) {
 			getLogger().log(Level.WARNING, "Error creating new virtual card with identifier/uniqueId: " + cardUniqueId + ", card token: " + token, e);

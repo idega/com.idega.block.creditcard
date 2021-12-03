@@ -643,13 +643,13 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 		return null;
 	}
 
-
 	@Override
 	@Transactional(readOnly = false)
 	public VirtualCard createVirtualCard(
 			String cardUniqueId,
 			String token,
 			User owner,
+			Integer groupId,
 			String transactionId,
 			String card4,
 			String brand,
@@ -662,6 +662,7 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 			vCard.setUniqueId(cardUniqueId);
 			vCard.setToken(token);
 			vCard.setOwner(owner);
+			vCard.setGroupId(groupId);
 			vCard.setTransactionId(transactionId);
 			vCard.setLast4(card4);
 			vCard.setBrand(brand);

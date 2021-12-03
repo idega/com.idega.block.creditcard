@@ -104,6 +104,9 @@ public class VirtualCard implements Serializable {
 	@JoinColumn(name = COLUMN_OWNER)
 	private User owner;
 
+	@Column(name = "group_id")
+	private Integer groupId;
+
 	@Column(name = "deleted")
 	private Boolean deleted;
 
@@ -266,6 +269,14 @@ public class VirtualCard implements Serializable {
 
 	public void setEnabled(Boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public Integer getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(Integer groupId) {
+		this.groupId = groupId;
 	}
 
 	@Override

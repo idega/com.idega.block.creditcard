@@ -41,6 +41,7 @@ public interface CardBusiness {
 			String cardUniqueId,
 			String token,
 			User owner,
+			Integer groupId,
 			String transactionId,
 			String card4,
 			String brand,
