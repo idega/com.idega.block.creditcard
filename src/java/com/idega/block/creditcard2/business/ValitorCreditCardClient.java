@@ -481,7 +481,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		ValitorPayResponseData valitorPayResponseData = null;
 		try {
 			details = "Card token: " + cardToken + ", transaction ID: " + transactionId +
-			", amount: " + amount + "currency: " + currency + ", reference number: " + referenceNumber + ", parent payment PK: " + parentPaymentPK;
+			", amount: " + amount + ", currency: " + currency + ", reference number: " + referenceNumber + ", parent payment PK: " + parentPaymentPK;
 			if (
 					StringUtil.isEmpty(cardToken) ||
 					StringUtil.isEmpty(transactionId) ||
