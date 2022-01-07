@@ -509,7 +509,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String valitorPayApiVersion = getValitorPayApiVersion(settings);
 			String valitorPayApiKey = ccMerchant.getSharedSecret();
 
-			String uniqueBase64EncodedUUID = !StringUtil.isEmpty(transactionId) ? Base64.getEncoder().encodeToString(transactionId.getBytes()) : transactionId;
+			String uniqueBase64EncodedUUID = !StringUtil.isEmpty(transactionId) ? Base64.getEncoder().encodeToString(transactionId.getBytes()) : null;
 
 			//Get the ValitorPay payment data
 			ValitorPayPaymentData valitorPayPaymentData = getValitorPayWithVirtualCardPaymentData(
@@ -694,7 +694,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				currency,
 				amountInt,
 				cardToken,
-				virtualCardAdditionalData
+				StringUtil.isEmpty(transactionId) ? null : virtualCardAdditionalData
 		);
 
 		return valitorPayPaymentData;
