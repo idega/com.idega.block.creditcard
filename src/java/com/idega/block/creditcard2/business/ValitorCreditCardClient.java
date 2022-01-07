@@ -484,7 +484,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			", amount: " + amount + ", currency: " + currency + ", reference number: " + referenceNumber + ", parent payment PK: " + parentPaymentPK;
 			if (
 					StringUtil.isEmpty(cardToken) ||
-					StringUtil.isEmpty(transactionId) ||
 					StringUtil.isEmpty(currency) ||
 					amount < 0
 			) {

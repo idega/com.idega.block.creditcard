@@ -8,7 +8,7 @@ public class ValitorPayVirtualCardData implements Serializable {
 
 	private static final long serialVersionUID = 2832777737979590086L;
 
-	public static final String SUBSEQUENT_TRANSACTION_TYPE = "CardholderInitiatedCredentialOnFile";
+	public static final String SUBSEQUENT_TRANSACTION_TYPE = "MerchantInitiatedRecurring";
 
 	private String subsequentTransactionType = SUBSEQUENT_TRANSACTION_TYPE;
 
