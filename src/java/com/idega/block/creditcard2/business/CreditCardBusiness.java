@@ -825,7 +825,11 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 				return null;
 			}
 
-			List<VirtualCard> cards = creditCardInformationDAO.getResultList(VirtualCard.QUERY_FIND_BY_OWNER, VirtualCard.class, new Param(VirtualCard.PARAM_OWNER_ID, owner.getId()));
+			List<VirtualCard> cards = creditCardInformationDAO.getResultList(
+					VirtualCard.QUERY_FIND_ACTIVE_BY_OWNER_AND_GROUP, VirtualCard.class,
+					new Param(VirtualCard.PARAM_OWNER_ID, owner.getId()),
+					new Param(VirtualCard.PARAM_GROUPE_ID, groupId)
+			);
 			VirtualCard vCard = null;
 			if (!ListUtil.isEmpty(cards)) {
 				for (Iterator<VirtualCard> iter = cards.iterator(); (vCard == null && iter.hasNext());) {
