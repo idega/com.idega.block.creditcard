@@ -32,6 +32,7 @@ import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
+import com.idega.block.creditcard.model.FirstTransactionData;
 import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard.model.ValitorPayCardVerificationData;
 import com.idega.block.creditcard.model.ValitorPayCardVerificationResponseData;
@@ -385,19 +386,21 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 			//Call the ValitorPay web service
 			String postJSON = getJSON(valitorPayPaymentData);
-			String postJSONForLogging = getJSON(getValitorPayPaymentDataForPaymentAfterVerification(
-					settings,
-					nameOnCard,
-					CreditCardUtil.getMaskedCreditCardNumber(cardNumber),
-					monthExpires,
-					yearExpires,
-					ccVerifyNumber,
-					amount,
-					currency,
-					referenceNumber,
-					valitorPayCardVerificationResponseData,
-					options
-			));
+			String postJSONForLogging = getJSON(
+					getValitorPayPaymentDataForPaymentAfterVerification(
+							settings,
+							nameOnCard,
+							CreditCardUtil.getMaskedCreditCardNumber(cardNumber),
+							monthExpires,
+							yearExpires,
+							ccVerifyNumber,
+							amount,
+							currency,
+							referenceNumber,
+							valitorPayCardVerificationResponseData,
+							options
+					)
+			);
 			LOGGER.info("Calling ValitorPay (" + valitorPayCardPaymentWebServiceURL + ") with data: " + postJSONForLogging);
 			response = ConnectionUtil.getInstance().getResponseFromREST(
 					valitorPayCardPaymentWebServiceURL,
@@ -1212,6 +1215,27 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		valitorPayPaymentData.setOperation(CreditCardConstants.OPERATION_SALE);
 		valitorPayPaymentData.setTransactionType(CreditCardConstants.TRANSACTION_TYPE_ECOMMERCE);
 
+		if (!ArrayUtil.isEmpty(options)) {
+			for (SaleOption option: options) {
+				if (option == null) {
+					continue;
+				}
+
+				switch (option) {
+				case CREATE_VIRTUAL_CARD:
+					FirstTransactionData firstTransactionData = valitorPayPaymentData.getFirstTransactionData();
+					firstTransactionData = firstTransactionData == null ? new FirstTransactionData() : firstTransactionData;
+					firstTransactionData.setInitiationReason(CreditCardConstants.INITIATION_REASON_RECURRING);
+					valitorPayPaymentData.setFirstTransactionData(firstTransactionData);
+
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
+
 		return valitorPayPaymentData;
 	}
 
@@ -1470,7 +1494,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (verificationData != null) {
 				details = details + ". Verification data. cavv: " + verificationData.getCavv()
 				 + ", mdstatus: " + verificationData.getMdStatus()
-				 + ", xid: " + verificationData.getXid();
+				 + ", xid: " + verificationData.getXid() + ", first transaction data: " + verificationData.getFirstTransactionData();
 			}
 			if (
 					verificationData == null ||
@@ -1503,15 +1527,15 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 			//Set the verification data
 			ValitorPayCardVerificationData valitorPayCardVerificationData = null;
-			if (verificationData != null) {
+			//	No need to include verification data if data was obtain within 5 minutes of credit/debit card payment (it's identified by first transaction data)
+			if (verificationData != null && verificationData.getFirstTransactionData() == null) {
 				valitorPayCardVerificationData = new ValitorPayCardVerificationData(
 						verificationData.getCavv(),
-						null, //verificationData.getMdStatus(),
+						null,
 						verificationData.getXid(),
 						verificationData.getDsTransId()
 				);
 			}
-
 
 			//Get the ValitorPay create virtual card data
 			ValitorPayVirtualCardData valitorPayCreateVirtualCardData = new ValitorPayVirtualCardData(
@@ -1521,6 +1545,14 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					ccVerifyNumber,
 					valitorPayCardVerificationData
 			);
+			//	Must include subsequent transaction type
+			if (verificationData != null && verificationData.getFirstTransactionData() != null) {
+				String subsequentTransactionType = CreditCardConstants.SUBSEQUENT_TRANSACTION_TYPE_RECURRING;
+				if (!StringUtil.isEmpty(verificationData.getFirstTransactionData().getInitiationReason()) && settings.getBoolean("cc.vc_sub_seq_tr_from_initial", false)) {
+					subsequentTransactionType = verificationData.getFirstTransactionData().getInitiationReason();
+				}
+				valitorPayCreateVirtualCardData.setSubsequentTransactionType(subsequentTransactionType);
+			}
 
 			//Call the ValitorPay web service
 			String postJSON = getJSON(valitorPayCreateVirtualCardData);

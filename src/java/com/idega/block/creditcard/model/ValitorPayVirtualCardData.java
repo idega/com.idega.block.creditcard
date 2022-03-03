@@ -23,6 +23,7 @@ public class ValitorPayVirtualCardData implements Serializable {
 
 	private String cardNumber; //Card real number
 	private String cvc;
+
 	private ValitorPayCardVerificationData cardVerificationData;
 
 	public ValitorPayVirtualCardData() {
@@ -43,7 +44,8 @@ public class ValitorPayVirtualCardData implements Serializable {
 			String agreementNumber,
 			String terminalId
 	) {
-		super();
+		this();
+
 		this.virtualCardNumber = virtualCardNumber;
 		this.expirationMonth = expirationMonth;
 		this.expirationYear = expirationYear;
@@ -60,7 +62,8 @@ public class ValitorPayVirtualCardData implements Serializable {
 			String agreementNumber,
 			String terminalId
 	) {
-		super();
+		this();
+
 		this.sponsoredMerchantId = sponsoredMerchantId;
 		this.agreementNumber = agreementNumber;
 		this.terminalId = terminalId;
@@ -75,7 +78,8 @@ public class ValitorPayVirtualCardData implements Serializable {
 			String cvc,
 			ValitorPayCardVerificationData cardVerificationData
 	) {
-		super();
+		this();
+
 		this.expirationMonth = expirationMonth;
 		this.expirationYear = expirationYear;
 		this.cardNumber = cardNumber;

@@ -28,6 +28,8 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 
 	private ValitorPayPaymentAdditionalData additionalData;
 
+	private FirstTransactionData firstTransactionData;
+
 	public ValitorPayPaymentData() {
 		super();
 	}
@@ -200,12 +202,20 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 		this.transactionType = transactionType;
 	}
 
+	public FirstTransactionData getFirstTransactionData() {
+		return firstTransactionData;
+	}
+
+	public void setFirstTransactionData(FirstTransactionData firstTransactionData) {
+		this.firstTransactionData = firstTransactionData;
+	}
+
 	@Override
 	public String toString() {
 		return	"Name on card: " + getDisplayName() +
 				", number: " + (StringUtil.isEmpty(getCardNumber()) ? getVirtualCardNumber() : CreditCardUtil.getMaskedCreditCardNumber(getCardNumber())) +
 				", expires (MM/YY): " + getExpirationMonth() + CoreConstants.SLASH + getExpirationYear() +
-				". Virtual card data: " + getVirtualCardData();
+				". Virtual card data: " + getVirtualCardData() + ". First transaction data: " + getFirstTransactionData();
 	}
 
 }
