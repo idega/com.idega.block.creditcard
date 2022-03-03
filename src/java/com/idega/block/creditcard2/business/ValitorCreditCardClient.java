@@ -354,9 +354,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 						valitorAuthorisationEntry.getMdStatus(),
 						valitorAuthorisationEntry.getXid(),
 						valitorAuthorisationEntry.getDsTransID()
-						//creditCardAuthorizationEntry.getMetaData(CreditCardConstants.METADATA_CARD_VERIFICATION_CAVV),
-						//creditCardAuthorizationEntry.getMetaData(CreditCardConstants.METADATA_CARD_VERIFICATION_MDSTATUS),
-						//creditCardAuthorizationEntry.getMetaData(CreditCardConstants.METADATA_CARD_XID)
 				);
 			}
 
@@ -611,69 +608,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		}
 
 		return null;
-	}
-
-	ValitorPayPaymentData getValitorPayPaymentData(
-			IWMainApplicationSettings settings,
-			String nameOnCard,
-			String cardNumber,
-			String monthExpires,
-			String yearExpires,
-			String ccVerifyNumber,
-			double amount,
-			String currency,
-			String referenceNumber,
-			ValitorPayCardVerificationResponseData valitorPayCardVerificationResponseData,
-			SaleOption... options
-	) throws CreditCardAuthorizationException {
-		//According the ValitorPay, amount should be provided in minor currency unit:
-		//EXPLANATION: The total amount of the payment specified in a minor currency unit. This means that GBP is quoted in pence, USD in cents, DKK in öre, ISK in aurar etc.
-		Integer amountInt = CreditCardUtil.getAmountWithExponents(amount, "2");
-
-		//Creating MerchantReentryUrl
-		//FIXME: We have different redirections for different payments, but we can not get them here ???
-		String merchantReentryUrl = getServerUrl(settings);
-		String merchantReentryPostUrl = settings.getProperty("valitorpay.merchant_reentry_post_url", "#/dashboard");
-		if (merchantReentryUrl.endsWith(CoreConstants.SLASH)) {
-			merchantReentryUrl += merchantReentryPostUrl;
-		} else {
-			merchantReentryUrl += CoreConstants.SLASH;
-			merchantReentryUrl += merchantReentryPostUrl;
-		}
-
-		//Creating MerchantWebhookUrl
-		String merchantWebhookUrl = getServerUrl(settings);
-		String merchantWebhookWebServiceUrl = settings.getProperty("valitorpay.merchant_webhook_web_service_url", "portal/c4c/payment/callback/hook");
-		if (merchantWebhookUrl.endsWith(CoreConstants.SLASH)) {
-			merchantWebhookUrl += merchantWebhookWebServiceUrl;
-		} else {
-			merchantWebhookUrl += CoreConstants.SLASH;
-			merchantWebhookUrl += merchantWebhookWebServiceUrl;
-		}
-
-		//Create the data bean to send to ValitorPay
-		boolean createVirtualCard = false;
-		if (!ArrayUtil.isEmpty(options)) {
-			List<SaleOption> tmp = Arrays.asList(options);
-			createVirtualCard = tmp.contains(SaleOption.CREATE_VIRTUAL_CARD);
-		}
-		ValitorPayVirtualCardData virtualCardData = createVirtualCard ? new ValitorPayVirtualCardData(ValitorPayVirtualCardData.SUBSEQUENT_TRANSACTION_TYPE) : null;
-		ValitorPayPaymentData valitorPayPaymentData = new ValitorPayPaymentData(
-				merchantReentryUrl,
-				merchantWebhookUrl,
-				referenceNumber,
-				amountInt,
-				currency,
-				cardNumber,
-				monthExpires,
-				yearExpires,
-				ccVerifyNumber,
-				CreditCardConstants.CARD_HOLDER_DEVICE_TYPE_WWW,
-				virtualCardData,
-				nameOnCard
-		);
-
-		return valitorPayPaymentData;
 	}
 
 	private ValitorPayPaymentData getValitorPayWithVirtualCardPaymentData(
@@ -1271,7 +1205,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				monthExpires,
 				yearExpires,
 				ccVerifyNumber,
-				null, //CreditCardConstants.CARD_HOLDER_DEVICE_TYPE_WWW,
+				null,
 				valitorPayCardVerificationResponseData,
 				nameOnCard
 		);
