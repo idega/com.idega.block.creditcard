@@ -2,15 +2,14 @@ package com.idega.block.creditcard.model;
 
 import java.io.Serializable;
 
+import com.idega.block.creditcard.CreditCardConstants;
 import com.idega.util.CoreConstants;
 
 public class ValitorPayVirtualCardData implements Serializable {
 
 	private static final long serialVersionUID = 2832777737979590086L;
 
-	public static final String SUBSEQUENT_TRANSACTION_TYPE = "MerchantInitiatedRecurring";
-
-	private String subsequentTransactionType = SUBSEQUENT_TRANSACTION_TYPE;
+	private String subsequentTransactionType = CreditCardConstants.SUBSEQUENT_TRANSACTION_TYPE_RECURRING;
 
 	private String virtualCardNumber; //Virtual card UUID - token from VirtualCard object
 	private Integer expirationMonth;

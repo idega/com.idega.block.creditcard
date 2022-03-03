@@ -122,7 +122,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (result.getVillunumer()==0) {
 				return result.getSyndarkortnumer();
 			} else {
-				throw new CreditCardAuthorizationException("ERROR: " + result.getVilluskilabod(), result.getVillunumer()+"");
+				throw new CreditCardAuthorizationException("ERROR: " + result.getVilluskilabod(), result.getVillunumer()+CoreConstants.EMPTY);
 			}
 
 		} catch (Exception e) {
@@ -149,7 +149,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					merchant.getMerchantID(),
 					merchant.getTerminalID(),
 					cardnumber,
-					amount+"",
+					amount+CoreConstants.EMPTY,
 					currency,
 					null
 			);
@@ -163,7 +163,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			auth.setCardNumber(result.getKvittun().getKortnumer());
 			auth.setAuthCode(result.getKvittun().getHeimildarnumer());
 			if (result.getVillunumer()!=0){
-				auth.setErrorNumber(result.getVillunumer()+"");
+				auth.setErrorNumber(result.getVillunumer()+CoreConstants.EMPTY);
 				auth.setErrorText(result.getVilluskilabod());
 			}
 			auth.setParent((ValitorAuthorisationEntry)parentDataPK);
@@ -173,7 +173,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (result.getVillunumer()==0){
 				return result.getKvittun().getHeimildarnumer();
 			} else {
-				throw new CreditCardAuthorizationException("ERROR: " + result.getVilluskilabod(), result.getVillunumer()+"");
+				throw new CreditCardAuthorizationException("ERROR: " + result.getVilluskilabod(), result.getVillunumer()+CoreConstants.EMPTY);
 			}
 		} catch (Exception e) {
 			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(e);
@@ -223,7 +223,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			auth.setServerResponse(result.getKvittun().getFaerslunumer());
 			auth.setAuthCode(result.getKvittun().getHeimildarnumer());
 			if (result.getVillunumer()!=0){
-				auth.setErrorNumber(result.getVillunumer()+"");
+				auth.setErrorNumber(result.getVillunumer()+CoreConstants.EMPTY);
 				auth.setErrorText(result.getVilluskilabod());
 			}
 			auth.setMerchant((ValitorMerchant) merchant);
@@ -232,7 +232,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (result.getVillunumer()==0){
 				return result.getKvittun().getHeimildarnumer();
 			} else {
-				throw new CreditCardAuthorizationException("ERROR: " + result.getVilluskilabod(), result.getVillunumer()+"");
+				throw new CreditCardAuthorizationException("ERROR: " + result.getVilluskilabod(), result.getVillunumer()+CoreConstants.EMPTY);
 			}
 		} catch (Exception e) {
 			CreditCardAuthorizationException ex = new CreditCardAuthorizationException(e);

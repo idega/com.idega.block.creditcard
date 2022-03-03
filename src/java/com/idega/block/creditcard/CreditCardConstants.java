@@ -19,4 +19,7 @@ public interface CreditCardConstants {
 	public static final String METADATA_CARD_VERIFICATION_CAVV = "METADATA_CARD_VERIFICATION_CAVV";
 	public static final String METADATA_CARD_XID = "METADATA_CARD_XID";
 
+	public static final String SUBSEQUENT_TRANSACTION_TYPE_RECURRING = "MerchantInitiatedRecurring";
+	public static final String INITIATION_REASON_RECURRING = "Recurring";
+
 }
