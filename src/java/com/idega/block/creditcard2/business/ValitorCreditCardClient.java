@@ -509,13 +509,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String valitorPayApiVersion = getValitorPayApiVersion(settings);
 			String valitorPayApiKey = ccMerchant.getSharedSecret();
 
-			String uniqueBase64EncodedUUID = !StringUtil.isEmpty(transactionId) ? Base64.getEncoder().encodeToString(transactionId.getBytes()) : null;
-
 			//Get the ValitorPay payment data
 			ValitorPayPaymentData valitorPayPaymentData = getValitorPayWithVirtualCardPaymentData(
 					settings,
 					cardToken,
-					uniqueBase64EncodedUUID,
+					parentPaymentPK == null || StringUtil.isEmpty(parentPaymentPK.toString()) ? null : parentPaymentPK.toString(),
 					amount,
 					currency
 			);
@@ -616,7 +614,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	private ValitorPayPaymentData getValitorPayWithVirtualCardPaymentData(
 			IWMainApplicationSettings settings,
 			String cardToken,
-			String transactionId,
+			String merchantReferenceData,
 			double amount,
 			String currency
 	) throws CreditCardAuthorizationException {
@@ -625,13 +623,13 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		Integer amountInt = CreditCardUtil.getAmountWithExponents(amount, "2");
 
 		//Create the data bean to send to ValitorPay
-		ValitorPayVirtualCardAdditionalData virtualCardAdditionalData = new ValitorPayVirtualCardAdditionalData(transactionId);
+		ValitorPayVirtualCardAdditionalData virtualCardAdditionalData = new ValitorPayVirtualCardAdditionalData(merchantReferenceData);
 		ValitorPayPaymentData valitorPayPaymentData = new ValitorPayPaymentData(
 				CreditCardConstants.OPERATION_SALE,
 				currency,
 				amountInt,
 				cardToken,
-				StringUtil.isEmpty(transactionId) ? null : virtualCardAdditionalData
+				StringUtil.isEmpty(merchantReferenceData) ? null : virtualCardAdditionalData
 		);
 
 		return valitorPayPaymentData;
