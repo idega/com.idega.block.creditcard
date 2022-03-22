@@ -24,7 +24,7 @@ public class ValitorPayPaymentAdditionalData implements Serializable {
 			merchantReferenceData = StringHandler.replace(merchantReferenceData, CoreConstants.SPACE, CoreConstants.EMPTY);
 			merchantReferenceData = StringHandler.stripNonRomanCharacters(merchantReferenceData, new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'});
 			if (merchantReferenceData.length() > 50) {
-				merchantReferenceData.substring(0, 50);
+				merchantReferenceData = merchantReferenceData.substring(0, 50);
 			}
 		}
 
