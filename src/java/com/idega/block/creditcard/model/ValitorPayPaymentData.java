@@ -3,6 +3,7 @@ package com.idega.block.creditcard.model;
 import java.io.Serializable;
 
 import com.idega.block.creditcard.CreditCardUtil;
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.util.CoreConstants;
 import com.idega.util.StringUtil;
 
@@ -22,6 +23,8 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 	private String transactionType;
 	private String virtualCardNumber;
 
+	private String systemCalling;
+
 	private ValitorPayVirtualCardAdditionalData virtualCardPaymentAdditionalData;
 
 	private ValitorPayCardVerificationResponseData cardVerificationData;
@@ -32,6 +35,8 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 
 	public ValitorPayPaymentData() {
 		super();
+
+		systemCalling = IWMainApplication.getDefaultIWMainApplication().getSettings().getProperty("valitor_pay.caller");
 	}
 
 	public ValitorPayPaymentData(
@@ -97,7 +102,6 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 	) {
 		this();
 
-		//this.merchantReferenceId = merchantReferenceId;
 		this.cvc = cvc;
 		this.cardVerificationData = valitorPayCardVerificationResponseData;
 
@@ -136,7 +140,6 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 	public void setMerchantReferenceId(String merchantReferenceId) {
 		this.merchantReferenceId = merchantReferenceId;
 	}
-
 
 	public String getCvc() {
 		return cvc;
@@ -208,6 +211,14 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 
 	public void setFirstTransactionData(FirstTransactionData firstTransactionData) {
 		this.firstTransactionData = firstTransactionData;
+	}
+
+	public String getSystemCalling() {
+		return systemCalling;
+	}
+
+	public void setSystemCalling(String systemCalling) {
+		this.systemCalling = systemCalling;
 	}
 
 	@Override
