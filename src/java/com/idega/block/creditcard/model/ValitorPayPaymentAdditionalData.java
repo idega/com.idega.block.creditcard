@@ -7,9 +7,10 @@ import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
 
 public class ValitorPayPaymentAdditionalData implements Serializable {
+
 	private static final long serialVersionUID = 2295908197936916470L;
 
-	private String merchantReferenceData; //EXAMPLE:  "00000000-0000-0000-0000-000000000000",
+	private String merchantReferenceData;
 
 	public ValitorPayPaymentAdditionalData() {
 		super();
@@ -23,6 +24,7 @@ public class ValitorPayPaymentAdditionalData implements Serializable {
 		if (!StringUtil.isEmpty(merchantReferenceData)) {
 			merchantReferenceData = StringHandler.replace(merchantReferenceData, CoreConstants.SPACE, CoreConstants.EMPTY);
 			merchantReferenceData = StringHandler.stripNonRomanCharacters(merchantReferenceData, new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'});
+			merchantReferenceData = StringHandler.replace(merchantReferenceData, CoreConstants.MINUS, CoreConstants.EMPTY);
 			if (merchantReferenceData.length() > 50) {
 				merchantReferenceData = merchantReferenceData.substring(0, 50);
 			}

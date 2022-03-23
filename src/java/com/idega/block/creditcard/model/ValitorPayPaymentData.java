@@ -106,7 +106,8 @@ public class ValitorPayPaymentData extends ValitorPayMainRequestData implements 
 		this.cardVerificationData = valitorPayCardVerificationResponseData;
 
 		if (!StringUtil.isEmpty(merchantReferenceId)) {
-			this.additionalData = new ValitorPayPaymentAdditionalData(merchantReferenceId);
+			ValitorPayPaymentAdditionalData additionalData = new ValitorPayPaymentAdditionalData(merchantReferenceId);
+			this.additionalData = StringUtil.isEmpty(additionalData.getMerchantReferenceData()) ? null : additionalData;
 		}
 
 		setAmount(amount);

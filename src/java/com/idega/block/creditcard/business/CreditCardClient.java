@@ -133,7 +133,7 @@ public interface CreditCardClient {
 
 	public AuthEntryData doSaleWithCardToken(
 			String cardToken,
-			String transactionId,
+			String merchantReferenceData,
 			double amount,
 			String currency,
 			String referenceNumber,

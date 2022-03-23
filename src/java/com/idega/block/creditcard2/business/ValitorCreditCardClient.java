@@ -470,7 +470,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	@Override
 	public AuthEntryData doSaleWithCardToken(
 			String cardToken,
-			String transactionId,
+			String merchantReferenceData,
 			double amount,
 			String currency,
 			String referenceNumber,
@@ -480,7 +480,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		ClientResponse response = null;
 		ValitorPayResponseData valitorPayResponseData = null;
 		try {
-			details = "Card token: " + cardToken + ", transaction ID: " + transactionId +
+			details = "Card token: " + cardToken + ", merchant reference data: " + merchantReferenceData +
 			", amount: " + amount + ", currency: " + currency + ", reference number: " + referenceNumber + ", parent payment PK: " + parentPaymentPK;
 			if (
 					StringUtil.isEmpty(cardToken) ||
@@ -513,7 +513,9 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			ValitorPayPaymentData valitorPayPaymentData = getValitorPayWithVirtualCardPaymentData(
 					settings,
 					cardToken,
-					parentPaymentPK == null || StringUtil.isEmpty(parentPaymentPK.toString()) ? null : parentPaymentPK.toString(),
+					StringUtil.isEmpty(merchantReferenceData) ?
+							parentPaymentPK == null || StringUtil.isEmpty(parentPaymentPK.toString()) ? null : parentPaymentPK.toString() :
+							merchantReferenceData,
 					amount,
 					currency
 			);
@@ -629,7 +631,9 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				currency,
 				amountInt,
 				cardToken,
-				StringUtil.isEmpty(merchantReferenceData) ? null : virtualCardAdditionalData
+				StringUtil.isEmpty(merchantReferenceData) || StringUtil.isEmpty(virtualCardAdditionalData.getMerchantReferenceData()) ?
+						null :
+						virtualCardAdditionalData
 		);
 
 		return valitorPayPaymentData;
