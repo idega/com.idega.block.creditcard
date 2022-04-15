@@ -336,4 +336,9 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 		return getStringColumnValue(COLUMN_CARD_TOKEN);
 	}
 
+	@Override
+	public void setAmount(Double amount) {
+		setAmount(amount == null ? 0 : amount.doubleValue());
+	}
+
 }

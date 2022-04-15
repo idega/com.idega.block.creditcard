@@ -1407,4 +1407,14 @@ public void setXMLAttachment(String xml) {
 		return getStringColumnValue(COLUMN_CARD_TOKEN);
 	}
 
+	@Override
+	public void setAmount(Double amount) {
+		setAuthorisationAmount(amount == null ? null : String.valueOf(amount));
+	}
+
+	@Override
+	public void setCurrency(String currency) {
+		setAuthorisationCurrency(currency);
+	}
+
 }

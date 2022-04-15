@@ -353,4 +353,9 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		return getStringColumnValue(COLUMN_CARD_TOKEN);
 	}
 
+	@Override
+	public void setAmount(Double amount) {
+		setAmount(amount == null ? 0 : amount.doubleValue());
+	}
+
 }

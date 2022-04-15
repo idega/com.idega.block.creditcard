@@ -29,7 +29,11 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 
 	public double getAmount();
 
+	public void setAmount(Double amount);
+
 	public String getCurrency();
+
+	public void setCurrency(String currency);
 
 	public Date getDate();
 

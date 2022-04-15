@@ -261,6 +261,7 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 		return currency;
 	}
 
+	@Override
 	public void setCurrency(String currency) {
 		this.currency = currency;
 	}
@@ -681,7 +682,7 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public Map<String, String> getMetaDataAttributes() {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 
 		Set<Metadata> list = getMetadata();
 		for (Metadata metaData : list) {
@@ -693,7 +694,7 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public Map<String, String> getMetaDataTypes() {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 
 		Set<Metadata> list = getMetadata();
 		for (Metadata metaData : list) {
@@ -800,6 +801,11 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 		if (date != null) {
 			setEntryDate(new IWTimestamp(date).getDateString("yyyyMMdd"));
 		}
+	}
+
+	@Override
+	public void setAmount(Double amount) {
+		setAmount(amount == null ? null : String.valueOf(amount));
 	}
 
 }
