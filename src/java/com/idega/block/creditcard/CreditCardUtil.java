@@ -1,7 +1,9 @@
 package com.idega.block.creditcard;
 
 import java.util.Arrays;
+import java.util.Currency;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,6 +66,42 @@ public class CreditCardUtil {
 
 	public static final boolean isTestEnvironment() {
 		return IWMainApplication.getDefaultIWMainApplication().getSettings().getBoolean("test_env_credit_card", false);
+	}
+
+	public static final String getCurrencySymbol(Locale localeForCurrency) throws NullPointerException, IllegalArgumentException {
+		if (localeForCurrency == null) {
+			return null;
+		}
+
+		return getCurrencySymbol(Currency.getInstance(localeForCurrency));
+	}
+
+	public static final String getCurrencySymbol(String currencyCode) throws NullPointerException, IllegalArgumentException {
+		if (StringUtil.isEmpty(currencyCode)) {
+			return null;
+		}
+
+		return getCurrencySymbol(Currency.getInstance(currencyCode));
+	}
+
+	private static final String getCurrencySymbol(Currency currency) {
+		String defaultSymbol = "kr.";
+		if (currency == null) {
+			return defaultSymbol;
+		}
+
+		String symbol = currency.getSymbol();
+		if (StringUtil.isEmpty(symbol)) {
+			return defaultSymbol;
+		}
+
+		switch (symbol) {
+		case CurrencyHolder.ICELANDIC_KRONA:
+			return defaultSymbol;
+
+		default:
+			return symbol;
+		}
 	}
 
 	public static final String getCurrencyAbbreviation(String currencyCode) {
