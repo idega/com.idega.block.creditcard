@@ -1026,7 +1026,10 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (response != null) {
 				valitorPayResponseData = getValitorPayResponseData(response);
 			}
-			LOGGER.info("After calling ValitorPay (" + valitorPayCardVerificationWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
+			LOGGER.info("After calling ValitorPay ("
+					+ valitorPayCardVerificationWebServiceURL + "). Response data: "
+					+ (valitorPayResponseData != null ? valitorPayResponseData.toString() : " NULL")
+			);
 
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {

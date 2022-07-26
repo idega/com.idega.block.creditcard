@@ -70,7 +70,7 @@ public class ValitorPayException extends CreditCardAuthorizationException {
 
 				switch (errorNumberFinal) {
 					case "VERIFICATION_DATA":
-						return (iwrb.getLocalizedString("valitor_pay.error_code.VERIFICATION_DATA", "Problems occured while crrating verification data."));
+						return (iwrb.getLocalizedString("valitor_pay.error_code.VERIFICATION_DATA", "Problems occured while creating verification data."));
 					case "DATA_NOT_PROVIDED":
 						return (iwrb.getLocalizedString("valitor_pay.error_code.DATA_NOT_PROVIDED","Some of the mandatory data is not provided"));
 					case "APP_SETTINGS":
