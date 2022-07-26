@@ -48,7 +48,21 @@ public class CreditCardUtil {
 			return null;
 		}
 
-		return creditCardNumber.length() <= 4 ? creditCardNumber : "****-****-****-".concat(creditCardNumber.substring(creditCardNumber.length() - 4));
+		int length = creditCardNumber.length();
+
+		//	CVC?
+		if (length <= 3) {
+			int to = length - 1;
+			StringBuilder masked = new StringBuilder();
+			for (int i = 0; i < to; i++) {
+				masked.append(CoreConstants.STAR);
+			}
+			masked.append(creditCardNumber.substring(to));
+			return masked.toString();
+		}
+
+		//	Card number
+		return length <= 4 ? creditCardNumber : "****-****-****-".concat(creditCardNumber.substring(length - 4));
 	}
 
 	public static final String getMaskedSecurityCode(String securityCode) {
