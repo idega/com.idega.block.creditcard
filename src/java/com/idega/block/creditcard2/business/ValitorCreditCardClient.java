@@ -1101,13 +1101,14 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		Integer amountInt = CreditCardUtil.getAmountWithExponents(amount, "2");
 
 		//Creating MerchantWebhookUrl
-		String authenticationURL = getServerUrl(settings);
+		String serverURL = getServerUrl(settings);
 		String merchantWebhookWebServiceUrl = CoreConstants.EMPTY;
 		if (!StringUtil.isEmpty(verificationType) && verificationType.equalsIgnoreCase(com.idega.block.creditcard.business.CreditCardBusiness.CARD_VERIFICATION_TYPE_VIRTUAL_CARD)) {
 			merchantWebhookWebServiceUrl = settings.getProperty("valitorpay.mwu.virt_card", "portal/c4c/payment/callback/hook/virtual");
 		} else {
 			merchantWebhookWebServiceUrl = settings.getProperty("valitorpay.mwu.card", "portal/c4c/payment/callback/hook");
 		}
+		String authenticationURL = serverURL;
 		if (authenticationURL.endsWith(CoreConstants.SLASH)) {
 			authenticationURL += merchantWebhookWebServiceUrl;
 		} else {
@@ -1115,7 +1116,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			authenticationURL += merchantWebhookWebServiceUrl;
 		}
 
-		String serverURL = getServerUrl(settings);
 		String expMonth = expirationMonth != null ? String.valueOf(expirationMonth) : CoreConstants.EMPTY;
 		if (expMonth.length() == 1) {
 			expMonth = String.valueOf(0).concat(expMonth);
