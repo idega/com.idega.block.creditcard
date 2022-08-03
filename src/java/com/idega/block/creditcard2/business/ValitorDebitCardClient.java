@@ -2,11 +2,7 @@ package com.idega.block.creditcard2.business;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,15 +19,10 @@ import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard.model.SaleOption;
-import com.idega.block.creditcard2.data.beans.BorgunMerchant;
 import com.idega.block.creditcard2.data.beans.ValitorDebitAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.ValitorDebitMerchant;
 import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.block.creditcard2.data.dao.impl.ValitorDebitAuthorisationEntryDAO;
-import com.idega.idegaweb.IWBundle;
-import com.idega.idegaweb.IWMainApplication;
-import com.idega.idegaweb.IWResourceBundle;
-import com.idega.presentation.IWContext;
 import com.idega.util.expression.ELUtil;
 
 import is.valitor.api.fyrirtaekjagreidslur.DebitSvar;
@@ -43,8 +34,6 @@ import is.valitor.greidslugatt.TegundKorts;
 
 public class ValitorDebitCardClient implements CreditCardClient {
 
-	private String login;
-	private String password;
 	private String url;
 	private CreditCardMerchant merchant;
 	private ValitorDebitAuthorisationEntry auth = null;
@@ -108,99 +97,11 @@ public class ValitorDebitCardClient implements CreditCardClient {
 	public static final String ACTION_CODE_RESTRICTED_CARD = "104";
 	public static final String DEFAULT_URL = "https://api-acquiring.valitor.is/fyrirtaekjagreidslur/1_1/fyrirtaekjagreidslur.asmx";
 
-
-	private static Long lastAuth = null;
-	private static final Object LOCK = new Object() {
-	};
-
-	private static HashMap<Integer, RRN> authRefs = new HashMap<>();
-
 	public ValitorDebitCardClient(CreditCardMerchant merchant) {
 		if (CreditCardMerchant.MERCHANT_TYPE_VALITOR_DEBIT.equals(merchant.getType())) {
-			this.login = ((ValitorDebitMerchant) merchant).getUser();
-			this.password = ((ValitorDebitMerchant) merchant).getPassword();
 			this.url = ((ValitorDebitMerchant) merchant).getMerchantUrl() == null ? ValitorDebitCardClient.DEFAULT_URL : ((ValitorDebitMerchant) merchant).getMerchantUrl();
 			this.merchant = merchant;
 		}
-	}
-
-	private String getYYYYMMDDHHMMSSDate() {
-		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMddHHmmss");
-		Date now = new Date();
-		String strDate = sdfDate.format(now);
-		return strDate;
-	}
-
-	private String getYYMMDDHHMMSSDate() {
-		SimpleDateFormat sdfDate = new SimpleDateFormat("yyMMddHHmmss");
-		Date now = new Date();
-		String strDate = sdfDate.format(now);
-		return strDate;
-	}
-
-	private Date getDateFromYYYYMMDDHHMMSS(String date) {
-		SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMddHHmmss");
-		Date result = null;
-		try {
-			result = sdfDate.parse(date);
-		} catch (ParseException e) {
-
-		}
-		return result;
-	}
-
-	private Date getDateFromYYMMDDHHMMSS(String date) {
-		SimpleDateFormat sdfDate = new SimpleDateFormat("yyMMddHHmmss");
-		Date result = null;
-		try {
-			result = sdfDate.parse(date);
-		} catch (ParseException e) {
-
-		}
-		return result;
-	}
-
-	private String getRRN() {
-
-		RRN ref = authRefs.get(merchant.getPrimaryKey());
-		String suffix = ((BorgunMerchant) merchant).getMerchantRrnSuffix();
-		Long lastAuth;
-
-		if (ref == null) {
-			synchronized (LOCK) {
-				ref = authRefs.get(merchant.getPrimaryKey());
-				if (ref == null) {
-					ref = new RRN();
-					String last = getAuthDAO().getLastAuthorizationForMerchant(suffix,
-							(Integer) merchant.getPrimaryKey());
-					if (last == null) {
-						lastAuth = (long) 1;
-					} else {
-						String lastNUmber = last.substring(suffix.length());
-						lastAuth = Long.parseLong(lastNUmber, 10);
-						lastAuth++;
-					}
-					ref.setLastAuth(lastAuth);
-					authRefs.put((Integer) merchant.getPrimaryKey(), ref);
-				} else {
-					synchronized (ref.getLOCK()) {
-						lastAuth = ref.getNextAuth();
-					}
-				}
-			}
-		} else {
-			synchronized (ref.getLOCK()) {
-				lastAuth = ref.getNextAuth();
-			}
-		}
-		StringBuilder rrn = new StringBuilder();
-		rrn.append(suffix);
-		for (int i = 0; i < 12 - (suffix.length() + lastAuth.toString().length()); i++) {
-			rrn.append('0');
-		}
-		rrn.append(lastAuth);
-		return rrn.toString();
-
 	}
 
 	@Override
@@ -248,25 +149,6 @@ public class ValitorDebitCardClient implements CreditCardClient {
 					throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("ERROR: unimplemented", "UNKNOWN");
 	}
-
-	private IWResourceBundle getResourceBundle() {
-		IWContext iwc = IWContext.getCurrentInstance();
-		if (iwc != null) {
-			return getBundle().getResourceBundle(iwc);
-		} else {
-			return getBundle().getResourceBundle(IWMainApplication.getDefaultIWMainApplication().getDefaultLocale());
-		}
-	}
-
-	private IWBundle getBundle() {
-		IWMainApplication iwma = IWMainApplication.getDefaultIWMainApplication();
-		IWBundle bundle = iwma.getBundle("com.idega.block.creditcard");
-		if (bundle == null) {
-			bundle = iwma.getBundle("com.idega.block.creditcard", true);
-		}
-		return bundle;
-	}
-
 
 	//when using a virtual card number monthExpires yearExpires ccVerifyNumber should be null
 	//nameOnCard = kennitala, ccVerifyNumber = type of card
