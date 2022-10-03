@@ -814,7 +814,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			getAuthDAO().store(auth);
 			return auth.getId() == null ? null : auth;
 		} catch (Exception e) {
-			String error = "Could not store the ValitorAuthorisationEntry after the ValidtoPay transaction. "
+			String error = "Could not store the ValitorAuthorisationEntry after the ValitorPay transaction. "
 					+ "valitorPayResponseData: " + response.toString()
 					+ ". valitorPayPaymentData: " + payment;
 			LOGGER.log(Level.WARNING, error, e);
@@ -1177,7 +1177,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			getAuthDAO().store(auth);
 			return auth.getId() == null ? null : auth;
 		} catch (Exception e) {
-			String error = "Could not store the ValitorAuthorisationEntry after the ValidtoPay card verification transaction. "
+			String error = "Could not store the ValitorAuthorisationEntry after the ValitorPay card verification transaction. "
 					+ "valitorPayResponseData: " + response.toString()
 					+ ". verificationData: " + verificationData;
 			LOGGER.log(Level.WARNING, error, e);
