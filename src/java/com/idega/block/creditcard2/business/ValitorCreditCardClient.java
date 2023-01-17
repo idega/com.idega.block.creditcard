@@ -55,6 +55,7 @@ import com.idega.util.IOUtil;
 import com.idega.util.IWTimestamp;
 import com.idega.util.ListUtil;
 import com.idega.util.RequestUtil;
+import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
 import com.idega.util.datastructures.map.MapUtil;
 import com.idega.util.expression.ELUtil;
@@ -425,7 +426,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				//Error response
-				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " +
+						getErrorResponseMessage(response) + details;
 				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData, null, "PAYMENT_DATA", error);
 				LOGGER.warning(error);
 				CoreUtil.sendExceptionNotification(error, ex);
@@ -552,7 +554,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				//Error response
-				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " +
+						getErrorResponseMessage(response) + details;
 				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData, null, "PAYMENT_DATA", error);
 				LOGGER.warning(error);
 				CoreUtil.sendExceptionNotification(error, ex);
@@ -1034,7 +1037,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				//Error response
-				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " +
+						getErrorResponseMessage(response) + details;
 				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData, null, "VERIFICATION_DATA", error);
 				LOGGER.warning(error);
 				CoreUtil.sendExceptionNotification(error, ex);
@@ -1325,7 +1329,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				//Error response
-				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " +
+						getErrorResponseMessage(response) + details;
 				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData, null, "UPDATE_CARD_EXPIRATION_DATE_FAILED", error);
 				LOGGER.warning(error);
 				CoreUtil.sendExceptionNotification(error, ex);
@@ -1438,7 +1443,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				//Error response
-				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " +
+						getErrorResponseMessage(response) + details;
 				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData, null, "UPDATE_CARD_EXPIRATION_DATE_FAILED", error);
 				LOGGER.warning(error);
 				CoreUtil.sendExceptionNotification(error, ex);
@@ -1477,6 +1483,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				.disableHtmlEscaping()
 				.create()
 				.toJson(object);
+	}
+
+	private String getErrorResponseMessage(ClientResponse response) throws Exception {
+		String message = response == null ? null : StringHandler.getContentFromInputStream(response.getEntityInputStream());
+		return "Response message from ValitorPay: ".concat(StringUtil.isEmpty(message) ? "none" : message).concat(". ");
 	}
 
 	@Override
@@ -1591,7 +1602,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				//Error response
-				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " + details;
+				String error = "ERROR: no response (" + response + ") or response status is not OK: " + (response == null ? "unknown" : response.getStatus()) + ". " +
+						getErrorResponseMessage(response) + details;
 				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData, null, "CREATE_VIRTUAL_CARD_FAILED", error);
 				LOGGER.warning(error);
 				CoreUtil.sendExceptionNotification(error, ex);
