@@ -308,7 +308,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		ValitorPayResponseData valitorPayResponseData = null;
 		try {
 			details = "Name on card: " + nameOnCard + ", card number: " + CreditCardUtil.getMaskedCreditCardNumber(cardNumber) +
-			", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires + ", CVC: " + ccVerifyNumber + ", amount: " + amount +
+			", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires + ", CVC: " + CreditCardUtil.getMaskedSecurityCode(ccVerifyNumber) + ", amount: " + amount +
 			", currency: " + currency + ", reference number: " + referenceNumber +
 			(ArrayUtil.isEmpty(options) ? CoreConstants.EMPTY : ", sale options: " + Arrays.asList(options));
 			if (
@@ -393,7 +393,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 							CreditCardUtil.getMaskedCreditCardNumber(cardNumber),
 							monthExpires,
 							yearExpires,
-							ccVerifyNumber,
+							CreditCardUtil.getMaskedSecurityCode(ccVerifyNumber),
 							amount,
 							currency,
 							referenceNumber,
@@ -1494,7 +1494,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		ValitorPayResponseData valitorPayResponseData = null;
 		try {
 			details = "Card number: " + CreditCardUtil.getMaskedCreditCardNumber(cardNumber) +
-			", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires + ", CVC: " + ccVerifyNumber + ", amount: " + amount +
+			", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires + ", CVC: " + CreditCardUtil.getMaskedSecurityCode(ccVerifyNumber) + ", amount: " + amount +
 			", currency: " + currency;
 			if (verificationData != null) {
 				details = details + ". Verification data. cavv: " + verificationData.getCavv()
@@ -1565,7 +1565,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					CreditCardUtil.getMaskedCreditCardNumber(cardNumber),
 					monthExpires,
 					yearExpires,
-					ccVerifyNumber,
+					CreditCardUtil.getMaskedSecurityCode(ccVerifyNumber),
 					valitorPayCardVerificationData
 			));
 			LOGGER.info("Calling ValitorPay (" + valitorPayCreateVirtualCardWebServiceURL + ") with data: " + postJSONForLogging);
