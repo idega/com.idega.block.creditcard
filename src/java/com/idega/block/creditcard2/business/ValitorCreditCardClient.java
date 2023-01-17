@@ -1547,7 +1547,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (verificationData != null && verificationData.getFirstTransactionData() == null) {
 				valitorPayCardVerificationData = new ValitorPayCardVerificationData(
 						verificationData.getCavv(),
-						null,
+						verificationData.getMdStatus(),
 						verificationData.getXid(),
 						verificationData.getDsTransId()
 				);
