@@ -22,18 +22,24 @@ import com.idega.data.IDOEntity;
 import com.idega.data.IDOEntityDefinition;
 
 @Entity
-@Table(name = "VALITOR_MERCHANT")
+@Table(name = "RAPYD_MERCHANT")
 @NamedQueries({
-		@NamedQuery(name = ValitorMerchant.GET_BY_ID, query = "from ValitorMerchant bm where bm." + ValitorMerchant.idProp
-				+ " = :" + ValitorMerchant.idProp),
-		@NamedQuery(name = ValitorMerchant.GET_BY_NAME, query = "from ValitorMerchant bm where bm."
-				+ ValitorMerchant.nameProp + " = :" + ValitorMerchant.nameProp) })
-public class ValitorMerchant implements CreditCardMerchant {
+		@NamedQuery(
+				name = RapydMerchant.GET_BY_ID,
+				query = "from RapydMerchant rm where rm." + RapydMerchant.idProp + " = :" + RapydMerchant.idProp
+		),
+		@NamedQuery(
+				name = RapydMerchant.GET_BY_NAME,
+				query = "from RapydMerchant rm where rm." + RapydMerchant.nameProp + " = :" + RapydMerchant.nameProp
+		)
+})
+public class RapydMerchant implements CreditCardMerchant {
 
-	public static final String GET_BY_ID = "ValitorMerchant.getByID";
-	public static final String GET_BY_NAME = "ValitorMerchant.getByName";
-	public static final String idProp = "id";
-	public static final String nameProp = "merchantName";
+	public static final String	GET_BY_ID = "RapydMerchant.getByID",
+								GET_BY_NAME = "RapydMerchant.getByName",
+
+								idProp = "id",
+								nameProp = "merchantName";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -192,7 +198,7 @@ public class ValitorMerchant implements CreditCardMerchant {
 
 	@Override
 	public String getType() {
-		return CreditCardMerchant.MERCHANT_TYPE_VALITOR;
+		return CreditCardMerchant.MERCHANT_TYPE_RAPYD;
 	}
 
 	@Override

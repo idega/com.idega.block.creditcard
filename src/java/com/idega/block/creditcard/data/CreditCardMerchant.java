@@ -25,6 +25,7 @@ public interface CreditCardMerchant extends IDOEntity {
 	public static final String MERCHANT_TYPE_DUMMY = "DUMMY";
 	public static final String MERCHANT_TYPE_BORGUN = "BORGUN";
 	public static final String MERCHANT_TYPE_VALITOR = "VALITOR";
+	public static final String MERCHANT_TYPE_RAPYD = "RAPYD";
 
 	public static final String COLUMN_IS_DELETED = "IS_DELETED";
 	public static final String MERCHANT_TYPE_VALITOR_DEBIT = "VALITOR_DEBIT";
