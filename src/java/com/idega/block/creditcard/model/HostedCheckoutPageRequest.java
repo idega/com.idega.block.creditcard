@@ -30,6 +30,8 @@ public class HostedCheckoutPageRequest implements Serializable {
 	//	Defines the currency for the amount. Three-letter ISO 4217 code
 	private String currency;
 
+	private String requested_currency;
+
 	//	ID of the 'customer' object. String starting with cus_. When used, the customer has the option to save card details for future purchases.
 	//	This field is required for some payment methods and for all 'company' type wallets.
 	private String customer;
@@ -53,12 +55,21 @@ public class HostedCheckoutPageRequest implements Serializable {
 		super();
 	}
 
-	public HostedCheckoutPageRequest(Integer amount, String country, String currency, String statementDescriptor, String merchantReferenceId) {
+	public HostedCheckoutPageRequest(
+			Integer amount,
+			String country,
+			String currency,
+			String statementDescriptor,
+			String merchantReferenceId,
+			String completeCheckoutUrl,
+			String cancelCheckoutUrl
+	) {
 		this();
 
 		this.amount = amount;
 		this.country = country;
 		this.currency = currency;
+		this.requested_currency = currency;
 		if (!StringUtil.isEmpty(statementDescriptor)) {
 			if (statementDescriptor.length() > 22) {
 				statementDescriptor = statementDescriptor.substring(0, 22);
@@ -66,6 +77,8 @@ public class HostedCheckoutPageRequest implements Serializable {
 			this.statement_descriptor = statementDescriptor;
 		}
 		this.merchant_reference_id = merchantReferenceId;
+		this.complete_checkout_url = completeCheckoutUrl;
+		this.cancel_checkout_url = cancelCheckoutUrl;
 	}
 
 	public Integer getAmount() {
