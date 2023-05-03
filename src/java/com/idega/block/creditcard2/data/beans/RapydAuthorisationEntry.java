@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,12 +31,15 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard2.data.dao.impl.RapydAuthorisationEntryDAO;
 import com.idega.data.IDOEntity;
 import com.idega.data.IDOEntityDefinition;
 import com.idega.data.IDOStoreException;
 import com.idega.data.bean.Metadata;
 import com.idega.util.DBUtil;
+import com.idega.util.ListUtil;
 import com.idega.util.StringUtil;
+import com.idega.util.expression.ELUtil;
 
 @Entity
 @Table(name = RapydAuthorisationEntry.TABLE_NAME)
@@ -391,7 +395,8 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public void store() throws IDOStoreException {
-		// TODO Auto-generated method stub
+		RapydAuthorisationEntryDAO dao = ELUtil.getInstance().getBean(RapydAuthorisationEntryDAO.BEAN_NAME);
+		dao.store(this);
 	}
 
 	@Override
@@ -470,6 +475,10 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	private Metadata getMetadata(String key) {
 		Set<Metadata> list = getMetadata();
+		if (ListUtil.isEmpty(list)) {
+			return null;
+		}
+
 		for (Metadata metaData : list) {
 			if (metaData.getKey().equals(key)) {
 				return metaData;
@@ -554,7 +563,6 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 		}
 
 		getMetadata().add(metadata);
-
 	}
 
 	@Override
@@ -585,7 +593,8 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public Set<Metadata> getMetadata() {
 		metadata = DBUtil.getInstance().lazyLoad(metadata);
-		return this.metadata;
+		metadata = metadata == null ? new HashSet<>() : metadata;
+		return metadata;
 	}
 
 	public void setMetadata(Set<Metadata> metadata) {

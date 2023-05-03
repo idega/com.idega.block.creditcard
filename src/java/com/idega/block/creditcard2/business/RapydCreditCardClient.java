@@ -51,14 +51,20 @@ public class RapydCreditCardClient implements CreditCardClient {
 	private String url;
 
 	public RapydCreditCardClient(CreditCardMerchant merchant) {
+		this.merchant = merchant;
+
 		if (merchant instanceof RapydMerchant && CreditCardMerchant.MERCHANT_TYPE_RAPYD.equals(merchant.getType())) {
 			String url = ((RapydMerchant) merchant).getMerchantUrl();
 			this.url = StringUtil.isEmpty(url) ? getDefaultURL() : url;
-			this.merchant = merchant;
 		}
 	}
 
 	private String getDefaultURL() {
+		String url = merchant == null ? null : merchant.getLocation();
+		if (!StringUtil.isEmpty(url)) {
+			return url;
+		}
+
 		return CreditCardUtil.isTestEnvironment() ?
 				"https://sandboxapi.rapyd.net" :
 				"https://api.rapyd.net";
@@ -139,6 +145,9 @@ public class RapydCreditCardClient implements CreditCardClient {
 
 	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntry() {
+		if (auth == null) {
+			auth = new RapydAuthorisationEntry();
+		}
 		return auth;
 	}
 
