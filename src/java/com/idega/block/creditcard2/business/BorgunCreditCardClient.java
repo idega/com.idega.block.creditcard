@@ -25,6 +25,8 @@ import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
+import com.idega.block.creditcard.model.HostedCheckoutPageRequest;
+import com.idega.block.creditcard.model.HostedCheckoutPageResponse;
 import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard2.data.beans.BorgunAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
@@ -741,6 +743,11 @@ public class BorgunCreditCardClient implements CreditCardClient {
 	@Override
 	public String doVerifyCard(String cardNumber, Integer monthExpires, Integer yearExpires, double amount,
 			String currency, String verificationType, String referenceNumber) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 

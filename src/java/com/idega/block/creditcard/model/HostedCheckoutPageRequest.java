@@ -2,12 +2,14 @@ package com.idega.block.creditcard.model;
 
 import java.io.Serializable;
 
+import com.idega.util.StringUtil;
+
 public class HostedCheckoutPageRequest implements Serializable {
 
 	private static final long serialVersionUID = -8127517372991772982L;
 
 	//	The amount of the payment, in units of the currency defined in currency. Required if cart_items is not used. Decimal.
-	private Float amount;
+	private Integer amount;
 
 	//	URL where the customer is redirected after pressing Back to Website to exit the hosted page.
 	private String cancel_checkout_url;
@@ -51,21 +53,26 @@ public class HostedCheckoutPageRequest implements Serializable {
 		super();
 	}
 
-	public HostedCheckoutPageRequest(Float amount, String country, String currency, String statementDescriptor, String merchantReferenceId) {
+	public HostedCheckoutPageRequest(Integer amount, String country, String currency, String statementDescriptor, String merchantReferenceId) {
 		this();
 
 		this.amount = amount;
 		this.country = country;
 		this.currency = currency;
-		this.statement_descriptor = statementDescriptor;
+		if (!StringUtil.isEmpty(statementDescriptor)) {
+			if (statementDescriptor.length() > 22) {
+				statementDescriptor = statementDescriptor.substring(0, 22);
+			}
+			this.statement_descriptor = statementDescriptor;
+		}
 		this.merchant_reference_id = merchantReferenceId;
 	}
 
-	public Float getAmount() {
+	public Integer getAmount() {
 		return amount;
 	}
 
-	public void setAmount(Float amount) {
+	public void setAmount(Integer amount) {
 		this.amount = amount;
 	}
 

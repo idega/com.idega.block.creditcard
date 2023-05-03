@@ -33,6 +33,8 @@ import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard.model.FirstTransactionData;
+import com.idega.block.creditcard.model.HostedCheckoutPageRequest;
+import com.idega.block.creditcard.model.HostedCheckoutPageResponse;
 import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard.model.ValitorPayCardVerificationData;
 import com.idega.block.creditcard.model.ValitorPayCardVerificationResponseData;
@@ -1643,6 +1645,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData, e, "CREATE_VIRTUAL_CARD_FAILED", error);
 			throw ex;
 		}
+	}
+
+	@Override
+	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 }

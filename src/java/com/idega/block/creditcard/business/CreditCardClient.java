@@ -156,6 +156,6 @@ public interface CreditCardClient {
 
 	public String doVerifyCard(String cardNumber, Integer monthExpires, Integer yearExpires, double amount, String currency, String verificationType, String referenceNumber) throws CreditCardAuthorizationException;
 
-	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request);
+	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request) throws CreditCardAuthorizationException;
 
 }

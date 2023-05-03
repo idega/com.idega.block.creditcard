@@ -5,10 +5,11 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
@@ -25,6 +26,7 @@ import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard.model.HostedCheckoutPageRequest;
 import com.idega.block.creditcard.model.HostedCheckoutPageResponse;
 import com.idega.block.creditcard.model.SaleOption;
+import com.idega.block.creditcard2.data.beans.RapydAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.RapydMerchant;
 import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.builder.bean.AdvancedProperty;
@@ -44,6 +46,8 @@ public class RapydCreditCardClient implements CreditCardClient {
 
 	private CreditCardMerchant merchant;
 
+	private RapydAuthorisationEntry auth;
+
 	private String url;
 
 	public RapydCreditCardClient(CreditCardMerchant merchant) {
@@ -62,14 +66,12 @@ public class RapydCreditCardClient implements CreditCardClient {
 
 	@Override
 	public String getExpireDateString(String month, String year) {
-		// TODO Auto-generated method stub
-		return null;
+		return year + month;
 	}
 
 	@Override
 	public Collection<String> getValidCardTypes() {
-		// TODO Auto-generated method stub
-		return null;
+		return TPosClient.getValidCardTypes("Rapyd");
 	}
 
 	@Override
@@ -78,114 +80,144 @@ public class RapydCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public String doRefund(String cardnumber, String monthExpires, String yearExpires, String ccVerifyNumber,
-			double amount, String currency, Object parentDataPK, String extraField)
-			throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+	public String doRefund(
+			String cardnumber,
+			String monthExpires,
+			String yearExpires,
+			String ccVerifyNumber,
+			double amount,
+			String currency,
+			Object parentDataPK,
+			String extraField
+	) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	@Override
-	public String doSale(String nameOnCard, String cardnumber, String monthExpires, String yearExpires,
-			String ccVerifyNumber, double amount, String currency, String referenceNumber, SaleOption... options)
-			throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+	public String doSale(
+			String nameOnCard,
+			String cardnumber,
+			String monthExpires,
+			String yearExpires,
+			String ccVerifyNumber,
+			double amount,
+			String currency,
+			String referenceNumber,
+			SaleOption... options
+	) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	@Override
-	public String creditcardAuthorization(String nameOnCard, String cardnumber, String monthExpires, String yearExpires,
-			String ccVerifyNumber, double amount, String currency, String referenceNumber)
-			throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+	public String creditcardAuthorization(
+			String nameOnCard,
+			String cardnumber,
+			String monthExpires,
+			String yearExpires,
+			String ccVerifyNumber,
+			double amount,
+			String currency,
+			String referenceNumber
+	) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	@Override
 	public String finishTransaction(String properties) throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	@Override
 	public String voidTransaction(String properties) throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	@Override
 	public boolean supportsDelayedTransactions() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public CreditCardAuthorizationEntry getAuthorizationEntry() {
-		// TODO Auto-generated method stub
-		return null;
+		return auth;
 	}
 
 	@Override
 	public void setAuthorizationEntry(CreditCardAuthorizationEntry entry) {
-		// TODO Auto-generated method stub
-
+		if (entry instanceof RapydAuthorisationEntry) {
+			this.auth = (RapydAuthorisationEntry) entry;
+		}
 	}
 
 	@Override
 	public String getAuthorizationNumber(String properties) throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	@Override
-	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp,
-			String reference, String approvalCode) throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	@Override
-	public CaptureResult getAuthorizationNumberForWebPayment(String properties)
-			throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+	public CaptureResult getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	@Override
-	public AuthEntryData doSaleWithCardToken(String cardToken, String merchantReferenceData, double amount,
-			String currency, String referenceNumber, Object parentPaymentPK) throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+	public AuthEntryData doSaleWithCardToken(
+			String cardToken,
+			String merchantReferenceData,
+			double amount,
+			String currency,
+			String referenceNumber,
+			Object parentPaymentPK
+	) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	@Override
-	public VirtualCard doCreateVirtualCard(String cardNumber, Integer monthExpires, Integer yearExpires,
-			String ccVerifyNumber, double amount, String currency, VerificationData verificationData)
-			throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+	public VirtualCard doCreateVirtualCard(
+			String cardNumber,
+			Integer monthExpires,
+			Integer yearExpires,
+			String ccVerifyNumber,
+			double amount,
+			String currency,
+			VerificationData verificationData
+	) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	@Override
-	public VirtualCard doUpdateCard(VirtualCard card, Integer monthExpires, Integer yearExpires,
-			String firstTransactionLifecycleId) throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+	public VirtualCard doUpdateCard(
+			VirtualCard card,
+			Integer monthExpires,
+			Integer yearExpires,
+			String firstTransactionLifecycleId
+	) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	@Override
-	public String doVerifyCard(String cardNumber, Integer monthExpires, Integer yearExpires, double amount,
-			String currency, String verificationType, String referenceNumber) throws CreditCardAuthorizationException {
-		// TODO Auto-generated method stub
-		return null;
+	public String doVerifyCard(
+			String cardNumber,
+			Integer monthExpires,
+			Integer yearExpires,
+			double amount,
+			String currency,
+			String verificationType,
+			String referenceNumber
+	) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 	private List<AdvancedProperty> getHeaderParams(String httpMethod, String url, String json) {
 		List<AdvancedProperty> params = new ArrayList<>();
 
 		//	Unique access key provided by Rapyd for each authorized user
-		String secretKey = merchant.getSharedSecret();
-		params.add(new AdvancedProperty("access_key", secretKey, "access_key"));
+		String accessKey = merchant.getPassword();
+		params.add(new AdvancedProperty("access_key", accessKey, "access_key"));
 
 		//	Indicates that the data appears in JSON format. Always set to application/json
 		params.add(new AdvancedProperty(RequestUtil.HEADER_CONTENT_TYPE, MediaType.APPLICATION_JSON, RequestUtil.HEADER_CONTENT_TYPE));
@@ -195,8 +227,9 @@ public class RapydCreditCardClient implements CreditCardClient {
 		params.add(new AdvancedProperty("salt", salt, "salt"));
 
 		//	The time of the request, in Unix time (seconds)
-		String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
-		params.add(new AdvancedProperty("timestamp", timestamp, "timestamp"));
+		long timestamp = System.currentTimeMillis() / 1000L;
+		String timestampValue = Long.toString(timestamp);
+		params.add(new AdvancedProperty("timestamp", timestampValue, "timestamp"));
 
 		//	Signature calculated for each message individually.
 		//	For REST requests, see https://docs.rapyd.net/build-with-rapyd/reference/authentication#request-signatures
@@ -204,50 +237,61 @@ public class RapydCreditCardClient implements CreditCardClient {
 
 		//	For webhooks, see https://docs.rapyd.net/build-with-rapyd/reference/authentication#webhook-authentication
 		//	signature = BASE64 ( HASH ( url_path + salt + timestamp + access_key + secret_key + body_string ) )
-		String accessKey = merchant.getPassword();
-		String signature =
+		json = json == null ? CoreConstants.EMPTY : json;
+		String secretKey = merchant.getSharedSecret();
+		String toEnc =
 				(StringUtil.isEmpty(httpMethod) ? CoreConstants.EMPTY : httpMethod.toLowerCase())
 				.concat(url)
-				.concat(timestamp)
+				.concat(salt)
+				.concat(timestampValue)
 				.concat(accessKey)
 				.concat(secretKey)
 				.concat(json);
-		int hash = signature.hashCode();
-		String ecodedSignature = new String(Base64.getEncoder().encode(String.valueOf(hash).getBytes()));
-		params.add(new AdvancedProperty("signature", ecodedSignature, "signature"));
+        String hashCode = hmacDigest(toEnc, secretKey, "HmacSHA256");
+        String signature = Base64.getEncoder().encodeToString(hashCode.getBytes());
+        params.add(new AdvancedProperty("signature", signature, "signature"));
 
 		return params;
 	}
 
-	public static final void main(String[] args) throws Exception {
-		RapydMerchant merchant = new RapydMerchant();
-		RapydCreditCardClient client = new RapydCreditCardClient(merchant);
-		HostedCheckoutPageResponse response = client.getHostedCheckoutPage(
-				new HostedCheckoutPageRequest(
-						Float.valueOf(1),
-						"IS",
-						"ISK",
-						"Testing Rapyd integration",
-						UUID.randomUUID().toString()
-				)
-		);
-		System.out.println("Response: " + response);
+	private String hmacDigest(String msg, String keyString, String algo) {
+		String digest = null;
+		try {
+			SecretKeySpec key = new SecretKeySpec((keyString).getBytes("ASCII"), algo);
+			Mac mac = Mac.getInstance(algo);
+			mac.init(key);
+
+			byte[]bytes = mac.doFinal(msg.getBytes(CoreConstants.ENCODING_UTF8));
+
+			StringBuffer hash = new StringBuffer();
+			for (int i = 0; i < bytes.length; i++) {
+				String hex = Integer.toHexString(0xFF & bytes[i]);
+				if (hex.length() == 1) {
+					hash.append('0');
+				}
+				hash.append(hex);
+			}
+			digest = hash.toString();
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Failed to hmacDigest message '" + msg + "' with key '" + keyString + "' and algo " + algo, e);
+		}
+		return digest;
 	}
 
 	@Override
-	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request) {
+	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request) throws CreditCardAuthorizationException {
 		if (request == null) {
 			LOGGER.warning("Request is not provided");
 			return null;
 		}
 
-		String url = null, errorMessage = null, responseData = null;
+		String url = null, json = null, errorMessage = null, responseData = null;
 		try {
 			String urlPath = "/v1/checkout";
 			String httpMethod = HttpMethod.POST;
 
 			url = this.url.concat(urlPath);
-			String json = GSON.toJson(request);
+			json = GSON.toJson(request);
 			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
 					url,
 					Long.valueOf(json.length()),
@@ -272,7 +316,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 			HostedCheckoutPageResponse result = GSON.fromJson(responseData, HostedCheckoutPageResponse.class);
 			return result;
 		} catch (Exception e) {
-			String error = "Error getting hosted checkout page for " + request + ". " + errorMessage;
+			String error = "Error getting hosted checkout page for " + json + ". " + errorMessage;
 			LOGGER.log(Level.WARNING, error, e);
 			CoreUtil.sendExceptionNotification(error, e);
 		}
