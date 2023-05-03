@@ -6,7 +6,8 @@ public interface CreditCardConstants {
 
 	public static final String REDIRECTION_URL = "REDIRECTION_URL";
 
-	public static final String METADATA_SUCCESS = "SUCCESS";
+	public static final String SUCCESS = "SUCCESS";
+	public static final String METADATA_SUCCESS = SUCCESS;
 
 	public static final String CARD_HOLDER_DEVICE_TYPE_WWW = "WWW";
 
