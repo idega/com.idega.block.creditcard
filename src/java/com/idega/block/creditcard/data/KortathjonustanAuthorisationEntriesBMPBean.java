@@ -358,4 +358,8 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		setAmount(amount == null ? 0 : amount.doubleValue());
 	}
 
+	@Override
+	public void setMerchant(CreditCardMerchant merchant) {
+	}
+
 }

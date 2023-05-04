@@ -31,6 +31,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard2.data.dao.impl.RapydAuthorisationEntryDAO;
 import com.idega.data.IDOEntity;
 import com.idega.data.IDOEntityDefinition;
@@ -251,8 +252,11 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 		return merchant;
 	}
 
-	public void setMerchant(RapydMerchant merchant) {
-		this.merchant = merchant;
+	@Override
+	public void setMerchant(CreditCardMerchant merchant) {
+		if (merchant instanceof RapydMerchant) {
+			this.merchant = (RapydMerchant) merchant;
+		}
 	}
 
 	public Long getId() {

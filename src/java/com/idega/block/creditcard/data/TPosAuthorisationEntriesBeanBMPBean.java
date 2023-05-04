@@ -1417,4 +1417,8 @@ public void setXMLAttachment(String xml) {
 		setAuthorisationCurrency(currency);
 	}
 
+	@Override
+	public void setMerchant(CreditCardMerchant merchant) {
+	}
+
 }

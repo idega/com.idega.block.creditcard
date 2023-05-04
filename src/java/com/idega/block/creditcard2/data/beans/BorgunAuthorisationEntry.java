@@ -31,6 +31,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Type;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.data.IDOEntity;
 import com.idega.data.IDOEntityDefinition;
 import com.idega.data.IDOStoreException;
@@ -135,6 +136,7 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = COLUMN_TRANSACTION_ID)
 	private String transactionId;
 
+	@Override
 	public String getTransactionId() {
 		return transactionId;
 	}
@@ -218,6 +220,7 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 		return amount.doubleValue();
 	}
 
+	@Override
 	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
@@ -261,6 +264,7 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 		return currency;
 	}
 
+	@Override
 	public void setCurrency(String currency) {
 		this.currency = currency;
 	}
@@ -439,7 +443,7 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public Map<String, String> getMetaDataAttributes() {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 
 		Set<Metadata> list = getMetadata();
 		for (Metadata metaData : list) {
@@ -451,7 +455,7 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public Map<String, String> getMetaDataTypes() {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 
 		Set<Metadata> list = getMetadata();
 		for (Metadata metaData : list) {
@@ -558,6 +562,10 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 		if (date != null) {
 			setDate(new Date(date.getTime()));
 		}
+	}
+
+	@Override
+	public void setMerchant(CreditCardMerchant merchant) {
 	}
 
 }

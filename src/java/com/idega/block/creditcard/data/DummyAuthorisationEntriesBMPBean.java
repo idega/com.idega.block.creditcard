@@ -341,4 +341,8 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 		setAmount(amount == null ? 0 : amount.doubleValue());
 	}
 
+	@Override
+	public void setMerchant(CreditCardMerchant merchant) {
+	}
+
 }

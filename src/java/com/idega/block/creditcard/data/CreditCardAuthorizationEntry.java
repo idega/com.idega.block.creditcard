@@ -86,4 +86,6 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 
 	public String getTransactionId();
 
+	public void setMerchant(CreditCardMerchant merchant);
+
 }

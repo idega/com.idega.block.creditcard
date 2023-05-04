@@ -28,6 +28,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.data.IDOEntity;
 import com.idega.data.IDOEntityDefinition;
 import com.idega.data.IDOStoreException;
@@ -806,6 +807,10 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Override
 	public void setAmount(Double amount) {
 		setAmount(amount == null ? null : String.valueOf(amount));
+	}
+
+	@Override
+	public void setMerchant(CreditCardMerchant merchant) {
 	}
 
 }
