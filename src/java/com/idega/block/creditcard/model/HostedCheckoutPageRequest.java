@@ -2,6 +2,7 @@ package com.idega.block.creditcard.model;
 
 import java.io.Serializable;
 
+import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
 
 public class HostedCheckoutPageRequest implements Serializable {
@@ -71,6 +72,7 @@ public class HostedCheckoutPageRequest implements Serializable {
 		this.currency = currency;
 		this.requested_currency = currency;
 		if (!StringUtil.isEmpty(statementDescriptor)) {
+			statementDescriptor = StringHandler.getAlphaNumeric(statementDescriptor);
 			if (statementDescriptor.length() > 22) {
 				statementDescriptor = statementDescriptor.substring(0, 22);
 			}
