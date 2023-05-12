@@ -185,6 +185,14 @@ public class HostedCheckoutPageRequest implements Serializable {
 		this.merchant_reference_id = merchant_reference_id;
 	}
 
+	public String getRequested_currency() {
+		return requested_currency;
+	}
+
+	public void setRequested_currency(String requested_currency) {
+		this.requested_currency = requested_currency;
+	}
+
 	@Override
 	public String toString() {
 		return getStatement_descriptor() + ": " + getAmount() + " " + getCurrency() + ". ID: " + getMerchant_reference_id();
