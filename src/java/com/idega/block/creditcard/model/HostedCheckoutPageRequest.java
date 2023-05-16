@@ -80,6 +80,7 @@ public class HostedCheckoutPageRequest implements Serializable {
 		}
 		this.merchant_reference_id = merchantReferenceId;
 		this.complete_checkout_url = completeCheckoutUrl;
+		this.complete_payment_url = completeCheckoutUrl;
 		this.cancel_checkout_url = cancelCheckoutUrl;
 	}
 
