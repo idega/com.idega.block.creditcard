@@ -32,7 +32,9 @@ public interface CreditCardMerchant extends IDOEntity {
 
 	public static final String	COLUMN_SHARED_SECRET = "shared_secret",
 								COLUMN_AUTHORIZATION_TERMINAL = "authorization_terminal",
-								COLUMN_SUCCESS_REDIRECT_URL = "sucess_redirect_url";
+								COLUMN_SUCCESS_REDIRECT_URL = "sucess_redirect_url",
+								COLUMN_ERROR_REDIRECT_URL = "error_redirect_url",
+								COLUMN_COUNTRY = "country";
 
 	public String getType();
 
@@ -96,6 +98,14 @@ public interface CreditCardMerchant extends IDOEntity {
 
 	public void setSuccessRedirectURL(String successRedirectURL);
 
+	public String getErrorRedirectURL();
+
+	public void setErrorRedirectURL(String errorRedirectURL);
+
 	public Integer getId();
+
+	public String getCountry();
+
+	public void setCountry(String country);
 
 }

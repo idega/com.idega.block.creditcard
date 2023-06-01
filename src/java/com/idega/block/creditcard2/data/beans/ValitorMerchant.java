@@ -97,6 +97,12 @@ public class ValitorMerchant implements CreditCardMerchant {
 	@Column(name = COLUMN_AUTHORIZATION_TERMINAL)
 	private String authorizationTerminal;
 
+	@Column(name = COLUMN_ERROR_REDIRECT_URL)
+	private String errorRedirectURL;
+
+	@Column(name = COLUMN_COUNTRY)
+	private String country;
+
 	@Override
 	public String getAuthorizationTerminal() {
 		return authorizationTerminal;
@@ -393,6 +399,26 @@ public class ValitorMerchant implements CreditCardMerchant {
 	@Override
 	public String getSharedSecret() {
 		return secret;
+	}
+
+	@Override
+	public String getErrorRedirectURL() {
+		return errorRedirectURL;
+	}
+
+	@Override
+	public void setErrorRedirectURL(String errorRedirectURL) {
+		this.errorRedirectURL = errorRedirectURL;
+	}
+
+	@Override
+	public String getCountry() {
+		return country;
+	}
+
+	@Override
+	public void setCountry(String country) {
+		this.country = country;
 	}
 
 }
