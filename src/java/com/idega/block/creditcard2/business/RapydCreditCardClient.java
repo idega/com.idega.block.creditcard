@@ -347,28 +347,18 @@ public class RapydCreditCardClient implements CreditCardClient {
 	private List<AdvancedProperty> getHeaderParams(String httpMethod, String url, String json) {
 		List<AdvancedProperty> params = new ArrayList<>();
 
-		//	Unique access key provided by Rapyd for each authorized user
 		String accessKey = merchant.getPassword();
 		params.add(new AdvancedProperty("access_key", accessKey, "access_key"));
 
-		//	Indicates that the data appears in JSON format. Always set to application/json
 		params.add(new AdvancedProperty(RequestUtil.HEADER_CONTENT_TYPE, MediaType.APPLICATION_JSON, RequestUtil.HEADER_CONTENT_TYPE));
 
-		//	Salt for the request signature. A random string for each request. Length: 8-16 digits, letters and special characters
 		String salt = StringUtil.getAlphaNumericString(16);
 		params.add(new AdvancedProperty("salt", salt, "salt"));
 
-		//	The time of the request, in Unix time (seconds)
 		long timestamp = System.currentTimeMillis() / 1000L;
 		String timestampValue = Long.toString(timestamp);
 		params.add(new AdvancedProperty("timestamp", timestampValue, "timestamp"));
 
-		//	Signature calculated for each message individually.
-		//	For REST requests, see https://docs.rapyd.net/build-with-rapyd/reference/authentication#request-signatures
-		//	signature = BASE64 ( HASH ( http_method + url_path + salt + timestamp + access_key + secret_key + body_string ) )
-
-		//	For webhooks, see https://docs.rapyd.net/build-with-rapyd/reference/authentication#webhook-authentication
-		//	signature = BASE64 ( HASH ( url_path + salt + timestamp + access_key + secret_key + body_string ) )
 		json = json == null ? CoreConstants.EMPTY : json;
 		String secretKey = merchant.getSharedSecret();
 		String toEnc =
