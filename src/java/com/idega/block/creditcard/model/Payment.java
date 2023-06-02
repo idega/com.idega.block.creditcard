@@ -6,6 +6,9 @@ import java.util.List;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.idega.block.creditcard.model.rapyd.PaymentMethodData;
+import com.idega.block.creditcard.model.rapyd.PaymentMethodOptions;
+import com.idega.block.creditcard.model.rapyd.VisualCodes;
 
 public class Payment implements Serializable {
 

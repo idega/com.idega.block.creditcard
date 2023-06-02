@@ -1,10 +1,14 @@
 package com.idega.block.creditcard2.business;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,7 +18,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 
-import com.google.gson.Gson;
+import com.idega.block.creditcard.CreditCardConstants;
 import com.idega.block.creditcard.CreditCardUtil;
 import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.creditcard.business.CreditCardClient;
@@ -26,23 +30,29 @@ import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard.model.HostedCheckoutPageRequest;
 import com.idega.block.creditcard.model.HostedCheckoutPageResponse;
 import com.idega.block.creditcard.model.SaleOption;
+import com.idega.block.creditcard.model.rapyd.CreatePayment;
+import com.idega.block.creditcard.model.rapyd.Datum;
+import com.idega.block.creditcard.model.rapyd.PaymentMethodsResponse;
+import com.idega.block.creditcard.model.rapyd.PaymentResult;
 import com.idega.block.creditcard2.data.beans.RapydAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.RapydMerchant;
 import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.builder.bean.AdvancedProperty;
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.restful.util.ConnectionUtil;
+import com.idega.util.ArrayUtil;
 import com.idega.util.CoreConstants;
 import com.idega.util.CoreUtil;
+import com.idega.util.ListUtil;
 import com.idega.util.RequestUtil;
 import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
+import com.idega.util.URIUtil;
 import com.sun.jersey.api.client.ClientResponse;
 
 public class RapydCreditCardClient implements CreditCardClient {
 
 	private static final Logger LOGGER = Logger.getLogger(RapydCreditCardClient.class.getName());
-
-	private static final Gson GSON = new Gson();
 
 	private CreditCardMerchant merchant;
 
@@ -102,7 +112,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 	@Override
 	public String doSale(
 			String nameOnCard,
-			String cardnumber,
+			String number,
 			String monthExpires,
 			String yearExpires,
 			String ccVerifyNumber,
@@ -111,7 +121,120 @@ public class RapydCreditCardClient implements CreditCardClient {
 			String referenceNumber,
 			SaleOption... options
 	) throws CreditCardAuthorizationException {
-		throw new CreditCardAuthorizationException("Not implemented");
+		if (StringUtil.isEmpty(nameOnCard)) {
+			throw new CreditCardAuthorizationException("Name must be provided");
+		}
+		if (StringUtil.isEmpty(number)) {
+			throw new CreditCardAuthorizationException("Card number must be provided");
+		}
+		if (StringUtil.isEmpty(monthExpires)) {
+			throw new CreditCardAuthorizationException("Expiration month must be provided");
+		}
+		if (StringUtil.isEmpty(yearExpires)) {
+			throw new CreditCardAuthorizationException("Expiration year must be provided");
+		}
+		if (StringUtil.isEmpty(ccVerifyNumber)) {
+			throw new CreditCardAuthorizationException("CVV must be provided");
+		}
+		if (amount < 0) {
+			throw new CreditCardAuthorizationException("Invalid amount");
+		}
+		if (StringUtil.isEmpty(currency)) {
+			throw new CreditCardAuthorizationException("Currency must be provided");
+		}
+
+		String error = "Error making sale with card " + CreditCardUtil.getMaskedCreditCardNumber(number) + " " + monthExpires + " (MM)/" + yearExpires + " (YY) issued for " +
+				nameOnCard + ". Amount: " + amount + " " + currency + ". Reference number: " + referenceNumber;
+		try {
+			String country = merchant.getCountry();
+			if (StringUtil.isEmpty(country)) {
+				Locale locale = IWMainApplication.getDefaultIWMainApplication().getDefaultLocale();
+				country = locale == null ? null : locale.getCountry();
+			}
+			PaymentMethodsResponse paymentMethods = getAvailablePaymentMethods(country, currency);
+			if (paymentMethods == null || !isSuccess(paymentMethods.getStatus()) || ListUtil.isEmpty(paymentMethods.getData())) {
+				String message = "No payment methods available for merchant " + merchant + ". " + error;
+				LOGGER.warning(message);
+				throw new CreditCardAuthorizationException(message);
+			}
+
+			String type = null, cardBrand = CreditCardUtil.getCardBrand(number);
+			List<Datum> data = paymentMethods.getData();
+			for (Iterator<Datum> iter = data.iterator(); (StringUtil.isEmpty(type) && iter.hasNext());) {
+				Datum datum = iter.next();
+				String category = datum == null ? null : datum.getCategory();
+				if (StringUtil.isEmpty(category) || !CreditCardConstants.CARD.equals(category)) {
+					continue;
+				}
+
+				String name = datum.getName();
+				if (StringUtil.isEmpty(name) || StringUtil.isEmpty(cardBrand)) {
+					type = datum.getType();
+
+				} else if (name.toLowerCase().equals(cardBrand.toLowerCase())) {
+					type = datum.getType();
+				}
+			}
+			if (StringUtil.isEmpty(type)) {
+				String message = "No payment methods for cards available for merchant " + merchant + ". Received payment methods: " + paymentMethods + ". " + error;
+				LOGGER.warning(message);
+				throw new CreditCardAuthorizationException(message);
+			}
+
+			CreatePayment payment = new CreatePayment(
+					Double.valueOf(amount).intValue(),
+					currency,
+					type,
+					nameOnCard,
+					number,
+					monthExpires,
+					yearExpires,
+					ccVerifyNumber,
+					referenceNumber
+			);
+			PaymentResult result = getResponseFromRapyd("/v1/payments", HttpMethod.POST, payment, PaymentResult.class);
+			if (
+					!isSuccess(result == null ? null : result.getStatus()) ||
+					result.getData() == null ||
+					StringUtil.isEmpty(result.getData().getStatus()) ||
+					!CreditCardConstants.CLOSED.equals(result.getData().getStatus())
+			) {
+				LOGGER.warning(error);
+				throw new CreditCardAuthorizationException(error);
+			}
+
+			return result.getData().getId();
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
+			throw new CreditCardAuthorizationException(e);
+		}
+	}
+
+	private PaymentMethodsResponse getAvailablePaymentMethods(String country, String currency) {
+		if (StringUtil.isEmpty(country) || StringUtil.isEmpty(currency)) {
+			return null;
+		}
+
+		try {
+			PaymentMethodsResponse result = getResponseFromRapyd(
+					"/v1/payment_methods/countries/",
+					HttpMethod.GET,
+					null,
+					PaymentMethodsResponse.class,
+					Arrays.asList(
+							new AdvancedProperty(country, country, "country")
+					),
+					new AdvancedProperty(currency, currency, "currency")
+			);
+			return result;
+		} catch (Exception e) {
+			String error = "Error getting payment methods for country " + country + " and currency " + currency;
+			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
+		}
+
+		return null;
 	}
 
 	@Override
@@ -294,35 +417,98 @@ public class RapydCreditCardClient implements CreditCardClient {
 			return null;
 		}
 
+		try {
+			return getResponseFromRapyd("/v1/checkout", HttpMethod.POST, request, HostedCheckoutPageResponse.class);
+		} catch (Exception e) {
+			String error = "Error getting hosted checkout page for " + request;
+			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
+		}
+
+		return null;
+	}
+
+	private boolean isSuccess(com.idega.block.creditcard.model.Status status) {
+		if (
+				status == null ||
+				StringUtil.isEmpty(status.getStatus()) ||
+				!CreditCardConstants.SUCCESS.equals(status.getStatus())
+		) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private <T extends Serializable> T getResponseFromRapyd(
+			String uri,
+			String method,
+			Serializable request,
+			Class<T> responseType
+	) {
+		return getResponseFromRapyd(uri, method, request, responseType, null);
+	}
+
+	private <T extends Serializable> T getResponseFromRapyd(
+			String uri,
+			String method,
+			Serializable request,
+			Class<T> responseType,
+			List<AdvancedProperty> pathParams,
+			AdvancedProperty... queryParams
+	) {
 		String url = null, json = null, errorMessage = null, responseData = null;
 		try {
-			String urlPath = "/v1/checkout";
-			String httpMethod = HttpMethod.POST;
+			if (!ListUtil.isEmpty(pathParams)) {
+				for (AdvancedProperty param: pathParams) {
+					String value = param == null ? null : param.getValue();
+					if (StringUtil.isEmpty(value)) {
+						continue;
+					}
 
-			url = this.url.concat(urlPath);
-			json = GSON.toJson(request);
+					if (!uri.endsWith(CoreConstants.SLASH)) {
+						uri = uri.concat(CoreConstants.SLASH);
+					}
+					uri = uri.concat(value);
+				}
+			}
+			if (!ArrayUtil.isEmpty(queryParams)) {
+				URIUtil uriUtil = new URIUtil(uri);
+				for (AdvancedProperty param: queryParams) {
+					String value = param == null ? null : param.getValue();
+					if (StringUtil.isEmpty(value)) {
+						continue;
+					}
+
+					uriUtil.setParameter(param.getName(), param.getValue());
+				}
+				uri = uriUtil.getUri();
+			}
+			url = this.url.concat(uri);
+
+			json = request == null ? null : CreditCardConstants.GSON.toJson(request);
 			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
 					url,
-					Long.valueOf(json.length()),
+					StringUtil.isEmpty(json) ? null : Long.valueOf(json.length()),
 					MediaType.APPLICATION_JSON,
-					httpMethod,
+					method,
 					json,
-					getHeaderParams(httpMethod, urlPath, json),
+					getHeaderParams(method, uri, json),
 					null
 			);
 
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				Integer status = response == null ? null : response.getStatus();
 				errorMessage = response == null ? null : StringHandler.getContentFromInputStream(response.getEntityInputStream());
-				LOGGER.warning("Error sending " + json + " to Rapyd (" + url + "). Response (" + response +
+				LOGGER.warning("Error " + (HttpMethod.POST.equals(method) ? "sending " + json + " to" : "getting from") + " Rapyd (" + url + "). Response (" + response +
 						") or response status is not OK: " + (status == null ? "unknown" : status) + ". Response message:\n" +
 						(errorMessage == null ? "not provided" : errorMessage));
 				return null;
 			}
 
 			responseData = StringHandler.getContentFromInputStream(response.getEntityInputStream());
-			LOGGER.info("Response data from Rapyd (" + url + ") for " + json + ":\n" + responseData);
-			HostedCheckoutPageResponse result = GSON.fromJson(responseData, HostedCheckoutPageResponse.class);
+			LOGGER.info("Response data from Rapyd (" + url + ", HTTP method " + method + ")" + (StringUtil.isEmpty(json) ? CoreConstants.EMPTY : " for " + json) + ":\n" + responseData);
+			T result = CreditCardConstants.GSON.fromJson(responseData, responseType);
 			return result;
 		} catch (Exception e) {
 			String error = "Error getting hosted checkout page for " + json + ". " + errorMessage;

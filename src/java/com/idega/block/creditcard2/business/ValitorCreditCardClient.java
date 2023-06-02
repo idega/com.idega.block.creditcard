@@ -20,7 +20,6 @@ import javax.xml.ws.BindingProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.idega.block.creditcard.CreditCardConstants;
 import com.idega.block.creditcard.CreditCardUtil;
@@ -171,7 +170,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setErrorText(result.getVilluskilabod());
 			}
 			auth.setParent((ValitorAuthorisationEntry)parentDataPK);
-			auth.setMerchant((ValitorMerchant) merchant);
+			auth.setMerchant(merchant);
 			getAuthDAO().store(auth);
 
 			if (result.getVillunumer()==0){
@@ -230,7 +229,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setErrorNumber(result.getVillunumer()+CoreConstants.EMPTY);
 				auth.setErrorText(result.getVilluskilabod());
 			}
-			auth.setMerchant((ValitorMerchant) merchant);
+			auth.setMerchant(merchant);
 			getAuthDAO().store(auth);
 
 			if (result.getVillunumer()==0){
@@ -748,7 +747,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			stream = response == null ? null : response.getEntityInputStream();
 			reader = stream == null ? null : new InputStreamReader(stream);
 			if (reader != null) {
-				valitorPayResponseData = new Gson().fromJson(reader, ValitorPayResponseData.class);
+				valitorPayResponseData = CreditCardConstants.GSON.fromJson(reader, ValitorPayResponseData.class);
 			}
 		} catch (Throwable e) {
 			String error = "Error reading from response " + response + ". Message: " + e.getMessage();
@@ -809,7 +808,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setErrorNumber(response.getResponseCode());
 				auth.setErrorText(response.getResponseDescription());
 			}
-			auth.setMerchant((ValitorMerchant) merchant);
+			auth.setMerchant(merchant);
 			if (!StringUtil.isEmpty(response.getTransactionID())) {
 				auth.setTransactionId(response.getTransactionID());
 			}
@@ -1173,7 +1172,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setErrorNumber(response.getResponseCode());
 				auth.setErrorText(response.getResponseDescription());
 			}
-			auth.setMerchant((ValitorMerchant) merchant);
+			auth.setMerchant(merchant);
 			if (!StringUtil.isEmpty(response.getTransactionID())) {
 				auth.setTransactionId(response.getTransactionID());
 			}
