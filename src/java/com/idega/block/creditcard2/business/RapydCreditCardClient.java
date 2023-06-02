@@ -31,6 +31,7 @@ import com.idega.block.creditcard.model.HostedCheckoutPageRequest;
 import com.idega.block.creditcard.model.HostedCheckoutPageResponse;
 import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard.model.rapyd.CreatePayment;
+import com.idega.block.creditcard.model.rapyd.Data;
 import com.idega.block.creditcard.model.rapyd.Datum;
 import com.idega.block.creditcard.model.rapyd.PaymentMethodsResponse;
 import com.idega.block.creditcard.model.rapyd.PaymentResult;
@@ -193,17 +194,34 @@ public class RapydCreditCardClient implements CreditCardClient {
 					referenceNumber
 			);
 			PaymentResult result = getResponseFromRapyd("/v1/payments", HttpMethod.POST, payment, PaymentResult.class);
+			Data responseData = result == null ? null : result.getData();
+			String redirect = responseData == null ? null : responseData.getRedirect_url();
 			if (
 					!isSuccess(result == null ? null : result.getStatus()) ||
-					result.getData() == null ||
-					StringUtil.isEmpty(result.getData().getStatus()) ||
-					!CreditCardConstants.CLOSED.equals(result.getData().getStatus())
+					responseData == null ||
+					StringUtil.isEmpty(responseData.getStatus()) ||
+					!CreditCardConstants.CLOSED.equals(responseData.getStatus())
 			) {
+				if (!StringUtil.isEmpty(redirect)) {
+					LOGGER.info("Must redirect to " + redirect + " to complete sail!");
+					return redirect;
+				}
+
 				LOGGER.warning(error);
 				throw new CreditCardAuthorizationException(error);
 			}
 
-			return result.getData().getId();
+			String authCode = responseData.getAuth_code();
+			if (!StringUtil.isEmpty(authCode)) {
+				return authCode;
+			}
+
+			if (!StringUtil.isEmpty(redirect)) {
+				LOGGER.info("Redirect to " + redirect + " to complete sail!");
+				return redirect;
+			}
+
+			return responseData.getId();
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, error, e);
 			CoreUtil.sendExceptionNotification(error, e);
