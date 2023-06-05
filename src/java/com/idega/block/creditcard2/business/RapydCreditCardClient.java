@@ -29,12 +29,14 @@ import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard.model.HostedCheckoutPageRequest;
 import com.idega.block.creditcard.model.HostedCheckoutPageResponse;
+import com.idega.block.creditcard.model.PaymentIntegrationResult;
 import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard.model.rapyd.CreatePayment;
 import com.idega.block.creditcard.model.rapyd.Data;
 import com.idega.block.creditcard.model.rapyd.Datum;
 import com.idega.block.creditcard.model.rapyd.PaymentMethodsResponse;
 import com.idega.block.creditcard.model.rapyd.PaymentResult;
+import com.idega.block.creditcard.model.rapyd.RapydException;
 import com.idega.block.creditcard2.data.beans.RapydAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.RapydMerchant;
 import com.idega.block.creditcard2.data.beans.VirtualCard;
@@ -123,29 +125,30 @@ public class RapydCreditCardClient implements CreditCardClient {
 			SaleOption... options
 	) throws CreditCardAuthorizationException {
 		if (StringUtil.isEmpty(nameOnCard)) {
-			throw new CreditCardAuthorizationException("Name must be provided");
+			throw new RapydException("Name must be provided");
 		}
 		if (StringUtil.isEmpty(number)) {
-			throw new CreditCardAuthorizationException("Card number must be provided");
+			throw new RapydException("Card number must be provided");
 		}
 		if (StringUtil.isEmpty(monthExpires)) {
-			throw new CreditCardAuthorizationException("Expiration month must be provided");
+			throw new RapydException("Expiration month must be provided");
 		}
 		if (StringUtil.isEmpty(yearExpires)) {
-			throw new CreditCardAuthorizationException("Expiration year must be provided");
+			throw new RapydException("Expiration year must be provided");
 		}
 		if (StringUtil.isEmpty(ccVerifyNumber)) {
-			throw new CreditCardAuthorizationException("CVV must be provided");
+			throw new RapydException("CVV must be provided");
 		}
 		if (amount < 0) {
-			throw new CreditCardAuthorizationException("Invalid amount");
+			throw new RapydException("Invalid amount");
 		}
 		if (StringUtil.isEmpty(currency)) {
-			throw new CreditCardAuthorizationException("Currency must be provided");
+			throw new RapydException("Currency must be provided");
 		}
 
 		String error = "Error making sale with card " + CreditCardUtil.getMaskedCreditCardNumber(number) + " " + monthExpires + " (MM)/" + yearExpires + " (YY) issued for " +
 				nameOnCard + ". Amount: " + amount + " " + currency + ". Reference number: " + referenceNumber;
+		PaymentResult result = null;
 		try {
 			String country = merchant.getCountry();
 			if (StringUtil.isEmpty(country)) {
@@ -156,7 +159,8 @@ public class RapydCreditCardClient implements CreditCardClient {
 			if (paymentMethods == null || !isSuccess(paymentMethods.getStatus()) || ListUtil.isEmpty(paymentMethods.getData())) {
 				String message = "No payment methods available for merchant " + merchant + ". " + error;
 				LOGGER.warning(message);
-				throw new CreditCardAuthorizationException(message);
+
+				throw new RapydException(message, paymentMethods);
 			}
 
 			String type = null, cardBrand = CreditCardUtil.getCardBrand(number);
@@ -179,7 +183,8 @@ public class RapydCreditCardClient implements CreditCardClient {
 			if (StringUtil.isEmpty(type)) {
 				String message = "No payment methods for cards available for merchant " + merchant + ". Received payment methods: " + paymentMethods + ". " + error;
 				LOGGER.warning(message);
-				throw new CreditCardAuthorizationException(message);
+
+				throw new RapydException(message, paymentMethods);
 			}
 
 			CreatePayment payment = new CreatePayment(
@@ -193,7 +198,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 					ccVerifyNumber,
 					referenceNumber
 			);
-			PaymentResult result = getResponseFromRapyd("/v1/payments", HttpMethod.POST, payment, PaymentResult.class);
+			result = getResponseFromRapyd("/v1/payments", HttpMethod.POST, payment, PaymentResult.class);
 			Data responseData = result == null ? null : result.getData();
 			String redirect = responseData == null ? null : responseData.getRedirect_url();
 			if (
@@ -208,7 +213,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 				}
 
 				LOGGER.warning(error);
-				throw new CreditCardAuthorizationException(error);
+				throw new RapydException(error, result);
 			}
 
 			String authCode = responseData.getAuth_code();
@@ -225,17 +230,18 @@ public class RapydCreditCardClient implements CreditCardClient {
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, error, e);
 			CoreUtil.sendExceptionNotification(error, e);
-			throw new CreditCardAuthorizationException(e);
+
+			throw new RapydException(e, error, result);
 		}
 	}
 
-	private PaymentMethodsResponse getAvailablePaymentMethods(String country, String currency) {
+	private PaymentMethodsResponse getAvailablePaymentMethods(String country, String currency) throws CreditCardAuthorizationException {
 		if (StringUtil.isEmpty(country) || StringUtil.isEmpty(currency)) {
 			return null;
 		}
 
 		try {
-			PaymentMethodsResponse result = getResponseFromRapyd(
+			return getResponseFromRapyd(
 					"/v1/payment_methods/countries/",
 					HttpMethod.GET,
 					null,
@@ -245,14 +251,13 @@ public class RapydCreditCardClient implements CreditCardClient {
 					),
 					new AdvancedProperty(currency, currency, "currency")
 			);
-			return result;
 		} catch (Exception e) {
 			String error = "Error getting payment methods for country " + country + " and currency " + currency;
 			LOGGER.log(Level.WARNING, error, e);
 			CoreUtil.sendExceptionNotification(error, e);
-		}
 
-		return null;
+			throw new RapydException(e, error);
+		}
 	}
 
 	@Override
@@ -425,15 +430,17 @@ public class RapydCreditCardClient implements CreditCardClient {
 			return null;
 		}
 
+		HostedCheckoutPageResponse response = null;
 		try {
-			return getResponseFromRapyd("/v1/checkout", HttpMethod.POST, request, HostedCheckoutPageResponse.class);
+			response = getResponseFromRapyd("/v1/checkout", HttpMethod.POST, request, HostedCheckoutPageResponse.class);
+			return response;
 		} catch (Exception e) {
 			String error = "Error getting hosted checkout page for " + request;
 			LOGGER.log(Level.WARNING, error, e);
 			CoreUtil.sendExceptionNotification(error, e);
-		}
 
-		return null;
+			throw new RapydException(e, error, response);
+		}
 	}
 
 	private boolean isSuccess(com.idega.block.creditcard.model.Status status) {
@@ -448,23 +455,26 @@ public class RapydCreditCardClient implements CreditCardClient {
 		return true;
 	}
 
-	private <T extends Serializable> T getResponseFromRapyd(
+	private <T extends PaymentIntegrationResult> T getResponseFromRapyd(
 			String uri,
 			String method,
 			Serializable request,
 			Class<T> responseType
-	) {
+	) throws CreditCardAuthorizationException {
 		return getResponseFromRapyd(uri, method, request, responseType, null);
 	}
 
-	private <T extends Serializable> T getResponseFromRapyd(
+	private <T extends PaymentIntegrationResult> T getResponseFromRapyd(
 			String uri,
 			String method,
 			Serializable request,
 			Class<T> responseType,
 			List<AdvancedProperty> pathParams,
 			AdvancedProperty... queryParams
-	) {
+	) throws CreditCardAuthorizationException {
+		T result = null;
+		Integer status = null;
+		ClientResponse response = null;
 		String url = null, json = null, errorMessage = null, responseData = null;
 		try {
 			if (!ListUtil.isEmpty(pathParams)) {
@@ -495,7 +505,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 			url = this.url.concat(uri);
 
 			json = request == null ? null : CreditCardConstants.GSON.toJson(request);
-			ClientResponse response = ConnectionUtil.getInstance().getResponseFromREST(
+			response = ConnectionUtil.getInstance().getResponseFromREST(
 					url,
 					StringUtil.isEmpty(json) ? null : Long.valueOf(json.length()),
 					MediaType.APPLICATION_JSON,
@@ -506,7 +516,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 			);
 
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
-				Integer status = response == null ? null : response.getStatus();
+				status = response == null ? null : response.getStatus();
 				errorMessage = response == null ? null : StringHandler.getContentFromInputStream(response.getEntityInputStream());
 				LOGGER.warning("Error " + (HttpMethod.POST.equals(method) ? "sending " + json + " to" : "getting from") + " Rapyd (" + url + "). Response (" + response +
 						") or response status is not OK: " + (status == null ? "unknown" : status) + ". Response message:\n" +
@@ -516,15 +526,22 @@ public class RapydCreditCardClient implements CreditCardClient {
 
 			responseData = StringHandler.getContentFromInputStream(response.getEntityInputStream());
 			LOGGER.info("Response data from Rapyd (" + url + ", HTTP method " + method + ")" + (StringUtil.isEmpty(json) ? CoreConstants.EMPTY : " for " + json) + ":\n" + responseData);
-			T result = CreditCardConstants.GSON.fromJson(responseData, responseType);
+			result = CreditCardConstants.GSON.fromJson(responseData, responseType);
 			return result;
 		} catch (Exception e) {
-			String error = "Error getting hosted checkout page for " + json + ". " + errorMessage;
+			status = status == null ?
+					response == null ? null : response.getStatus() :
+					status;
+			String error = StringUtil.isEmpty(errorMessage) ?
+					"Error " + (HttpMethod.POST.equals(method) ? "sending " + json + " to" : "getting from") + " Rapyd (" + url + "). Response (" + response +
+					") or response status is not OK: " + (status == null ? "unknown" : status) + ". Response message:\n" +
+					(errorMessage == null ? "not provided" : errorMessage) :
+					errorMessage;
 			LOGGER.log(Level.WARNING, error, e);
 			CoreUtil.sendExceptionNotification(error, e);
-		}
 
-		return null;
+			throw new RapydException(e, error, result);
+		}
 	}
 
 }
