@@ -1,10 +1,9 @@
 package com.idega.block.creditcard.model.rapyd;
 
-import java.io.Serializable;
-
+import com.idega.block.creditcard.model.PaymentIntegrationResult;
 import com.idega.block.creditcard.model.Status;
 
-public class PaymentResult implements Serializable {
+public class PaymentResult implements PaymentIntegrationResult {
 
 	private static final long serialVersionUID = 1321034848309498065L;
 
@@ -12,6 +11,7 @@ public class PaymentResult implements Serializable {
 
 	private Data data;
 
+	@Override
 	public Status getStatus() {
 		return status;
 	}

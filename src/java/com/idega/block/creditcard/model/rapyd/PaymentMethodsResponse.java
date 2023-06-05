@@ -1,11 +1,11 @@
 package com.idega.block.creditcard.model.rapyd;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
+import com.idega.block.creditcard.model.PaymentIntegrationResult;
 import com.idega.block.creditcard.model.Status;
 
-public class PaymentMethodsResponse implements Serializable {
+public class PaymentMethodsResponse implements PaymentIntegrationResult {
 
 	private static final long serialVersionUID = 941594752171528231L;
 
@@ -13,6 +13,7 @@ public class PaymentMethodsResponse implements Serializable {
 
 	private ArrayList<Datum> data;
 
+	@Override
 	public Status getStatus() {
 		return status;
 	}

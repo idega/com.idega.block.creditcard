@@ -1,11 +1,9 @@
 package com.idega.block.creditcard.model;
 
-import java.io.Serializable;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class HostedCheckoutPageResponse implements Serializable {
+public class HostedCheckoutPageResponse implements PaymentIntegrationResult {
 
 	private static final long serialVersionUID = 4173544311737879852L;
 
@@ -17,7 +15,8 @@ public class HostedCheckoutPageResponse implements Serializable {
     @Expose
     private Data data;
 
-    public Status getStatus() {
+    @Override
+	public Status getStatus() {
         return status;
     }
 
