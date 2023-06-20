@@ -112,6 +112,14 @@ public class RapydCreditCardClient implements CreditCardClient {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
+	private boolean hasSaleOption(SaleOption[] options, SaleOption option) {
+		if (ArrayUtil.isEmpty(options) || option == null) {
+			return false;
+		}
+
+		return Arrays.asList(options).contains(option);
+	}
+
 	@Override
 	public String doSale(
 			String nameOnCard,
@@ -187,6 +195,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 				throw new RapydException(message, paymentMethods);
 			}
 
+			boolean skip3DAuth = hasSaleOption(options, SaleOption.SKIP_3D_AUTH);
 			CreatePayment payment = new CreatePayment(
 					Double.valueOf(amount).intValue(),
 					currency,
@@ -196,7 +205,8 @@ public class RapydCreditCardClient implements CreditCardClient {
 					monthExpires,
 					yearExpires,
 					ccVerifyNumber,
-					referenceNumber
+					referenceNumber,
+					skip3DAuth
 			);
 			result = getResponseFromRapyd("/v1/payments", HttpMethod.POST, payment, PaymentResult.class);
 			Data responseData = result == null ? null : result.getData();

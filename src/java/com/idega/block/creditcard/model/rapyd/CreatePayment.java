@@ -37,13 +37,17 @@ public class CreatePayment implements Serializable {
     }
 
     public CreatePayment(Integer amount, String currency, String type, String name, String number, String expMonth, String expYear, String cvv, String reference) {
+    	this(amount, currency, type, name, number, expMonth, expYear, cvv, reference, false);
+    }
+
+    public CreatePayment(Integer amount, String currency, String type, String name, String number, String expMonth, String expYear, String cvv, String reference, boolean skip3DAuth) {
     	this();
 
     	this.amount = amount;
     	this.currency = currency;
     	this.payment_method = new PaymentMethod(type, name, number, expMonth, expYear, cvv);
     	this.merchant_reference_id = reference;
-    	this.payment_method_options = new PaymentMethodOptions(true);
+    	this.payment_method_options = new PaymentMethodOptions(skip3DAuth ? false : true);
     }
 
 	public Integer getAmount() {
