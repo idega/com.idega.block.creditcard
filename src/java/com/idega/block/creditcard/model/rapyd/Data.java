@@ -83,7 +83,7 @@ public class Data implements Serializable {
 
     private TextualCodes textual_codes;
 
-    private ArrayList<Instruction> instructions;
+    private Object instructions;
 
     private String ewallet_id;
 
@@ -431,11 +431,11 @@ public class Data implements Serializable {
 		this.textual_codes = textual_codes;
 	}
 
-	public ArrayList<Instruction> getInstructions() {
+	public Object getInstructions() {
 		return instructions;
 	}
 
-	public void setInstructions(ArrayList<Instruction> instructions) {
+	public void setInstructions(Object instructions) {
 		this.instructions = instructions;
 	}
 
