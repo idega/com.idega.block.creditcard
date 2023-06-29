@@ -51,14 +51,23 @@ public class FinanceServiceImpl extends DefaultSpringBean implements FinanceServ
 				return;
 			}
 
+			Data data = hook.getData();
+
 			String type = hook.getType();
 			boolean proceed = !StringUtil.isEmpty(type) && CreditCardConstants.PAYMENT_COMPLETED.equals(type);
 			if (!proceed) {
 				getLogger().warning("Not success hook with type " + type + ":\n" + hook);
+				PaymentFailedEvent failure = new PaymentFailedEvent(
+						hook,
+						data == null ? null : data.getMerchant_reference_id(),
+						request,
+						response,
+						context
+				);
+				ELUtil.getInstance().publishEvent(failure);
 				return;
 			}
 
-			Data data = hook.getData();
 			PaymentMethodData paymentData = data == null ? null : data.getPayment_method_data();
 			BinDetails binDetails = paymentData == null ? null : paymentData.getBin_details();
 			PaymentSucceededEvent success = new PaymentSucceededEvent(
