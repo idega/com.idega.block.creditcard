@@ -31,7 +31,7 @@ public class ValitorPayResponseData implements Serializable {
 	private String correlationID;
 	private String virtualCard;
 
-	//For virtual card payment
+	//Other
 	private String acquirerReferenceNumber;
 	private String transactionID;
 	private String authorizationCode;
