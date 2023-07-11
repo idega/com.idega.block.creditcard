@@ -104,7 +104,7 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 
 	public String getLastAuthorizationForMerchant(String merchantRrnSuffix, Integer merchantId) {
 		return getSingleResultByInlineQuery(
-				"select max(bae.rrn) from RapydAuthorisationEntry bae where bae.rrn Like :rrn and bae.merchant.id = :id",
+				"select max(bae.rrn) from RapydAuthorisationEntry bae where bae.rrn like :rrn and bae.merchant.id = :id",
 				String.class,
 				new Param("rrn", merchantRrnSuffix + "%"),
 				new Param("id", merchantId)
