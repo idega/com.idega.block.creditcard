@@ -21,6 +21,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -43,7 +44,14 @@ import com.idega.util.StringUtil;
 import com.idega.util.expression.ELUtil;
 
 @Entity
-@Table(name = RapydAuthorisationEntry.TABLE_NAME)
+@Table(
+		name = RapydAuthorisationEntry.TABLE_NAME,
+		indexes = {
+				@Index(name = RapydAuthorisationEntry.COLUMN_AUTH_CODE + "_INDEX", columnList = RapydAuthorisationEntry.COLUMN_AUTH_CODE),
+				@Index(name = RapydAuthorisationEntry.COLUMN_UNIQUE_ID + "_INDEX", columnList = RapydAuthorisationEntry.COLUMN_UNIQUE_ID),
+				@Index(name = RapydAuthorisationEntry.COLUMN_REFERENCE + "_INDEX", columnList = RapydAuthorisationEntry.COLUMN_REFERENCE)
+		}
+)
 @NamedQueries({
 		@NamedQuery(
 				name = RapydAuthorisationEntry.GET_BY_ID,
@@ -80,29 +88,35 @@ import com.idega.util.expression.ELUtil;
 })
 public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 
-	public static final String TABLE_NAME = "RAPYD_AUTHORISATION_ENTRIES";
+	public static final String	TABLE_NAME = "RAPYD_AUTHORISATION_ENTRIES",
 
-	public static final String GET_BY_ID = "RapydAuthorisationEntry.getByID";
-	public static final String GET_BY_PARENT_ID = "RapydAuthorisationEntry.getByParentID";
-	public static final String GET_BY_AUTH_CODE = "RapydAuthorisationEntry.getByAuthCode";
-	public static final String GET_BY_UNIQUE_ID = "RapydAuthorisationEntry.getByUniqueId";
-	public static final String idProp = "id";
-	public static final String parentProp = "parent";
-	public static final String authCodeProp = "authCode";
-	public static final String uniqueIdProp = "uniqueId";
-	public static final String GET_BY_DATES = "RapydAuthorisationEntry.GET_BY_DATES";
-	public static final String GET_REFUNDS_BY_DATES = "RapydAuthorisationEntry.GET_REFUNDS_BY_DATES";
-	public static final String dateProp = "date";
-	public static final String dateFromProp = "dateFrom";
-	public static final String dateToProp = "dateTo";
-	public static final String QUERY_FIND_BY_METADATA = "RapydAuthorisationEntry.findByMetadata";
-	public static final String METADATA_KEY_PROP = "metadataKey";
-	public static final String METADATA_VALUE_PROP = "metadataValue";
+								GET_BY_ID = "RapydAuthorisationEntry.getByID",
+								GET_BY_PARENT_ID = "RapydAuthorisationEntry.getByParentID",
+								GET_BY_AUTH_CODE = "RapydAuthorisationEntry.getByAuthCode",
+								GET_BY_UNIQUE_ID = "RapydAuthorisationEntry.getByUniqueId",
+								GET_BY_DATES = "RapydAuthorisationEntry.GET_BY_DATES",
+								GET_REFUNDS_BY_DATES = "RapydAuthorisationEntry.GET_REFUNDS_BY_DATES",
+								QUERY_FIND_BY_METADATA = "RapydAuthorisationEntry.findByMetadata",
+
+								idProp = "id",
+								parentProp = "parent",
+								authCodeProp = "authCode",
+								uniqueIdProp = "uniqueId",
+								dateProp = "date",
+								dateFromProp = "dateFrom",
+								dateToProp = "dateTo",
+
+								METADATA_KEY_PROP = "metadataKey",
+								METADATA_VALUE_PROP = "metadataValue";
 
 	static final String AUTHORIZATION_TYPE_SALE = "1",
 						AUTHORIZATION_TYPE_REFUND = "3",
 						AUTHORIZATION_TYPE_PARTIAL_REVERSAL = "4",
-						AUTHORIZATION_TYPE_PRE_AUTHORIZE = "5";
+						AUTHORIZATION_TYPE_PRE_AUTHORIZE = "5",
+
+						COLUMN_AUTH_CODE = "auth_code",
+						COLUMN_UNIQUE_ID = "UNIQUE_ID",
+						COLUMN_REFERENCE = "reference";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -112,7 +126,7 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "amount")
 	private Double amount;
 
-	@Column(name = "auth_code")
+	@Column(name = COLUMN_AUTH_CODE, unique = true)
 	private String authCode;
 
 	@Column(name = "brand_name")
@@ -145,14 +159,14 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "rrn")
 	private String rrn;
 
-	@Column(name = "UNIQUE_ID")
+	@Column(name = COLUMN_UNIQUE_ID, unique = true)
 	private String uniqueId;
 
 	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE }, targetEntity = Metadata.class)
 	@JoinTable(name = TABLE_NAME + "_" + Metadata.ENTITY_NAME, joinColumns = { @JoinColumn(name = "ID") }, inverseJoinColumns = { @JoinColumn(name = Metadata.COLUMN_METADATA_ID) })
 	private Set<Metadata> metadata;
 
-	@Column(name = "reference")
+	@Column(name = COLUMN_REFERENCE, unique = true)
 	private String reference;
 
 	@Column(name = COLUMN_TIMESTAMP)
