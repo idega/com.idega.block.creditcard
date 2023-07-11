@@ -25,8 +25,10 @@ import com.idega.block.creditcard.model.rapyd.PaymentMethodData;
 import com.idega.block.creditcard.model.rapyd.WebHook;
 import com.idega.block.creditcard.service.FinanceService;
 import com.idega.core.business.DefaultSpringBean;
+import com.idega.idegaweb.IWMainApplicationSettings;
 import com.idega.util.ArrayUtil;
 import com.idega.util.CoreConstants;
+import com.idega.util.ListUtil;
 import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
 import com.idega.util.datastructures.map.MapUtil;
@@ -51,20 +53,34 @@ public class FinanceServiceImpl extends DefaultSpringBean implements FinanceServ
 				return;
 			}
 
-			Data data = hook.getData();
+			IWMainApplicationSettings settings = getSettings();
 
+			Data data = hook.getData();
 			String type = hook.getType();
-			boolean proceed = !StringUtil.isEmpty(type) && CreditCardConstants.PAYMENT_COMPLETED.equals(type);
+			String status = data == null ? null : data.getStatus();
+
+			String correctStatusesProp = settings.getProperty("rapyd.correct_statuses", CreditCardConstants.CLOSED);
+			boolean wrongStatus = StringUtil.isEmpty(status) || StringUtil.isEmpty(correctStatusesProp) || correctStatusesProp.indexOf(status) == -1;
+			boolean proceed = !wrongStatus && !StringUtil.isEmpty(type) && CreditCardConstants.PAYMENT_COMPLETED.equals(type);
 			if (!proceed) {
-				getLogger().warning("Not success hook with type " + type + ":\n" + hook);
-				PaymentFailedEvent failure = new PaymentFailedEvent(
-						hook,
-						data == null ? null : data.getMerchant_reference_id(),
-						request,
-						response,
-						context
+				getLogger().warning("Not success hook with type " + type + " and status " + status + ":\n" + hook);
+
+				String successTypesProp = settings.getProperty(
+						"rapyd.success_events",
+						CreditCardConstants.PAYMENT_COMPLETED.concat(CoreConstants.COMMA).concat(CreditCardConstants.PAYMENT_SUCCEEDED)
 				);
-				ELUtil.getInstance().publishEvent(failure);
+				List<String> successTypes = StringUtil.getValuesFromString(successTypesProp, CoreConstants.COMMA);
+				if (wrongStatus || ListUtil.isEmpty(successTypes) || !successTypes.contains(type)) {
+					PaymentFailedEvent failure = new PaymentFailedEvent(
+							hook,
+							data == null ? null : data.getMerchant_reference_id(),
+							request,
+							response,
+							context
+					);
+					ELUtil.getInstance().publishEvent(failure);
+				}
+
 				return;
 			}
 
