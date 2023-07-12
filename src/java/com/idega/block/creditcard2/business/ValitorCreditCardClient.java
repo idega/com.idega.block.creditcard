@@ -1753,7 +1753,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setReference(paymentUUID);
 				auth.setCardNumber(CreditCardUtil.getMaskedCreditCardNumber(cardnumber));
 				auth.setParent( (ValitorAuthorisationEntry) parentDataPK );
-				auth.setMerchant(merchant instanceof ValitorMerchant ? (ValitorMerchant) merchant : null);
+				auth.setMerchant(merchant);
 				getAuthDAO().store(auth);
 
 
