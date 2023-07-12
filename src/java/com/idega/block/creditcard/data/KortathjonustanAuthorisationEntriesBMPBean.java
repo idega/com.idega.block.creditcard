@@ -70,6 +70,7 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 		addAttribute(COLUMN_PAYMENT_ID, "Payment ID", true, true, String.class);
 		addAttribute(COLUMN_CARD_TOKEN, "Card token", true, true, String.class);
 		addAttribute(COLUMN_TRANSACTION_ID, "Transaction ID", true, true, String.class);
+		addAttribute(COLUMN_REFUND, "Refund", true, true, Boolean.class);
 	}
 
 	@Override
@@ -356,6 +357,20 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 	@Override
 	public void setAmount(Double amount) {
 		setAmount(amount == null ? 0 : amount.doubleValue());
+	}
+
+	@Override
+	public void setMerchant(CreditCardMerchant merchant) {
+	}
+
+	@Override
+	public boolean isRefund() {
+		return getBooleanColumnValue(COLUMN_REFUND, false);
+	}
+
+	@Override
+	public void setRefund(boolean refund) {
+		setColumn(COLUMN_REFUND, refund);
 	}
 
 }

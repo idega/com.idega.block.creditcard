@@ -176,6 +176,9 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "dsTransID")
 	private String dsTransID;
 
+	@Column(name = COLUMN_REFUND)
+	private Boolean refund;
+
 	@Override
 	public String getTransactionId() {
 		return transactionId;
@@ -659,6 +662,16 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 		if (date != null) {
 			setDate(new Date(date.getTime()));
 		}
+	}
+
+	@Override
+	public boolean isRefund() {
+		return refund == null ? false : refund;
+	}
+
+	@Override
+	public void setRefund(boolean refund) {
+		this.refund = refund;
 	}
 
 }
