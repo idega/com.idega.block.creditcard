@@ -1599,12 +1599,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
-	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request) throws CreditCardAuthorizationException {
-		throw new CreditCardAuthorizationException("Not implemented");
-	}
-
-
-	@Override
 	public String doRefund(
 			String cardnumber,
 			String monthExpires,
@@ -1759,7 +1753,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setReference(paymentUUID);
 				auth.setCardNumber(CreditCardUtil.getMaskedCreditCardNumber(cardnumber));
 				auth.setParent( (ValitorAuthorisationEntry) parentDataPK );
-				auth.setMerchant(merchant);
+				auth.setMerchant(merchant instanceof ValitorMerchant ? (ValitorMerchant) merchant : null);
 				getAuthDAO().store(auth);
 
 
