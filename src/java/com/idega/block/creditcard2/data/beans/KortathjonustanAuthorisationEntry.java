@@ -29,6 +29,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.data.IDOEntity;
 import com.idega.data.IDOEntityDefinition;
 import com.idega.data.IDOStoreException;
@@ -197,6 +198,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 		return amount;
 	}
 
+	@Override
 	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
@@ -241,6 +243,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 		return currency;
 	}
 
+	@Override
 	public void setCurrency(String currency) {
 		this.currency = currency;
 	}
@@ -427,7 +430,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 
 	@Override
 	public Map<String, String> getMetaDataAttributes() {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 
 		Set<Metadata> list = getMetadata();
 		for (Metadata metaData : list) {
@@ -439,7 +442,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 
 	@Override
 	public Map<String, String> getMetaDataTypes() {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 
 		Set<Metadata> list = getMetadata();
 		for (Metadata metaData : list) {

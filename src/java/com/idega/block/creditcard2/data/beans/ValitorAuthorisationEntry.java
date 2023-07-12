@@ -30,6 +30,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.data.IDOEntity;
 import com.idega.data.IDOEntityDefinition;
 import com.idega.data.IDOStoreException;
@@ -243,8 +244,11 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 		return merchant;
 	}
 
-	public void setMerchant(ValitorMerchant merchant) {
-		this.merchant = merchant;
+	@Override
+	public void setMerchant(CreditCardMerchant merchant) {
+		if (merchant instanceof ValitorMerchant) {
+			this.merchant = (ValitorMerchant) merchant;
+		}
 	}
 
 	public Long getId() {
@@ -260,6 +264,7 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 		return amount.doubleValue();
 	}
 
+	@Override
 	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
@@ -303,6 +308,7 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 		return currency;
 	}
 
+	@Override
 	public void setCurrency(String currency) {
 		this.currency = currency;
 	}
