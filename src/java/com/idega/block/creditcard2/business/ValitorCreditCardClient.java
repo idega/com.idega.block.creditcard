@@ -1639,7 +1639,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				monthExpires = String.valueOf(0).concat(monthExpires);
 			}
 
-
 			IWMainApplicationSettings settings = getSettings();
 			if (settings == null) {
 				String error = "ERROR: Can not get the application settings. " + details;
@@ -1649,7 +1648,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				throw ex;
 			}
 
-
 			CreditCardMerchant ccMerchant = getCreditCardMerchant();
 
 			String webServiceURL = getValitorPushFundsWebServiceURL(settings);
@@ -1657,12 +1655,10 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			String valitorPayApiKey = ccMerchant.getSharedSecret();
 
 			String paymentUUID = UUID.randomUUID().toString();
-			//paymentUUID = Base64.getEncoder().encodeToString(paymentUUID.getBytes());
 			IWTimestamp now = IWTimestamp.RightNow();
 			String auditNumber = CoreConstants.EMPTY
 					+ now.getMinute()
 					+ now.getMilliSecond();
-
 
 			//Create the ValitorPay refund data object
 			ValitorPayPushFundsData valitorPayPushFundsData = getValitorPayRefundData(
@@ -1685,7 +1681,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
-
 
 			//*** Call ValitorPay web service ****//
 			String postJSON = getJSON(valitorPayPushFundsData);
@@ -1718,13 +1713,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 					null
 			);
 
-
 			//*** Get ValitorPay response data ***
 			if (response != null) {
 				valitorPayResponseData = getValitorPayResponseData(response);
 			}
 			LOGGER.info("After calling ValitorPay (" + webServiceURL + "). Response data: " + valitorPayResponseData.toString());
-
 
 			//*** Handle ValitorPay response ***
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
@@ -1754,8 +1747,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setCardNumber(CreditCardUtil.getMaskedCreditCardNumber(cardnumber));
 				auth.setParent( (ValitorAuthorisationEntry) parentDataPK );
 				auth.setMerchant(merchant);
+				auth.setRefund(Boolean.TRUE);
 				getAuthDAO().store(auth);
-
 
 				//Return the response code
 				return valitorPayResponseData.getCorrelationID();
@@ -1767,8 +1760,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			LOGGER.warning(error);
 			CoreUtil.sendExceptionNotification(error, ex);
 			throw ex;
-
-
 		} catch (ValitorPayException eV) {
 			String error = "ValitorPay error message: " + eV.getMessage() + ", " + details;
 			LOGGER.log(Level.WARNING, error, eV);
@@ -1787,7 +1778,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			throw ex;
 		}
 	}
-
 
 	private String getValitorPushFundsWebServiceURL(IWMainApplicationSettings settings) {
 		String webServiceURL = settings.getProperty(
