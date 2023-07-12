@@ -20,7 +20,8 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 	public static final String	COLUMN_TIMESTAMP = "timestamp",
 								COLUMN_PAYMENT_ID = "payment_id",
 								COLUMN_CARD_TOKEN = "card_token",
-								COLUMN_TRANSACTION_ID = "transaction_id";
+								COLUMN_TRANSACTION_ID = "transaction_id",
+								COLUMN_REFUND = "refund";
 
 	public static float amountMultiplier = 100;
 
@@ -87,5 +88,9 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 	public String getTransactionId();
 
 	public void setMerchant(CreditCardMerchant merchant);
+
+	public boolean isRefund();
+
+	public void setRefund(boolean refund);
 
 }
