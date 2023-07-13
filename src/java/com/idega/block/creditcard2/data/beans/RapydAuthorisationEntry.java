@@ -710,4 +710,9 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 		this.refund = refund;
 	}
 
+	@Override
+	public String toString() {
+		return "Rapyd auth. entry ID " + getId() + ", reference " + getReference() + ", unique ID: " + getUniqueId() + ", auth. code " + getAuthorizationCode() + ", amount: " + getAmount();
+	}
+
 }
