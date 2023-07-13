@@ -30,7 +30,9 @@ public interface CreditCardConstants {
 								SUBSEQUENT_TRANSACTION_TYPE_RECURRING = "MerchantInitiatedRecurring",
 								INITIATION_REASON_RECURRING = "Recurring",
 
-								QUALIFIER_FINANCE_SERVICE = "ccFinanceService";
+								QUALIFIER_FINANCE_SERVICE = "ccFinanceService",
+
+								IW_BUNDLE_IDENTIFIER = "com.idega.block.creditcard";
 
 	public static final Gson GSON = new Gson();
 
