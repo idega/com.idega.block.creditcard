@@ -1,14 +1,20 @@
 package com.idega.block.creditcard.business;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import javax.ejb.CreateException;
 import javax.ejb.FinderException;
 import javax.transaction.TransactionManager;
+
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
@@ -26,6 +32,7 @@ import com.idega.block.creditcard.data.TPosAuthorisationEntriesBean;
 import com.idega.block.creditcard.data.TPosAuthorisationEntriesBeanHome;
 import com.idega.block.creditcard.data.TPosMerchant;
 import com.idega.block.creditcard.data.TPosMerchantHome;
+import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.block.creditcard2.data.dao.impl.ValitorAuthorisationEntryDAO;
 import com.idega.block.trade.data.CreditCardInformation;
 import com.idega.block.trade.data.CreditCardInformationHome;
@@ -44,6 +51,7 @@ import com.idega.user.data.Group;
 import com.idega.util.Encrypter;
 import com.idega.util.IWTimestamp;
 import com.idega.util.StringUtil;
+import com.idega.util.datastructures.map.MapUtil;
 import com.idega.util.expression.ELUtil;
 
 /**
@@ -112,7 +120,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 	@Override
 	public Collection<Image> getCreditCardTypeImages(CreditCardClient client) {
 		Collection<String> types = client.getValidCardTypes();
-		Collection<Image> images = new ArrayList<Image>();
+		Collection<Image> images = new ArrayList<>();
 		if (types != null && !types.isEmpty()) {
 			Iterator<String> iter = types.iterator();
 			IWBundle bundle = this.getBundle();
@@ -722,6 +730,27 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		} catch (Exception e) {}
 		if (entry != null) {
 			return entry;
+		}
+
+		try {
+			WebApplicationContext webAppContext = WebApplicationContextUtils.findWebApplicationContext(getIWMainApplication().getServletContext());
+			@SuppressWarnings("rawtypes")
+			Map<String, AuthorisationEntriesDAO> daos = webAppContext.getBeansOfType(AuthorisationEntriesDAO.class);
+			if (MapUtil.isEmpty(daos)) {
+				return null;
+			}
+
+			Date now = new Date(System.currentTimeMillis());
+			for (AuthorisationEntriesDAO<?> dao: daos.values()) {
+				try {
+					entry = dao == null ? null : dao.findByAuthorizationCode(uniqueId, now);
+					if (entry != null) {
+						return entry;
+					}
+				} catch (Exception e) {}
+			}
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting auth. entry by " + uniqueId, e);
 		}
 
 		return null;
