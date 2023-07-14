@@ -127,6 +127,13 @@ public class Data implements Serializable {
 
     private AuthenticationResult authentication_result;
 
+
+    private String payment;
+
+    private String currency;
+
+    private String failure_reason;
+
 	public String getId() {
 		return id;
 	}
@@ -606,5 +613,31 @@ public class Data implements Serializable {
 	public void setAuthentication_result(AuthenticationResult authentication_result) {
 		this.authentication_result = authentication_result;
 	}
+
+	public String getPayment() {
+		return payment;
+	}
+
+	public void setPayment(String payment) {
+		this.payment = payment;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
+	public String getFailure_reason() {
+		return failure_reason;
+	}
+
+	public void setFailure_reason(String failure_reason) {
+		this.failure_reason = failure_reason;
+	}
+
+
 
 }

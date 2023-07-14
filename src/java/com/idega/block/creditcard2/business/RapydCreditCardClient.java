@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +33,7 @@ import com.idega.block.creditcard.model.HostedCheckoutPageResponse;
 import com.idega.block.creditcard.model.PaymentIntegrationResult;
 import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard.model.rapyd.CreatePayment;
+import com.idega.block.creditcard.model.rapyd.CreateRefund;
 import com.idega.block.creditcard.model.rapyd.Data;
 import com.idega.block.creditcard.model.rapyd.Datum;
 import com.idega.block.creditcard.model.rapyd.PaymentMethodsResponse;
@@ -98,19 +100,6 @@ public class RapydCreditCardClient implements CreditCardClient {
 		return merchant;
 	}
 
-	@Override
-	public String doRefund(
-			String cardnumber,
-			String monthExpires,
-			String yearExpires,
-			String ccVerifyNumber,
-			double amount,
-			String currency,
-			Object parentDataPK,
-			String extraField
-	) throws CreditCardAuthorizationException {
-		throw new CreditCardAuthorizationException("Not implemented");
-	}
 
 	private boolean hasSaleOption(SaleOption[] options, SaleOption option) {
 		if (ArrayUtil.isEmpty(options) || option == null) {
@@ -227,8 +216,10 @@ public class RapydCreditCardClient implements CreditCardClient {
 			}
 
 			String authCode = responseData.getAuth_code();
-			if (!StringUtil.isEmpty(authCode)) {
-				return authCode;
+			if (!StringUtil.isEmpty(authCode) && !authCode.equalsIgnoreCase("null")) {
+				//FIXME: We need to have payment id in all the cases - to save for possible refund.
+				String authCodeWithPaymentId = authCode + CoreConstants.HASH + responseData.getId();
+				return authCodeWithPaymentId;
 			}
 
 			if (!StringUtil.isEmpty(redirect)) {
@@ -553,5 +544,80 @@ public class RapydCreditCardClient implements CreditCardClient {
 			throw new RapydException(e, error, result);
 		}
 	}
+
+
+	/**
+	 * Do refund
+	 * @param cardnumber - NOT USED
+	 * @param monthExpires - NOT USED
+	 * @param yearExpires - NOT USED
+	 * @param ccVerifyNumber - NOT USED
+	 * @param amount - Amount for refund. If zero or null - all the original amount will be refunded.
+	 * @param currency - Currency.
+	 * @param parentDataPK - NOT USED
+	 * @param extraField - MANDATORY unique RAPYD payment id received while making the payment as: "payment_0dd0ddfe830c8fa0ba35e3d7370b2348"
+	 * @return ID of refund action
+	 * @throws CreditCardAuthorizationException
+	 */
+	@Override
+	public String doRefund(
+			String cardnumber,
+			String monthExpires,
+			String yearExpires,
+			String ccVerifyNumber,
+			double amount,
+			String currency,
+			Object parentDataPK,
+			String extraField
+	) throws CreditCardAuthorizationException {
+		if (StringUtil.isEmpty(extraField)) {
+			throw new RapydException("Extra field should be provided. It should hold the unique payment id, which was received while making the payment.");
+		}
+
+		String error = "Error making the refund for RAPYD payment id: " + extraField
+			+ ". Amount: " + amount + " " + currency;
+
+		PaymentResult result = null;
+		try {
+			String merchantReferenceId = UUID.randomUUID().toString();
+
+			CreateRefund refundData = new CreateRefund(
+					extraField,
+					amount > 0 ? Double.valueOf(amount).toString() : null,
+					currency,
+					merchantReferenceId,
+					null
+			);
+			result = getResponseFromRapyd("/v1/refunds", HttpMethod.POST, refundData, PaymentResult.class);
+			Data responseData = result == null ? null : result.getData();
+			if (
+					!isSuccess(result == null ? null : result.getStatus()) ||
+					responseData == null ||
+					StringUtil.isEmpty(responseData.getStatus()) ||
+					!CreditCardConstants.COMPLETED.equalsIgnoreCase(responseData.getStatus())
+			) {
+				if (responseData != null) {
+					if (!StringUtil.isEmpty(responseData.getStatus())) {
+						error = error + ". RAPYD response status: " + responseData.getStatus();
+					}
+					if (!StringUtil.isEmpty(responseData.getFailure_reason())) {
+						error = error + ". Failure reason: " + responseData.getFailure_reason();
+					}
+				}
+
+				LOGGER.warning(error);
+				throw new RapydException(error, result);
+			}
+
+			return responseData.getId();
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
+
+			throw new RapydException(e, error, result);
+		}
+	}
+
+
 
 }

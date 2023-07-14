@@ -70,10 +70,20 @@ public class FinanceServiceImpl extends DefaultSpringBean implements FinanceServ
 
 			PaymentMethodData paymentData = data == null ? null : data.getPayment_method_data();
 			BinDetails binDetails = paymentData == null ? null : paymentData.getBin_details();
+
+			//FIXME: We need to have payment id in all the cases - to save for possible refund.
+			String authCodeWithPaymentId = null;
+			if (data != null) {
+				authCodeWithPaymentId = !StringUtil.isEmpty(data.getAuth_code()) && !data.getAuth_code().equalsIgnoreCase("null") ? data.getAuth_code() : CoreConstants.EMPTY;
+				if (!StringUtil.isEmpty(data.getId())) {
+					authCodeWithPaymentId = authCodeWithPaymentId + CoreConstants.HASH + data.getId();
+				}
+			}
+
 			PaymentSucceededEvent success = new PaymentSucceededEvent(
 					hook,
 					data == null ? null : data.getMerchant_reference_id(),
-					data == null ? null : data.getAuth_code(),
+					authCodeWithPaymentId,
 					paymentData == null ? null : paymentData.getLast4(),
 					binDetails == null ? null : binDetails.getBrand(),
 					data == null ? null : data.getPaid_at(),
