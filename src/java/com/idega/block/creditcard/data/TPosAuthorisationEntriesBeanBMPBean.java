@@ -144,6 +144,7 @@ public void initializeAttributes() {
     addAttribute(COLUMN_PAYMENT_ID, "Payment ID", true, true, String.class);
     addAttribute(COLUMN_CARD_TOKEN, "Card token", true, true, String.class);
     addAttribute(COLUMN_TRANSACTION_ID, "Transaction ID", true, true, String.class);
+    addAttribute(COLUMN_REFUND, "Refund", true, true, Boolean.class);
 	}
 
 	@Override
@@ -1419,6 +1420,16 @@ public void setXMLAttachment(String xml) {
 
 	@Override
 	public void setMerchant(CreditCardMerchant merchant) {
+	}
+
+	@Override
+	public boolean isRefund() {
+		return getBooleanColumnValue(COLUMN_REFUND, false);
+	}
+
+	@Override
+	public void setRefund(boolean refund) {
+		setColumn(COLUMN_REFUND, refund);
 	}
 
 }

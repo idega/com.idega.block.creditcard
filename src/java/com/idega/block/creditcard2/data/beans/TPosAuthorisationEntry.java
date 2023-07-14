@@ -200,6 +200,9 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = COLUMN_TRANSACTION_ID)
 	private String transactionId;
 
+	@Column(name = COLUMN_REFUND)
+	private Boolean refund;
+
 	@Override
 	public String getTransactionId() {
 		return transactionId;
@@ -811,6 +814,16 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public void setMerchant(CreditCardMerchant merchant) {
+	}
+
+	@Override
+	public boolean isRefund() {
+		return refund == null ? false : refund;
+	}
+
+	@Override
+	public void setRefund(boolean refund) {
+		this.refund = refund;
 	}
 
 }
