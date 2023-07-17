@@ -206,8 +206,11 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 		return merchant;
 	}
 
-	public void setMerchant(BorgunMerchant merchant) {
-		this.merchant = merchant;
+	@Override
+	public void setMerchant(CreditCardMerchant merchant) {
+		if (merchant instanceof BorgunMerchant) {
+			this.merchant = (BorgunMerchant) merchant;
+		}
 	}
 
 	public Long getId() {
@@ -565,10 +568,6 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 		if (date != null) {
 			setDate(new Date(date.getTime()));
 		}
-	}
-
-	@Override
-	public void setMerchant(CreditCardMerchant merchant) {
 	}
 
 	@Override
