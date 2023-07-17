@@ -1600,6 +1600,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	}
 
 	@Override
+	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
 	public String doRefund(
 			String cardnumber,
 			String monthExpires,
@@ -1826,11 +1831,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		}
 
 		return valitorPayPushFundsData;
-	}
-
-	@Override
-	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request) throws CreditCardAuthorizationException {
-		throw new CreditCardAuthorizationException("Not implemented");
 	}
 
 }
