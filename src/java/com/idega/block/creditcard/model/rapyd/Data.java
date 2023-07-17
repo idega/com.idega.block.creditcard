@@ -127,7 +127,6 @@ public class Data implements Serializable {
 
     private AuthenticationResult authentication_result;
 
-
     private String payment;
 
     private String currency;
@@ -637,7 +636,5 @@ public class Data implements Serializable {
 	public void setFailure_reason(String failure_reason) {
 		this.failure_reason = failure_reason;
 	}
-
-
 
 }
