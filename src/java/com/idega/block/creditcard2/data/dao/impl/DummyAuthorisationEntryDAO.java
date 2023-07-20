@@ -64,4 +64,9 @@ public class DummyAuthorisationEntryDAO extends GenericDaoImpl implements Author
 				DummyAuthorisationEntry.class, new Param("id", parentDataPK));
 	}
 
+	@Override
+	public CreditCardAuthorizationEntry getByMetadata(String key, String value) {
+		return null;
+	}
+
 }

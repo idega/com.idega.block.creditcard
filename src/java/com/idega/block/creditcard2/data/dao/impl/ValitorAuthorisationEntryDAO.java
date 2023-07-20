@@ -101,7 +101,7 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements Auth
 				String.class, new Param("rrn", merchantRrnSuffix + "%"), new Param("id", merchantId));
 	}
 
-
+	@Override
 	public ValitorAuthorisationEntry getByMetadata(String key, String value) {
 		if (StringUtil.isEmpty(key) || StringUtil.isEmpty(value)) {
 			return null;
@@ -125,6 +125,5 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements Auth
 
 		return null;
 	}
-
 
 }

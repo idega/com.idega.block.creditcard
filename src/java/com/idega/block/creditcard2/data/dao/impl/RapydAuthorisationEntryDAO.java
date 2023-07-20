@@ -1,20 +1,29 @@
 package com.idega.block.creditcard2.data.dao.impl;
 
 import java.sql.Date;
+import java.sql.Timestamp;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.idega.block.creditcard.CreditCardConstants;
+import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard.helper.RapydFinanceHelper;
+import com.idega.block.creditcard.model.rapyd.Data;
+import com.idega.block.creditcard.model.rapyd.WebHook;
 import com.idega.block.creditcard2.data.beans.RapydAuthorisationEntry;
 import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.business.SpringBeanName;
 import com.idega.core.persistence.Param;
 import com.idega.core.persistence.impl.GenericDaoImpl;
+import com.idega.util.ListUtil;
 import com.idega.util.StringUtil;
 
 @Repository(RapydAuthorisationEntryDAO.BEAN_NAME)
@@ -25,6 +34,9 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 
 	public static final String BEAN_NAME = "RapydAuthorisationEntryDAO";
 
+	@Autowired
+	private RapydFinanceHelper financeHelper;
+
 	@Override
 	public CreditCardAuthorizationEntry getChild(RapydAuthorisationEntry entry) {
 		return getSingleResult(RapydAuthorisationEntry.GET_BY_PARENT_ID, RapydAuthorisationEntry.class, new Param(RapydAuthorisationEntry.parentProp, entry.getId()));
@@ -32,6 +44,10 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 
 	@Override
 	public CreditCardAuthorizationEntry findByAuthorizationCode(String code, Date date) {
+		if (StringUtil.isEmpty(code)) {
+			return null;
+		}
+
 		CreditCardAuthorizationEntry entry = null;
 		try {
 			entry = getSingleResult(
@@ -55,7 +71,24 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 		} catch (Exception e) {
 			getLogger().log(Level.WARNING, "Error getting auth. entry by auth. code " + code, e);
 		}
-		return entry;
+		if (entry != null) {
+			return entry;
+		}
+
+		try {
+			List<RapydAuthorisationEntry> entries = getResultList(
+					RapydAuthorisationEntry.GET_BY_PAYMENT,
+					RapydAuthorisationEntry.class,
+					new Param(RapydAuthorisationEntry.paymentProp, code)
+			);
+			if (!ListUtil.isEmpty(entries)) {
+				return entries.iterator().next();
+			}
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting auth. entry by payment " + code, e);
+		}
+
+		return null;
 	}
 
 	@Override
@@ -78,9 +111,57 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 		);
 	}
 
+	@Transactional(readOnly = false)
+	public RapydAuthorisationEntry store(
+			WebHook hook,
+			Data data,
+			Double amount,
+			String payment,
+			String reference,
+			String authCode,
+			String last4,
+			String brand,
+			Timestamp timestamp
+	) throws CreditCardAuthorizationException {
+		CreditCardAuthorizationEntry entry = findByAuthorizationCode(payment, null);
+		entry = entry == null ? findByAuthorizationCode(reference, null) : entry;
+		entry = entry == null ? findByAuthorizationCode(authCode, null) : entry;
+		entry = entry == null ? new RapydAuthorisationEntry() : entry;
+
+		RapydAuthorisationEntry rapydEntry = (RapydAuthorisationEntry) entry;
+
+		rapydEntry.setAmount(amount);
+		rapydEntry.setPaymentId(payment);
+		rapydEntry.setReference(reference);
+		rapydEntry.setAuthorizationCode(authCode);
+		rapydEntry.setCardNumber(last4);
+		rapydEntry.setBrandName(brand);
+		rapydEntry.setDate(timestamp);
+		rapydEntry.setTimestamp(timestamp);
+		if (hook != null) {
+			rapydEntry.setSuccess(financeHelper.isSuccess(hook));
+			rapydEntry.setServerResponse(CreditCardConstants.GSON.toJson(hook));
+
+		} else if (data != null) {
+			rapydEntry.setServerResponse(CreditCardConstants.GSON.toJson(data));
+		}
+
+		data = data == null && hook != null ? hook.getData() : data;
+		if (data != null) {
+			rapydEntry.setErrorNumber(data.getError_code());
+			rapydEntry.setRefund(data.isRefunded());
+		}
+
+		return store(rapydEntry);
+	}
+
 	@Override
 	@Transactional(readOnly = false)
 	public RapydAuthorisationEntry store(RapydAuthorisationEntry entry) {
+		if (entry == null) {
+			throw new RuntimeException(RapydAuthorisationEntry.class.getName() + " not provided");
+		}
+
 		if (entry.getId() == null) {
 			persist(entry);
 		} else {
@@ -111,23 +192,28 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 		);
 	}
 
+	@Override
 	public RapydAuthorisationEntry getByMetadata(String key, String value) {
 		if (StringUtil.isEmpty(key) || StringUtil.isEmpty(value)) {
 			return null;
 		}
 
 		try {
-			Object obj = getSingleResult(
+			List<RapydAuthorisationEntry> entries = getResultList(
 					RapydAuthorisationEntry.QUERY_FIND_BY_METADATA,
-					Object.class,
+					RapydAuthorisationEntry.class,
 					new Param(RapydAuthorisationEntry.METADATA_KEY_PROP, key),
 					new Param(RapydAuthorisationEntry.METADATA_VALUE_PROP, value)
 			);
-			if (obj != null && obj instanceof RapydAuthorisationEntry) {
-				return (RapydAuthorisationEntry) obj;
-			} else {
+			if (ListUtil.isEmpty(entries)) {
 				return null;
 			}
+
+			RapydAuthorisationEntry entry = null;
+			for (Iterator<RapydAuthorisationEntry> iter = entries.iterator(); (entry == null && iter.hasNext());) {
+				entry = iter.next();
+			}
+			return entry;
 		} catch (Exception e) {
 			getLogger().log(Level.WARNING, "Error getting RapydAuthorisationEntry by metadada: " + key + "=" + value, e);
 		}

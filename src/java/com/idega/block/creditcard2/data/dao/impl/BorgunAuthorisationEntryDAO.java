@@ -84,4 +84,9 @@ public class BorgunAuthorisationEntryDAO extends GenericDaoImpl implements Autho
 		);
 	}
 
+	@Override
+	public CreditCardAuthorizationEntry getByMetadata(String key, String value) {
+		return null;
+	}
+
 }

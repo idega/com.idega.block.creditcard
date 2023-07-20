@@ -12,6 +12,7 @@ public class PaymentSucceededEvent extends PaymentEvent {
 
 	public PaymentSucceededEvent(
 			WebHookable hook,
+			String payment,
 			String reference,
 			String authCode,
 			String last4,
@@ -21,7 +22,7 @@ public class PaymentSucceededEvent extends PaymentEvent {
 			HttpServletResponse response,
 			ServletContext context
 	) {
-		super(hook, reference, authCode, last4, cardBrand, paidAt, request, response, context);
+		super(hook, payment, reference, authCode, last4, cardBrand, paidAt, request, response, context);
 	}
 
 }

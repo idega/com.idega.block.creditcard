@@ -47,6 +47,7 @@ import com.idega.util.expression.ELUtil;
 @Table(
 		name = RapydAuthorisationEntry.TABLE_NAME,
 		indexes = {
+				@Index(name = RapydAuthorisationEntry.COLUMN_PAYMENT_ID + "_INDEX", columnList = RapydAuthorisationEntry.COLUMN_PAYMENT_ID),
 				@Index(name = RapydAuthorisationEntry.COLUMN_AUTH_CODE + "_INDEX", columnList = RapydAuthorisationEntry.COLUMN_AUTH_CODE),
 				@Index(name = RapydAuthorisationEntry.COLUMN_UNIQUE_ID + "_INDEX", columnList = RapydAuthorisationEntry.COLUMN_UNIQUE_ID),
 				@Index(name = RapydAuthorisationEntry.COLUMN_REFERENCE + "_INDEX", columnList = RapydAuthorisationEntry.COLUMN_REFERENCE)
@@ -60,6 +61,10 @@ import com.idega.util.expression.ELUtil;
 		@NamedQuery(
 				name = RapydAuthorisationEntry.GET_BY_PARENT_ID,
 				query = "from RapydAuthorisationEntry rae where rae." + RapydAuthorisationEntry.parentProp + " = :" + RapydAuthorisationEntry.parentProp
+		),
+		@NamedQuery(
+				name = RapydAuthorisationEntry.GET_BY_PAYMENT,
+				query = "from RapydAuthorisationEntry rae where rae." + RapydAuthorisationEntry.paymentProp + " = :" + RapydAuthorisationEntry.paymentProp
 		),
 		@NamedQuery(
 				name = RapydAuthorisationEntry.GET_BY_AUTH_CODE,
@@ -83,15 +88,18 @@ import com.idega.util.expression.ELUtil;
 		@NamedQuery(
 				name = RapydAuthorisationEntry.QUERY_FIND_BY_METADATA,
 				query = "select rae from RapydAuthorisationEntry rae join rae.metadata meta where meta.key = :"
-						+ RapydAuthorisationEntry.METADATA_KEY_PROP + " and meta.value = :" + RapydAuthorisationEntry.METADATA_VALUE_PROP
+						+ RapydAuthorisationEntry.METADATA_KEY_PROP + " and meta.value = :" + RapydAuthorisationEntry.METADATA_VALUE_PROP + " order by rae.id desc"
 		)
 })
 public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
+
+	private static final int SERVER_RESPONSE_MAX_LENGTH = 3000;
 
 	public static final String	TABLE_NAME = "RAPYD_AUTHORISATION_ENTRIES",
 
 								GET_BY_ID = "RapydAuthorisationEntry.getByID",
 								GET_BY_PARENT_ID = "RapydAuthorisationEntry.getByParentID",
+								GET_BY_PAYMENT = "RapydAuthorisationEntry.getByPayment",
 								GET_BY_AUTH_CODE = "RapydAuthorisationEntry.getByAuthCode",
 								GET_BY_UNIQUE_ID = "RapydAuthorisationEntry.getByUniqueId",
 								GET_BY_DATES = "RapydAuthorisationEntry.GET_BY_DATES",
@@ -100,6 +108,7 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 								idProp = "id",
 								parentProp = "parent",
+								paymentProp = "paymentId",
 								authCodeProp = "authCode",
 								uniqueIdProp = "uniqueId",
 								dateProp = "date",
@@ -153,7 +162,7 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "transaction_type")
 	private String transactionType;
 
-	@Column(name = "server_response", length = 1000)
+	@Column(name = "server_response", length = SERVER_RESPONSE_MAX_LENGTH)
 	private String serverResponse;
 
 	@Column(name = "rrn")
@@ -286,7 +295,7 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public double getAmount() {
-		return amount.doubleValue();
+		return amount == null ? 0 : amount.doubleValue();
 	}
 
 	@Override
@@ -381,6 +390,9 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 	}
 
 	public void setServerResponse(String serverResponse) {
+		if (!StringUtil.isEmpty(serverResponse) && serverResponse.length() > SERVER_RESPONSE_MAX_LENGTH) {
+			serverResponse = serverResponse.substring(0, SERVER_RESPONSE_MAX_LENGTH);
+		}
 		this.serverResponse = serverResponse;
 	}
 
@@ -396,17 +408,24 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public String getAuthorizationCode() {
+		if (StringUtil.isEmpty(authCode)) {
+			Boolean success = getSuccess();
+			if (success != null && success) {
+				return getPaymentId();
+			}
+		}
 		return this.authCode;
 	}
 
 	@Override
 	public String getExtraField() {
-		return this.serverResponse.toString();
+		return getServerResponse();
 	}
 
 	@Override
 	public int getParentID() {
-		return parent.getId().intValue();
+		Long id = parent == null ? null : parent.getId();
+		return id == null ? - 1 : id.intValue();
 	}
 
 	@Override
@@ -422,60 +441,49 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public IDOEntityDefinition getEntityDefinition() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Integer decode(String pkString) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Collection<Integer> decode(String[] pkString) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getDatasource() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void setDatasource(String datasource) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public EJBLocalHome getEJBLocalHome() throws EJBException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean isIdentical(EJBLocalObject arg0) throws EJBException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void remove() throws RemoveException, EJBException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public int compareTo(IDOEntity o) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public CreditCardAuthorizationEntry getChild() throws FinderException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -609,7 +617,6 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	@Override
 	public void updateMetaData() throws SQLException {
-		// Does nothing...
 	}
 
 	public Set<Metadata> getMetadata() {

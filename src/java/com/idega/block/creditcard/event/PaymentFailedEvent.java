@@ -10,8 +10,8 @@ public class PaymentFailedEvent extends PaymentEvent {
 
 	private static final long serialVersionUID = 8299350738013820991L;
 
-	public PaymentFailedEvent(WebHookable hook, String reference, HttpServletRequest request, HttpServletResponse response, ServletContext context) {
-		super(hook, reference, request, response, context);
+	public PaymentFailedEvent(WebHookable hook, String payment, String reference, HttpServletRequest request, HttpServletResponse response, ServletContext context) {
+		super(hook, payment, reference, request, response, context);
 	}
 
 }

@@ -2,6 +2,7 @@ package com.idega.block.creditcard2.business;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -32,16 +33,19 @@ import com.idega.block.creditcard.model.HostedCheckoutPageRequest;
 import com.idega.block.creditcard.model.HostedCheckoutPageResponse;
 import com.idega.block.creditcard.model.PaymentIntegrationResult;
 import com.idega.block.creditcard.model.SaleOption;
+import com.idega.block.creditcard.model.rapyd.BinDetails;
 import com.idega.block.creditcard.model.rapyd.CreatePayment;
 import com.idega.block.creditcard.model.rapyd.CreateRefund;
 import com.idega.block.creditcard.model.rapyd.Data;
 import com.idega.block.creditcard.model.rapyd.Datum;
+import com.idega.block.creditcard.model.rapyd.PaymentMethodData;
 import com.idega.block.creditcard.model.rapyd.PaymentMethodsResponse;
 import com.idega.block.creditcard.model.rapyd.PaymentResult;
 import com.idega.block.creditcard.model.rapyd.RapydException;
 import com.idega.block.creditcard2.data.beans.RapydAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.RapydMerchant;
 import com.idega.block.creditcard2.data.beans.VirtualCard;
+import com.idega.block.creditcard2.data.dao.impl.RapydAuthorisationEntryDAO;
 import com.idega.builder.bean.AdvancedProperty;
 import com.idega.idegaweb.IWMainApplication;
 import com.idega.restful.util.ConnectionUtil;
@@ -53,6 +57,7 @@ import com.idega.util.RequestUtil;
 import com.idega.util.StringHandler;
 import com.idega.util.StringUtil;
 import com.idega.util.URIUtil;
+import com.idega.util.expression.ELUtil;
 import com.sun.jersey.api.client.ClientResponse;
 
 public class RapydCreditCardClient implements CreditCardClient {
@@ -215,11 +220,12 @@ public class RapydCreditCardClient implements CreditCardClient {
 				throw new RapydException(error, result);
 			}
 
+			//	Success: create auth. entry
+			doCreateAuthEntry(responseData);
+
 			String authCode = responseData.getAuth_code();
 			if (!StringUtil.isEmpty(authCode) && !authCode.equalsIgnoreCase("null")) {
-				//FIXME: We need to have payment id in all the cases - to save for possible refund.
-				String authCodeWithPaymentId = authCode + CoreConstants.HASH + responseData.getId();
-				return authCodeWithPaymentId;
+				return authCode;
 			}
 
 			if (!StringUtil.isEmpty(redirect)) {
@@ -233,6 +239,40 @@ public class RapydCreditCardClient implements CreditCardClient {
 			CoreUtil.sendExceptionNotification(error, e);
 
 			throw new RapydException(e, error, result);
+		}
+	}
+
+	private void doCreateAuthEntry(Data data) {
+		if (data == null) {
+			return;
+		}
+
+		try {
+			String payment = data.getId();
+			payment = StringUtil.isEmpty(payment) ? data.getPayment() : payment;
+			PaymentMethodData paymentData = data.getPayment_method_data();
+			BinDetails binDetails = paymentData == null ? null : paymentData.getBin_details();
+			Timestamp timestamp = null;
+			int paidAt = data.getPaid_at();
+			if (paidAt > 0) {
+				Instant instant = Instant.ofEpochSecond(paidAt);
+				timestamp = Timestamp.from(instant);
+			}
+			RapydAuthorisationEntryDAO dao = ELUtil.getInstance().getBean(RapydAuthorisationEntryDAO.BEAN_NAME);
+			RapydAuthorisationEntry entry = dao.store(
+					null,
+					data,
+					Integer.valueOf(data.getAmount()).doubleValue(),
+					payment,
+					data.getMerchant_reference_id(),
+					data.getAuth_code(),
+					paymentData == null ? null : paymentData.getLast4(),
+					binDetails == null ? null : binDetails.getBrand(),
+					timestamp
+			);
+			this.auth = entry;
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Error creating auth. entry for successfull sale:\n" + CreditCardConstants.GSON.toJson(data), e);
 		}
 	}
 
@@ -312,12 +352,53 @@ public class RapydCreditCardClient implements CreditCardClient {
 
 	@Override
 	public String getPropertiesToCaptureWebPayment(String currency, double amount, Timestamp timestamp, String reference, String approvalCode) throws CreditCardAuthorizationException {
-		throw new CreditCardAuthorizationException("Not implemented");
+		if (StringUtil.isEmpty(reference) && StringUtil.isEmpty(approvalCode)) {
+			throw new RapydException("Invalid parameters");
+		}
+
+		try {
+			RapydAuthorisationEntryDAO dao = ELUtil.getInstance().getBean(RapydAuthorisationEntryDAO.BEAN_NAME);
+
+			CreditCardAuthorizationEntry entry = dao.findByAuthorizationCode(reference, null);
+			entry = entry == null ? dao.findByAuthorizationCode(approvalCode, null) : entry;
+			if (entry == null) {
+				throw new RapydException("Auth. entry not found by reference '" + reference + "' nor approval code " + approvalCode);
+			}
+
+			return entry.getUniqueId();
+		} catch (Exception e) {
+			throw new RapydException(e, "Error getting properties to capture web payment by reference '" + reference + "' and/or approval code " + approvalCode);
+		}
 	}
 
 	@Override
 	public CaptureResult getAuthorizationNumberForWebPayment(String properties) throws CreditCardAuthorizationException {
-		throw new CreditCardAuthorizationException("Not implemented");
+		if (StringUtil.isEmpty(properties)) {
+			throw new RapydException("Invalid parameters");
+		}
+
+		try {
+			RapydAuthorisationEntryDAO dao = ELUtil.getInstance().getBean(RapydAuthorisationEntryDAO.BEAN_NAME);
+
+			CreditCardAuthorizationEntry entry = dao.findByAuthorizationCode(properties, null);
+			if (entry == null) {
+				throw new RapydException("Auth. entry not found by properties '" + properties);
+			}
+
+			String authCode = entry.getAuthorizationCode();
+			if (!StringUtil.isEmpty(authCode)) {
+				return new CaptureResult(authCode, entry.getPaymentId(), null);
+			}
+
+			Boolean success = ((RapydAuthorisationEntry) entry).getSuccess();
+			if (success != null && success) {
+				return new CaptureResult(entry.getPaymentId(), entry.getPaymentId(), null);
+			}
+
+			return null;
+		} catch (Exception e) {
+			throw new RapydException(e, "Error getting auth. number for web payment " + properties);
+		}
 	}
 
 	@Override
@@ -617,7 +698,5 @@ public class RapydCreditCardClient implements CreditCardClient {
 			throw new RapydException(e, error, result);
 		}
 	}
-
-
 
 }

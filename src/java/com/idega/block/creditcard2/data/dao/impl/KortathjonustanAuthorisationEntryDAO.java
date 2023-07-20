@@ -64,4 +64,9 @@ public class KortathjonustanAuthorisationEntryDAO extends GenericDaoImpl
 				KortathjonustanAuthorisationEntry.class, new Param("id", parentDataPK));
 	}
 
+	@Override
+	public CreditCardAuthorizationEntry getByMetadata(String key, String value) {
+		return null;
+	}
+
 }

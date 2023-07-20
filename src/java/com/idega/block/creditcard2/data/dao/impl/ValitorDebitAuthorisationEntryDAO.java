@@ -75,4 +75,9 @@ public class ValitorDebitAuthorisationEntryDAO extends GenericDaoImpl
 				String.class, new Param("rrn", merchantRrnSuffix + "%"), new Param("id", merchantId));
 	}
 
+	@Override
+	public CreditCardAuthorizationEntry getByMetadata(String key, String value) {
+		return null;
+	}
+
 }

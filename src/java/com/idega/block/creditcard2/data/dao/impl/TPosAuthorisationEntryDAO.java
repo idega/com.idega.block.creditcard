@@ -57,4 +57,9 @@ public class TPosAuthorisationEntryDAO extends GenericDaoImpl
 		return entry.getPrimaryKey() == null ? null : entry;
 	}
 
+	@Override
+	public CreditCardAuthorizationEntry getByMetadata(String key, String value) {
+		return null;
+	}
+
 }

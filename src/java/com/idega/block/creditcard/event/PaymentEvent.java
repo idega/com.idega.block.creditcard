@@ -17,6 +17,8 @@ public abstract class PaymentEvent extends ApplicationEvent {
 
 	private WebHookable hook;
 
+	private String payment;
+
 	private String reference;
 
 	private String authCode;
@@ -35,6 +37,7 @@ public abstract class PaymentEvent extends ApplicationEvent {
 
 	public PaymentEvent(
 			WebHookable hook,
+			String payment,
 			String reference,
 			HttpServletRequest request,
 			HttpServletResponse response,
@@ -51,6 +54,7 @@ public abstract class PaymentEvent extends ApplicationEvent {
 
 	public PaymentEvent(
 			WebHookable hook,
+			String payment,
 			String reference,
 			String authCode,
 			String last4,
@@ -60,7 +64,7 @@ public abstract class PaymentEvent extends ApplicationEvent {
 			HttpServletResponse response,
 			ServletContext context
 	) {
-		this(hook, reference, request, response, context);
+		this(hook, payment, reference, request, response, context);
 
 		this.authCode = authCode;
 		this.last4 = last4;
@@ -77,6 +81,14 @@ public abstract class PaymentEvent extends ApplicationEvent {
 
 	public void setHook(WebHookable hook) {
 		this.hook = hook;
+	}
+
+	public String getPayment() {
+		return payment;
+	}
+
+	public void setPayment(String payment) {
+		this.payment = payment;
 	}
 
 	public String getReference() {
