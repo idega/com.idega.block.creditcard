@@ -223,11 +223,6 @@ public class RapydCreditCardClient implements CreditCardClient {
 			//	Success: create auth. entry
 			doCreateAuthEntry(responseData);
 
-			String authCode = responseData.getAuth_code();
-			if (!StringUtil.isEmpty(authCode) && !authCode.equalsIgnoreCase("null")) {
-				return authCode;
-			}
-
 			if (!StringUtil.isEmpty(redirect)) {
 				LOGGER.info("Redirect to " + redirect + " to complete sail!");
 				return redirect;
