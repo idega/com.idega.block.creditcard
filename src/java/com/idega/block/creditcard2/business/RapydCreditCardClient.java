@@ -52,6 +52,7 @@ import com.idega.restful.util.ConnectionUtil;
 import com.idega.util.ArrayUtil;
 import com.idega.util.CoreConstants;
 import com.idega.util.CoreUtil;
+import com.idega.util.IWTimestamp;
 import com.idega.util.ListUtil;
 import com.idega.util.RequestUtil;
 import com.idega.util.StringHandler;
@@ -696,6 +697,43 @@ public class RapydCreditCardClient implements CreditCardClient {
 
 				LOGGER.warning(error);
 				throw new RapydException(error, result);
+			}
+
+			//Create a new card authorization entry by the given parent
+			try {
+				RapydAuthorisationEntryDAO rapydAuthorisationEntryDAO = ELUtil.getInstance().getBean(RapydAuthorisationEntryDAO.BEAN_NAME);
+				Timestamp now = IWTimestamp.getTimestampRightNow();
+
+				CreditCardAuthorizationEntry creditCardAuthorizationEntryParent = rapydAuthorisationEntryDAO.findByAuthorizationCode(extraField, null);
+				RapydAuthorisationEntry rapydAuthorisationEntryParent = creditCardAuthorizationEntryParent != null ? (RapydAuthorisationEntry) creditCardAuthorizationEntryParent : null;
+
+				if (rapydAuthorisationEntryParent != null) {
+					RapydAuthorisationEntry rapydAuthorisationEntry = new RapydAuthorisationEntry();
+
+					rapydAuthorisationEntry.setAmount(amount);
+					rapydAuthorisationEntry.setPaymentId(rapydAuthorisationEntryParent.getPaymentId());
+					rapydAuthorisationEntry.setReference(rapydAuthorisationEntryParent.getReference());
+					rapydAuthorisationEntry.setAuthorizationCode(rapydAuthorisationEntryParent.getAuthorizationCode());
+					rapydAuthorisationEntry.setCardNumber(rapydAuthorisationEntryParent.getCardNumber());
+					rapydAuthorisationEntry.setBrandName(rapydAuthorisationEntryParent.getBrandName());
+					rapydAuthorisationEntry.setDate(now);
+					rapydAuthorisationEntry.setTimestamp(now);
+					rapydAuthorisationEntry.setMerchant(rapydAuthorisationEntryParent.getMerchant());
+					rapydAuthorisationEntry.setCurrency(rapydAuthorisationEntryParent.getCurrency());
+					rapydAuthorisationEntry.setSuccess(true);
+					if (responseData != null) {
+						rapydAuthorisationEntry.setServerResponse(CreditCardConstants.GSON.toJson(responseData));
+					}
+
+					rapydAuthorisationEntry.setRefund(true);
+					rapydAuthorisationEntry.setParent(rapydAuthorisationEntryParent);
+
+					rapydAuthorisationEntryDAO.store(rapydAuthorisationEntry);
+				} else {
+					throw new Exception("Parent entry not found");
+				}
+			} catch (Exception eAuth) {
+				LOGGER.log(Level.WARNING, "Could not create the authorization entry after successful refund. Rapyd payment id: " + extraField, eAuth);
 			}
 
 			return responseData.getId();
