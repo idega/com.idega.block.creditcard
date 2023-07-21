@@ -15,10 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.idega.block.creditcard.CreditCardConstants;
 import com.idega.block.creditcard.business.CreditCardAuthorizationException;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.helper.RapydFinanceHelper;
 import com.idega.block.creditcard.model.rapyd.Data;
 import com.idega.block.creditcard.model.rapyd.WebHook;
 import com.idega.block.creditcard2.data.beans.RapydAuthorisationEntry;
+import com.idega.block.creditcard2.data.beans.RapydMerchant;
 import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.business.SpringBeanName;
 import com.idega.core.persistence.Param;
@@ -121,8 +123,17 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 			String authCode,
 			String last4,
 			String brand,
-			Timestamp timestamp
+			Timestamp timestamp,
+			CreditCardMerchant merchant
 	) throws CreditCardAuthorizationException {
+		if (merchant != null) {
+			if (merchant.getId() == null) {
+				persist(merchant);
+			} else {
+				merchant = getSingleResult(RapydMerchant.GET_BY_ID, RapydMerchant.class, new Param(RapydMerchant.idProp, merchant.getId()));
+			}
+		}
+
 		CreditCardAuthorizationEntry entry = findByAuthorizationCode(payment, null);
 		entry = entry == null ? findByAuthorizationCode(reference, null) : entry;
 		entry = entry == null ? findByAuthorizationCode(authCode, null) : entry;
@@ -138,6 +149,9 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 		rapydEntry.setBrandName(brand);
 		rapydEntry.setDate(timestamp);
 		rapydEntry.setTimestamp(timestamp);
+		if (merchant != null) {
+			rapydEntry.setMerchant(merchant);
+		}
 		if (hook != null) {
 			rapydEntry.setSuccess(financeHelper.isSuccess(hook));
 			rapydEntry.setServerResponse(CreditCardConstants.GSON.toJson(hook));
