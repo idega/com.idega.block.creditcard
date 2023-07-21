@@ -254,6 +254,8 @@ public class RapydCreditCardClient implements CreditCardClient {
 		try {
 			String payment = data.getId();
 			payment = StringUtil.isEmpty(payment) ? data.getPayment() : payment;
+			int amount = data.getAmount();
+			amount = amount <= 0 ? data.getOriginal_amount() : amount;
 			PaymentMethodData paymentData = data.getPayment_method_data();
 			BinDetails binDetails = paymentData == null ? null : paymentData.getBin_details();
 			Timestamp timestamp = null;
@@ -266,7 +268,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 			RapydAuthorisationEntry entry = dao.store(
 					null,
 					data,
-					Integer.valueOf(data.getAmount()).doubleValue(),
+					Integer.valueOf(amount).doubleValue(),
 					payment,
 					data.getMerchant_reference_id(),
 					data.getAuth_code(),

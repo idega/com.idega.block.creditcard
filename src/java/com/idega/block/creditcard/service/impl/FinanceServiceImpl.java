@@ -142,6 +142,9 @@ public class FinanceServiceImpl extends DefaultSpringBean implements FinanceServ
 		try {
 			Data data = hook == null ? null : hook.getData();
 			int amount = data == null ? -1 : data.getAmount();
+			if (amount <= 0 && data != null) {
+				amount = data.getOriginal_amount();
+			}
 			Timestamp timestamp = null;
 			if (paidAt > 0) {
 				Instant instant = Instant.ofEpochSecond(paidAt);
