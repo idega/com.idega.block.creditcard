@@ -703,40 +703,39 @@ public class RapydCreditCardClient implements CreditCardClient {
 			}
 
 			//Create a new card authorization entry by the given parent
+			CreditCardAuthorizationEntry parentAuthEntry = null;
 			try {
 				RapydAuthorisationEntryDAO rapydAuthorisationEntryDAO = ELUtil.getInstance().getBean(RapydAuthorisationEntryDAO.BEAN_NAME);
-				Timestamp now = IWTimestamp.getTimestampRightNow();
 
-				CreditCardAuthorizationEntry creditCardAuthorizationEntryParent = rapydAuthorisationEntryDAO.findByAuthorizationCode(extraField, null);
-				RapydAuthorisationEntry rapydAuthorisationEntryParent = creditCardAuthorizationEntryParent != null ? (RapydAuthorisationEntry) creditCardAuthorizationEntryParent : null;
-
-				if (rapydAuthorisationEntryParent != null) {
-					RapydAuthorisationEntry rapydAuthorisationEntry = new RapydAuthorisationEntry();
-
-					rapydAuthorisationEntry.setAmount(amount);
-					rapydAuthorisationEntry.setPaymentId(rapydAuthorisationEntryParent.getPaymentId());
-					rapydAuthorisationEntry.setReference(rapydAuthorisationEntryParent.getReference());
-					rapydAuthorisationEntry.setAuthorizationCode(rapydAuthorisationEntryParent.getAuthorizationCode());
-					rapydAuthorisationEntry.setCardNumber(rapydAuthorisationEntryParent.getCardNumber());
-					rapydAuthorisationEntry.setBrandName(rapydAuthorisationEntryParent.getBrandName());
-					rapydAuthorisationEntry.setDate(now);
-					rapydAuthorisationEntry.setTimestamp(now);
-					rapydAuthorisationEntry.setMerchant(rapydAuthorisationEntryParent.getMerchant());
-					rapydAuthorisationEntry.setCurrency(rapydAuthorisationEntryParent.getCurrency());
-					rapydAuthorisationEntry.setSuccess(true);
-					if (responseData != null) {
-						rapydAuthorisationEntry.setServerResponse(CreditCardConstants.GSON.toJson(responseData));
-					}
-
-					rapydAuthorisationEntry.setRefund(true);
-					rapydAuthorisationEntry.setParent(rapydAuthorisationEntryParent);
-
-					rapydAuthorisationEntryDAO.store(rapydAuthorisationEntry);
-				} else {
-					throw new Exception("Parent entry not found");
+				parentAuthEntry = rapydAuthorisationEntryDAO.findByAuthorizationCode(extraField, null);
+				RapydAuthorisationEntry rapydAuthorisationEntryParent = parentAuthEntry instanceof RapydAuthorisationEntry ?
+						(RapydAuthorisationEntry) parentAuthEntry :
+						null;
+				if (rapydAuthorisationEntryParent == null) {
+					throw new Exception("Parent entry not found by " + extraField);
 				}
+
+				Timestamp now = IWTimestamp.getTimestampRightNow();
+				RapydAuthorisationEntry rapydAuthorisationEntry = new RapydAuthorisationEntry();
+
+				rapydAuthorisationEntry.setAmount(amount);
+				rapydAuthorisationEntry.setPaymentId(rapydAuthorisationEntryParent.getPaymentId());
+				rapydAuthorisationEntry.setReference(rapydAuthorisationEntryParent.getReference());
+				rapydAuthorisationEntry.setAuthorizationCode(rapydAuthorisationEntryParent.getAuthorizationCode());
+				rapydAuthorisationEntry.setCardNumber(rapydAuthorisationEntryParent.getCardNumber());
+				rapydAuthorisationEntry.setBrandName(rapydAuthorisationEntryParent.getBrandName());
+				rapydAuthorisationEntry.setDate(now);
+				rapydAuthorisationEntry.setTimestamp(now);
+				rapydAuthorisationEntry.setMerchant(rapydAuthorisationEntryParent.getMerchant());
+				rapydAuthorisationEntry.setCurrency(rapydAuthorisationEntryParent.getCurrency());
+				rapydAuthorisationEntry.setServerResponse(responseData == null ? null : CreditCardConstants.GSON.toJson(responseData));
+				rapydAuthorisationEntry.setSuccess(true);
+				rapydAuthorisationEntry.setRefund(true);
+				rapydAuthorisationEntry.setParent(rapydAuthorisationEntryParent);
+
+				rapydAuthorisationEntryDAO.store(rapydAuthorisationEntry);
 			} catch (Exception eAuth) {
-				LOGGER.log(Level.WARNING, "Could not create the authorization entry after successful refund. Rapyd payment id: " + extraField, eAuth);
+				LOGGER.log(Level.WARNING, "Could not create authorization entry after successful refund. Rapyd payment id: " + extraField + ". Parent auth. entry: " + parentAuthEntry, eAuth);
 			}
 
 			return responseData.getId();
