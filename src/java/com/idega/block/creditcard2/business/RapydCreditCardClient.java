@@ -211,7 +211,16 @@ public class RapydCreditCardClient implements CreditCardClient {
 					StringUtil.isEmpty(responseData.getStatus()) ||
 					!CreditCardConstants.CLOSED.equals(responseData.getStatus())
 			) {
-				if (!StringUtil.isEmpty(redirect)) {
+				if (
+						!StringUtil.isEmpty(redirect) ||
+						(
+								responseData != null &&
+								!StringUtil.isEmpty(responseData.getNext_action()) &&
+								"3d_verification".equals(responseData.getNext_action())
+						)
+				) {
+					doCreateAuthEntry(responseData);
+
 					LOGGER.info("Must redirect to " + redirect + " to complete sail!");
 					return redirect;
 				}
