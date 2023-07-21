@@ -659,6 +659,9 @@ public class RapydCreditCardClient implements CreditCardClient {
 			Object parentDataPK,
 			String extraField
 	) throws CreditCardAuthorizationException {
+		if (amount <= 0) {
+			throw new RapydException("Invalid amount");
+		}
 		if (StringUtil.isEmpty(extraField)) {
 			throw new RapydException("Extra field should be provided. It should hold the unique payment id, which was received while making the payment.");
 		}
@@ -672,7 +675,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 
 			CreateRefund refundData = new CreateRefund(
 					extraField,
-					amount > 0 ? Double.valueOf(amount).toString() : null,
+					Double.valueOf(amount).toString(),
 					currency,
 					merchantReferenceId,
 					null
