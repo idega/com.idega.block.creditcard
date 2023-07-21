@@ -304,7 +304,7 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 	}
 
 	public String getAuthCode() {
-		return authCode;
+		return getAuthorizationCode();
 	}
 
 	public void setAuthCode(String authCode) {
