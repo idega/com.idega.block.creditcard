@@ -275,7 +275,8 @@ public class RapydCreditCardClient implements CreditCardClient {
 					paymentData == null ? null : paymentData.getLast4(),
 					binDetails == null ? null : binDetails.getBrand(),
 					timestamp,
-					merchant
+					merchant,
+					data.getCurrency_code()
 			);
 			this.auth = entry;
 		} catch (Exception e) {

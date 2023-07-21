@@ -163,7 +163,8 @@ public class FinanceServiceImpl extends DefaultSpringBean implements FinanceServ
 					last4,
 					brand,
 					timestamp,
-					null
+					null,
+					data == null ? null : data.getCurrency_code()
 			);
 		} catch (Exception e) {
 			getLogger().log(Level.WARNING, "Error creating auth. entry for success hook:\n" + (hook == null ? null : CreditCardConstants.GSON.toJson(hook)), e);

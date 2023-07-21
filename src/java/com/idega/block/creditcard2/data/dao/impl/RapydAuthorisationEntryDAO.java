@@ -124,7 +124,8 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 			String last4,
 			String brand,
 			Timestamp timestamp,
-			CreditCardMerchant merchant
+			CreditCardMerchant merchant,
+			String currency
 	) throws CreditCardAuthorizationException {
 		if (merchant != null) {
 			if (merchant.getId() == null) {
@@ -152,6 +153,7 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 		if (merchant != null) {
 			rapydEntry.setMerchant(merchant);
 		}
+		entry.setCurrency(currency);
 		if (hook != null) {
 			rapydEntry.setSuccess(financeHelper.isSuccess(hook));
 			rapydEntry.setServerResponse(CreditCardConstants.GSON.toJson(hook));
