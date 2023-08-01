@@ -163,7 +163,9 @@ public class RapydCreditCardClient implements CreditCardClient {
 				String message = "No payment methods available for merchant " + merchant + ". " + error;
 				LOGGER.warning(message);
 
-				throw new RapydException(message, paymentMethods);
+				Exception e = new RapydException(message, paymentMethods);
+				CoreUtil.sendExceptionNotification(message, e);
+				throw e;
 			}
 
 			String type = null, cardBrand = CreditCardUtil.getCardBrand(number);
@@ -187,7 +189,9 @@ public class RapydCreditCardClient implements CreditCardClient {
 				String message = "No payment methods for cards available for merchant " + merchant + ". Received payment methods: " + paymentMethods + ". " + error;
 				LOGGER.warning(message);
 
-				throw new RapydException(message, paymentMethods);
+				Exception e = new RapydException(message, paymentMethods);
+				CoreUtil.sendExceptionNotification(message, e);
+				throw e;
 			}
 
 			boolean skip3DAuth = hasSaleOption(options, SaleOption.SKIP_3D_AUTH);
@@ -222,12 +226,15 @@ public class RapydCreditCardClient implements CreditCardClient {
 				) {
 					doCreateAuthEntry(responseData);
 
-					LOGGER.info("Must redirect to " + redirect + " to complete sail!");
+					LOGGER.info("Must redirect to " + redirect + " to complete card (" + CreditCardUtil.getMaskedCreditCardNumber(number) + ") payment for " + amount + " " + currency +
+							" with reference " + referenceNumber);
 					return redirect;
 				}
 
 				LOGGER.warning(error);
-				throw new RapydException(error, result);
+				Exception e = new RapydException(error, result);
+				CoreUtil.sendExceptionNotification(error, e);
+				throw e;
 			}
 
 			//	Success: create auth. entry
@@ -609,9 +616,11 @@ public class RapydCreditCardClient implements CreditCardClient {
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
 				status = response == null ? null : response.getStatus();
 				errorMessage = response == null ? null : StringHandler.getContentFromInputStream(response.getEntityInputStream());
-				LOGGER.warning("Error " + (HttpMethod.POST.equals(method) ? "sending " + json + " to" : "getting from") + " Rapyd (" + url + "). Response (" + response +
+				String error = "Error " + (HttpMethod.POST.equals(method) ? "sending " + json + " to" : "getting from") + " Rapyd (" + url + "). Response (" + response +
 						") or response status is not OK: " + (status == null ? "unknown" : status) + ". Response message:\n" +
-						(errorMessage == null ? "not provided" : errorMessage));
+						(errorMessage == null ? "not provided" : errorMessage);
+				LOGGER.warning(error);
+				CoreUtil.sendExceptionNotification(error, null);
 				return null;
 			}
 
