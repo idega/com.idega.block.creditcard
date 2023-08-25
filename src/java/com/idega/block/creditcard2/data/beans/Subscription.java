@@ -10,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -27,6 +29,28 @@ import com.idega.util.StringUtil;
 })
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@NamedQueries({
+	@NamedQuery(
+			name = Subscription.GET_ALL_BY_USER_ID,
+			query = "from Subscription s where s.userId = :" + Subscription.PARAM_USER_ID + " order by s.enabled, s.created"
+	),
+	@NamedQuery(
+			name = Subscription.GET_ALL_BY_USER_ID_AND_STATUS,
+			query = "from Subscription s where s.userId = :" + Subscription.PARAM_USER_ID
+				+ " and s.enabled = :" + Subscription.PARAM_STATUS
+				+ " order by s.created"
+	),
+	@NamedQuery(
+			name = Subscription.GET_ALL_ACTIVE,
+			query = "from Subscription s where s.enabled = true order by s.created"
+	),
+	@NamedQuery(
+			name = Subscription.DELETE_ALL_BY_USER_ID,
+			query = "delete from Subscription s where s.userId = :" + Subscription.PARAM_USER_ID
+	)
+
+
+})
 public class Subscription implements Serializable {
 
 	private static final long serialVersionUID = -8493448476538128516L;
@@ -36,6 +60,15 @@ public class Subscription implements Serializable {
 	static final String COLUMN_ID = "id",
 						COLUMN_UNIQUE_ID = "unique_id",
 						COLUMN_USER_ID = "user_id";
+
+	public static final String GET_ALL_BY_USER_ID = "Subscription.getAllByUserId";
+	public static final String GET_ALL_BY_USER_ID_AND_STATUS = "Subscription.getAllByUserIdAndStatus";
+	public static final String GET_ALL_ACTIVE = "Subscription.getAllActive";
+	public static final String DELETE_ALL_BY_USER_ID = "Subscription.deleteAllByUserId";
+
+	public static final String PARAM_USER_ID = "userId";
+	public static final String PARAM_STATUS = "status";
+
 
 	@Id
 	@Column(name = COLUMN_ID)
@@ -62,6 +95,9 @@ public class Subscription implements Serializable {
 
 	@Column(name = COLUMN_UNIQUE_ID, unique = true)
 	private String uniqueId;
+
+	@Column(name = "last_payment_date")
+	private Timestamp lastPaymentDate;
 
 	public Long getId() {
 		return id;
@@ -125,6 +161,15 @@ public class Subscription implements Serializable {
 
 	public void setUniqueId(String uniqueId) {
 		this.uniqueId = uniqueId;
+	}
+
+
+	public Timestamp getLastPaymentDate() {
+		return lastPaymentDate;
+	}
+
+	public void setLastPaymentDate(Timestamp lastPaymentDate) {
+		this.lastPaymentDate = lastPaymentDate;
 	}
 
 	@PrePersist
