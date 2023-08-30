@@ -697,7 +697,8 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 	}
 
 	@Override
-	public void doMakeSubscriptionPayments(IWContext iwc) {
-		//TODO: UNIMPLEMENTED.
+	public void doMakeSubscriptionPayments() {
+		getLogger().warning("Not implemented");
 	}
+
 }

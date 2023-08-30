@@ -61,6 +61,7 @@ import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
 import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Image;
@@ -90,7 +91,6 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 
 	@Autowired
 	private UserDAO userDAO;
-
 
 	public final static String CARD_TYPE_VISA = CreditCardType.VISA.name();
 	public final static String CARD_TYPE_ELECTRON = CreditCardType.ELECTRON.name();
@@ -914,7 +914,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 
 
 	@Override
-	public void doMakeSubscriptionPayments(IWContext iwc) {
+	public void doMakeSubscriptionPayments() {
 		try {
 
 			//**** GET ACTIVE SUBSCRIPTIONS ****
@@ -922,7 +922,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 
 			if (!ListUtil.isEmpty(subscriptions)) {
 
-				CreditCardClient creditCardClient = getCreditCardClient(iwc);
+				CreditCardClient creditCardClient = getCreditCardClient(IWMainApplication.getDefaultIWApplicationContext());
 
 				if (creditCardClient == null) {
 					getLogger().warning("Could not find the credit card client. Will not execute automatic subscription payments.");
@@ -1177,7 +1177,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 	}
 
 
-	private CreditCardClient getCreditCardClient(IWContext iwc) {
+	private CreditCardClient getCreditCardClient(IWApplicationContext iwac) {
 		CreditCardClient creditCardClient = null;
 
 		try {
@@ -1210,7 +1210,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 				if (!StringUtil.isEmpty(productSupplierId)) {
 					Supplier suppTemp = ((SupplierHome) IDOLookup.getHomeLegacy(Supplier.class)).findByPrimaryKeyLegacy(Integer.valueOf(productSupplierId));
 					if (suppTemp != null) {
-						creditCardClient = getCreditCardBusiness(iwc).getCreditCardClient(suppTemp, new IWTimestamp());
+						creditCardClient = getCreditCardBusiness(iwac).getCreditCardClient(suppTemp, new IWTimestamp());
 					}
 				}
 			} catch (Exception e) {
@@ -1223,7 +1223,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 
 	protected com.idega.block.creditcard.business.CreditCardBusiness getCreditCardBusiness(IWApplicationContext iwac) {
 		try {
-			return IBOLookup.getServiceInstance(iwac, com.idega.block.creditcard.business.CreditCardBusiness.class);
+			return IBOLookup.getServiceInstance(iwac == null ? IWMainApplication.getDefaultIWApplicationContext() : iwac, com.idega.block.creditcard.business.CreditCardBusiness.class);
 		}
 		catch (IBOLookupException e) {
 			throw new IBORuntimeException(e);
@@ -1298,7 +1298,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 			auth.setUniqueId(paymentUniqueId);		//	Authorization entry must be resolved by unique id. Merchant reference id is saved as unique id only
 			auth.setErrorNumber(valitorPayException != null ? valitorPayException.getErrorNumber() : CoreConstants.EMPTY);
 			auth.setErrorText(valitorPayException != null ? valitorPayException.getErrorMessage() : CoreConstants.EMPTY);
-			auth.setMerchant((ValitorMerchant) creditCardClient.getCreditCardMerchant());
+			auth.setMerchant(creditCardClient.getCreditCardMerchant());
 			getValitorAuthorisationEntryDAO().store(auth);
 			return auth.getId() == null ? null : auth;
 		} catch (Exception e) {

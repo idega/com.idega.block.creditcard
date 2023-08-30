@@ -3,7 +3,6 @@ package com.idega.block.creditcard2.business;
 import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.block.trade.stockroom.data.Supplier;
-import com.idega.presentation.IWContext;
 import com.idega.user.data.bean.User;
 import com.idega.util.IWTimestamp;
 
@@ -53,5 +52,6 @@ public interface CardBusiness {
 
 	public VirtualCard getVirtualCardByOwner(Integer userId);
 
-	public void doMakeSubscriptionPayments(IWContext iwc);
+	public void doMakeSubscriptionPayments();
+
 }
