@@ -48,8 +48,6 @@ import com.idega.util.StringUtil;
 			name = Subscription.DELETE_ALL_BY_USER_ID,
 			query = "delete from Subscription s where s.userId = :" + Subscription.PARAM_USER_ID
 	)
-
-
 })
 public class Subscription implements Serializable {
 
@@ -68,7 +66,6 @@ public class Subscription implements Serializable {
 
 	public static final String PARAM_USER_ID = "userId";
 	public static final String PARAM_STATUS = "status";
-
 
 	@Id
 	@Column(name = COLUMN_ID)
@@ -162,7 +159,6 @@ public class Subscription implements Serializable {
 	public void setUniqueId(String uniqueId) {
 		this.uniqueId = uniqueId;
 	}
-
 
 	public Timestamp getLastPaymentDate() {
 		return lastPaymentDate;

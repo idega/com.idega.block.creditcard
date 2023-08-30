@@ -23,7 +23,6 @@ import com.idega.util.ListUtil;
 @Transactional(readOnly = true)
 public class SubscriptionDAOImpl extends GenericDaoImpl implements SubscriptionDAO {
 
-
 	@Override
 	public List<Subscription> getSubscriptionsForUser(Integer userId) {
 		if (userId == null) {
@@ -97,7 +96,6 @@ public class SubscriptionDAOImpl extends GenericDaoImpl implements SubscriptionD
 		return null;
 	}
 
-
 	@Override
 	@Transactional(readOnly = false)
 	public Subscription createUpdateSubscription(Subscription subscription) {
@@ -120,7 +118,6 @@ public class SubscriptionDAOImpl extends GenericDaoImpl implements SubscriptionD
 
 		return subscription;
 	}
-
 
 	@Override
 	public List<Subscription> cancelSubscriptionsForUser(Integer userId) {
@@ -155,8 +152,6 @@ public class SubscriptionDAOImpl extends GenericDaoImpl implements SubscriptionD
 		return cancelledSubscriptions;
 	}
 
-
-
 	@Override
 	@Transactional(readOnly = false)
 	public Boolean deleteSubscriptionsForUser(Integer userId) {
@@ -177,7 +172,5 @@ public class SubscriptionDAOImpl extends GenericDaoImpl implements SubscriptionD
 
 		return false;
 	}
-
-
 
 }
