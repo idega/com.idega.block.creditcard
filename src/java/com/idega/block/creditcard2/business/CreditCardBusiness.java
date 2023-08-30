@@ -12,7 +12,6 @@ import javax.ejb.CreateException;
 import javax.ejb.FinderException;
 import javax.transaction.TransactionManager;
 
-import org.mortbay.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -1283,7 +1282,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 					|| creditCardClient.getCreditCardMerchant() == null
 					|| !CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(creditCardClient.getCreditCardMerchant().getType())
 			) {
-				Log.warn("This is not a Valitor merchant. Can not create the Valitor authorization entry.");
+				getLogger().warning("This is not a Valitor merchant. Can not create the Valitor authorization entry.");
 				return null;
 			}
 
