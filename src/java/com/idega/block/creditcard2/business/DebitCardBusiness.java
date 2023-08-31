@@ -701,4 +701,10 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 		getLogger().warning("Not implemented");
 	}
 
+	@Override
+	public boolean isValidForForSubscriptionPayment(Timestamp lastPaymentDate) {
+		getLogger().warning("Not implemented");
+		return false;
+	}
+
 }

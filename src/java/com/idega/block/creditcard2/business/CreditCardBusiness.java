@@ -1030,6 +1030,21 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 	}
 
 	private boolean isValidForForSubscriptionPayment(Subscription subscription) {
+		try {
+			if (isValidForForSubscriptionPayment(subscription == null ? null : subscription.getLastPaymentDate())) {
+				getLogger().info("Valid for a new subscription payment. Subscription: " + subscription);
+				return true;
+			}
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Could not check if subscription is valid for automatic payment: " + subscription, e);
+		}
+
+		getLogger().info("NOT valid for a new subscription payment. Subscription: " + subscription);
+		return false;
+	}
+
+	@Override
+	public boolean isValidForForSubscriptionPayment(Timestamp lastPaymentDate) {
 		boolean validForSubscriptionPayment = false;
 		IWTimestamp nowIWT = new IWTimestamp();
 		nowIWT.setHour(0);
@@ -1038,8 +1053,8 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		nowIWT.setMilliSecond(0);
 
 		try {
-			if (subscription != null && subscription.getLastPaymentDate() != null) {
-				IWTimestamp newPaymentDateIWT = new IWTimestamp(subscription.getLastPaymentDate());
+			if (lastPaymentDate != null) {
+				IWTimestamp newPaymentDateIWT = new IWTimestamp(lastPaymentDate);
 				newPaymentDateIWT.setHour(0);
 				newPaymentDateIWT.setMinute(0);
 				newPaymentDateIWT.setSecond(0);
@@ -1066,10 +1081,8 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 								nowIWT.isLaterThanOrEquals(newPaymentDateIWT)
 						)
 				) {
-					getLogger().info("Valid for a new subscription payment. Subscription: " + subscription);
 					validForSubscriptionPayment = true;
 				} else {
-					getLogger().info("NOT valid for a new subscription payment. Subscription: " + subscription);
 					validForSubscriptionPayment = false;
 				}
 
