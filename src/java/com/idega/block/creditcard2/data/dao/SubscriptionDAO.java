@@ -3,6 +3,7 @@ package com.idega.block.creditcard2.data.dao;
 import java.util.List;
 
 import com.idega.block.creditcard2.data.beans.Subscription;
+import com.idega.block.creditcard2.data.beans.SubscriptionPayment;
 import com.idega.business.SpringBeanName;
 import com.idega.core.persistence.GenericDao;
 
@@ -24,5 +25,9 @@ public interface SubscriptionDAO extends GenericDao {
 	public Subscription getOneSubscriptionForUserByStatus(Integer userId, Boolean status);
 
 	public List<Subscription> getAllActive();
+
+	public SubscriptionPayment doCreateSubscriptionPayment(Integer userId, Long subscriptionId, String authCode);
+
+	public List<SubscriptionPayment> getAllSubscriptionPaymentsForUser(Integer userId);
 
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.idega.block.creditcard2.data.beans.Subscription;
+import com.idega.block.creditcard2.data.beans.SubscriptionPayment;
 import com.idega.block.creditcard2.data.dao.SubscriptionDAO;
 import com.idega.core.persistence.Param;
 import com.idega.core.persistence.impl.GenericDaoImpl;
@@ -171,6 +172,44 @@ public class SubscriptionDAOImpl extends GenericDaoImpl implements SubscriptionD
 		}
 
 		return false;
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public SubscriptionPayment doCreateSubscriptionPayment(Integer userId, Long subscriptionId, String authCode) {
+		if (userId == null || subscriptionId == null) {
+			return null;
+		}
+
+		try {
+			SubscriptionPayment sp = new SubscriptionPayment();
+			sp.setUserId(userId);
+			sp.setSubscriptionId(subscriptionId);
+			sp.setAuthCode(authCode);
+
+			persist(sp);
+
+			return sp.getId() == null ? null : sp;
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error creating record for subscription payment. User ID: " + userId + ", subscription ID: " + subscriptionId + ", auth. code: " + authCode, e);
+		}
+
+		return null;
+	}
+
+	@Override
+	public List<SubscriptionPayment> getAllSubscriptionPaymentsForUser(Integer userId) {
+		if (userId == null) {
+			return null;
+		}
+
+		try {
+			return getResultList(SubscriptionPayment.QUERY_GET_ALL_BY_USER_ID, SubscriptionPayment.class, new Param(SubscriptionPayment.PARAM_USER_ID, userId));
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting records for subscription payment for user ID " + userId, e);
+		}
+
+		return null;
 	}
 
 }

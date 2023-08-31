@@ -989,7 +989,8 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 
 								} catch (Throwable t) {
 									getLogger().log(Level.WARNING, "Error executing automatic subscription payment. Subscription: " + subscription + " for " + user + " using " + vc, t);
-																	}
+								}
+
 								String authCode = data == null ? null : data.getAuthCode();
 								if (StringUtil.isEmpty(authCode)) {
 									getLogger().warning("Auth. code unknown for subscription: " + subscription
@@ -1001,11 +1002,11 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 								getLogger().info("Successful payment with virtual card: " + vc + " for user: " + user +
 										". Auth. code " + authCode + " (unique ID: " + data.getUniqueId() + ").");
 
+								getSubscriptionDAO().doCreateSubscriptionPayment(user.getId(), subscription.getId(), authCode);
+
 								String authEntryUniqueId = data.getUniqueId();
 								setMetaData(creditCardClient, authEntryUniqueId);
-
 							}
-
 
 							//**** Update the subscription after the successful payment *****
 							if (successfulPayment) {
@@ -1088,7 +1089,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 
 			}
 		} catch (Exception e) {
-			getLogger().log(Level.WARNING, "Could not check if subscription is valid forautomatic payment: " + subscription, e);
+			getLogger().log(Level.WARNING, "Failed checking if subscription is valid for next payment. Last payment date: " + lastPaymentDate, e);
 		}
 
 		return validForSubscriptionPayment;
@@ -1327,6 +1328,5 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		}
 		return null;
 	}
-
 
 }
