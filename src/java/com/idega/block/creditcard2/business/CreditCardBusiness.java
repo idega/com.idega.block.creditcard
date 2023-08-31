@@ -904,14 +904,13 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		}
 
 		try {
-			return creditCardInformationDAO.getSingleResult(VirtualCard.QUERY_FIND_BY_OWNER, VirtualCard.class, new Param(VirtualCard.COLUMN_OWNER, userId));
+			return creditCardInformationDAO.getSingleResult(VirtualCard.QUERY_FIND_BY_OWNER, VirtualCard.class, new Param(VirtualCard.PARAM_OWNER_ID, userId));
 		} catch (Exception e) {
 			getLogger().log(Level.WARNING, "Error getting virtual card by user id " + userId, e);
 		}
 
 		return null;
 	}
-
 
 	@Override
 	public void doMakeSubscriptionPayments() {
