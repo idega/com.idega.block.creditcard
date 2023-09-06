@@ -57,7 +57,10 @@ public class Subscription implements Serializable {
 
 	static final String COLUMN_ID = "id",
 						COLUMN_UNIQUE_ID = "unique_id",
-						COLUMN_USER_ID = "user_id";
+						COLUMN_USER_ID = "user_id",
+						COLUMN_LAST_UNSUCCESSFUL_PAYMENT_DATE = "unsuccess_payment_date",
+						COLUMN_FAILED_PAYMENTS = "failed_payments",
+						COLUMN_FAILED_PAYMENTS_PER_MONTH = "failed_per_month";
 
 	public static final String GET_ALL_BY_USER_ID = "Subscription.getAllByUserId";
 	public static final String GET_ALL_BY_USER_ID_AND_STATUS = "Subscription.getAllByUserIdAndStatus";
@@ -95,6 +98,16 @@ public class Subscription implements Serializable {
 
 	@Column(name = "last_payment_date")
 	private Timestamp lastPaymentDate;
+
+	@Column(name = COLUMN_LAST_UNSUCCESSFUL_PAYMENT_DATE)
+	private Timestamp lastUnsuccessfulPaymentDate;
+
+	@Column(name = COLUMN_FAILED_PAYMENTS)
+	private Integer failedPayments;
+
+	@Column(name = COLUMN_FAILED_PAYMENTS_PER_MONTH)
+	private Integer failedPaymentsPerMonth;
+
 
 	public Long getId() {
 		return id;
@@ -166,6 +179,30 @@ public class Subscription implements Serializable {
 
 	public void setLastPaymentDate(Timestamp lastPaymentDate) {
 		this.lastPaymentDate = lastPaymentDate;
+	}
+
+	public Timestamp getLastUnsuccessfulPaymentDate() {
+		return lastUnsuccessfulPaymentDate;
+	}
+
+	public void setLastUnsuccessfulPaymentDate(Timestamp lastUnsuccessfulPaymentDate) {
+		this.lastUnsuccessfulPaymentDate = lastUnsuccessfulPaymentDate;
+	}
+
+	public Integer getFailedPayments() {
+		return failedPayments;
+	}
+
+	public void setFailedPayments(Integer failedPayments) {
+		this.failedPayments = failedPayments;
+	}
+
+	public Integer getFailedPaymentsPerMonth() {
+		return failedPaymentsPerMonth;
+	}
+
+	public void setFailedPaymentsPerMonth(Integer failedPaymentsPerMonth) {
+		this.failedPaymentsPerMonth = failedPaymentsPerMonth;
 	}
 
 	@PrePersist

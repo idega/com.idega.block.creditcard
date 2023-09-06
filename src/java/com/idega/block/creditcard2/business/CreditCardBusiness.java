@@ -945,6 +945,11 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 								continue;
 							}
 
+							//Can retry to pay 3 times per month
+							if (canRetryToPay(subscription) == false) {
+								continue;
+							}
+
 							//**** Get virtual cards for user *****
 							List<VirtualCard> virtualCardsForUser = getValidVirtualCardsForUser(user);
 
@@ -1013,7 +1018,20 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 								subscription.setLastPaymentDate(IWTimestamp.getTimestampRightNow());
 								getSubscriptionDAO().createUpdateSubscription(subscription);
 							} else {
+
 								getLogger().info("Failed to make automatic subscription payment for subscription: " + subscription);
+
+								//Update the subscription
+								IWTimestamp now = IWTimestamp.RightNow();
+								subscription.setLastUnsuccessfulPaymentDate(now.getTimestamp());
+								Integer failedPaymentsPerMonth = subscription.getFailedPaymentsPerMonth() != null ? subscription.getFailedPaymentsPerMonth() : 0;
+								failedPaymentsPerMonth++;
+								subscription.setFailedPaymentsPerMonth(failedPaymentsPerMonth);
+								Integer failedPayments = subscription.getFailedPayments() != null ? subscription.getFailedPayments() : 0;
+								failedPayments++;
+								subscription.setFailedPayments(failedPayments);
+								getSubscriptionDAO().createUpdateSubscription(subscription);
+
 							}
 
 						} catch (Exception eSubP) {
@@ -1028,6 +1046,28 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 			getLogger().log(Level.WARNING, "Could not execute automatic subscription payments.", e);
 		}
 	}
+
+	private boolean canRetryToPay(Subscription subscription) {
+		try {
+			if (subscription != null && subscription.getFailedPaymentsPerMonth() != null && subscription.getLastUnsuccessfulPaymentDate() != null) {
+				IWTimestamp now = IWTimestamp.RightNow();
+				IWTimestamp lastUnsuccessfulPaymentIWT = new IWTimestamp(subscription.getLastUnsuccessfulPaymentDate());
+				if (now.getYear() == lastUnsuccessfulPaymentIWT.getYear() && now.getMonth() != lastUnsuccessfulPaymentIWT.getMonth()) {
+					subscription.setFailedPaymentsPerMonth(0);
+				} else if (
+						now.getYear() == lastUnsuccessfulPaymentIWT.getYear()
+						&& now.getMonth() == lastUnsuccessfulPaymentIWT.getMonth()
+						&& subscription.getFailedPaymentsPerMonth() >= 3
+				) {
+					return false;
+				}
+			}
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Could not check, if subscription can be paid and how many time it was paid already: " + subscription);
+		}
+		return true;
+	}
+
 
 	private boolean isValidForForSubscriptionPayment(Subscription subscription) {
 		try {
