@@ -1017,8 +1017,8 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 								getLogger().info("Successful automatic subscription payment for subscription: " + subscription);
 								subscription.setLastPaymentDate(IWTimestamp.getTimestampRightNow());
 								getSubscriptionDAO().createUpdateSubscription(subscription);
-							} else {
 
+							} else {
 								getLogger().info("Failed to make automatic subscription payment for subscription: " + subscription);
 
 								//Update the subscription
@@ -1031,17 +1031,13 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 								failedPayments++;
 								subscription.setFailedPayments(failedPayments);
 								getSubscriptionDAO().createUpdateSubscription(subscription);
-
 							}
-
 						} catch (Exception eSubP) {
 							getLogger().log(Level.WARNING, "Failed to make automatic subscription payment for subscription: " + subscription, eSubP);
 						}
 					}
-
 				}
 			}
-
 		} catch (Exception e) {
 			getLogger().log(Level.WARNING, "Could not execute automatic subscription payments.", e);
 		}
@@ -1053,13 +1049,17 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 				IWTimestamp now = IWTimestamp.RightNow();
 				IWTimestamp lastUnsuccessfulPaymentIWT = new IWTimestamp(subscription.getLastUnsuccessfulPaymentDate());
 				if (now.getYear() == lastUnsuccessfulPaymentIWT.getYear() && now.getMonth() != lastUnsuccessfulPaymentIWT.getMonth()) {
-					subscription.setFailedPaymentsPerMonth(0);
+					subscription.setFailedPaymentsPerMonth(0);	//	Re-setting counter
+
 				} else if (
 						now.getYear() == lastUnsuccessfulPaymentIWT.getYear()
 						&& now.getMonth() == lastUnsuccessfulPaymentIWT.getMonth()
 						&& subscription.getFailedPaymentsPerMonth() >= 3
 				) {
 					return false;
+
+				} else {
+					subscription.setFailedPaymentsPerMonth(0);	//	Re-setting counter, i.e. year has changed
 				}
 			}
 		} catch (Exception e) {
@@ -1067,7 +1067,6 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		}
 		return true;
 	}
-
 
 	private boolean isValidForForSubscriptionPayment(Subscription subscription) {
 		try {

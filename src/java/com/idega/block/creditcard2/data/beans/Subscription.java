@@ -108,7 +108,6 @@ public class Subscription implements Serializable {
 	@Column(name = COLUMN_FAILED_PAYMENTS_PER_MONTH)
 	private Integer failedPaymentsPerMonth;
 
-
 	public Long getId() {
 		return id;
 	}
