@@ -23,6 +23,7 @@ import com.idega.block.creditcard.business.CreditCardClient;
 import com.idega.block.creditcard.business.ValitorPayException;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
+import com.idega.block.creditcard.event.PaymentBySubscriptionEvent;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
 import com.idega.block.creditcard2.data.beans.DummyMerchant;
@@ -1017,6 +1018,9 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 								getLogger().info("Successful automatic subscription payment for subscription: " + subscription);
 								subscription.setLastPaymentDate(IWTimestamp.getTimestampRightNow());
 								getSubscriptionDAO().createUpdateSubscription(subscription);
+
+								//*** Fire the PaymentBySubscriptionEvent ***
+								ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription));
 
 							} else {
 								getLogger().info("Failed to make automatic subscription payment for subscription: " + subscription);

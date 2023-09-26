@@ -60,7 +60,8 @@ public class Subscription implements Serializable {
 						COLUMN_USER_ID = "user_id",
 						COLUMN_LAST_UNSUCCESSFUL_PAYMENT_DATE = "unsuccess_payment_date",
 						COLUMN_FAILED_PAYMENTS = "failed_payments",
-						COLUMN_FAILED_PAYMENTS_PER_MONTH = "failed_per_month";
+						COLUMN_FAILED_PAYMENTS_PER_MONTH = "failed_per_month",
+						COLUMN_CASE_ID = "case_id";
 
 	public static final String GET_ALL_BY_USER_ID = "Subscription.getAllByUserId";
 	public static final String GET_ALL_BY_USER_ID_AND_STATUS = "Subscription.getAllByUserIdAndStatus";
@@ -107,6 +108,9 @@ public class Subscription implements Serializable {
 
 	@Column(name = COLUMN_FAILED_PAYMENTS_PER_MONTH)
 	private Integer failedPaymentsPerMonth;
+
+	@Column(name = COLUMN_CASE_ID)
+	private String caseId;
 
 	public Long getId() {
 		return id;
@@ -202,6 +206,16 @@ public class Subscription implements Serializable {
 
 	public void setFailedPaymentsPerMonth(Integer failedPaymentsPerMonth) {
 		this.failedPaymentsPerMonth = failedPaymentsPerMonth;
+	}
+
+
+
+	public String getCaseId() {
+		return caseId;
+	}
+
+	public void setCaseId(String caseId) {
+		this.caseId = caseId;
 	}
 
 	@PrePersist
