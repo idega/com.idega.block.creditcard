@@ -24,5 +24,4 @@ public class PaymentBySubscriptionEvent extends ApplicationEvent {
 		this.subscription = subscription;
 	}
 
-
 }

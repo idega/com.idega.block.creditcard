@@ -208,8 +208,6 @@ public class Subscription implements Serializable {
 		this.failedPaymentsPerMonth = failedPaymentsPerMonth;
 	}
 
-
-
 	public String getCaseId() {
 		return caseId;
 	}
