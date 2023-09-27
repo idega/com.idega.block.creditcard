@@ -364,6 +364,11 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 	}
 
 	@Override
+	public CreditCardMerchant getMerchant() {
+		return null;
+	}
+
+	@Override
 	public boolean isRefund() {
 		return getBooleanColumnValue(COLUMN_REFUND, false);
 	}

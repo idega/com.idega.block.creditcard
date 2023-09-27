@@ -556,6 +556,11 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 	}
 
 	@Override
+	public CreditCardMerchant getMerchant() {
+		return null;
+	}
+
+	@Override
 	public boolean isRefund() {
 		return refund == null ? false : refund;
 	}
