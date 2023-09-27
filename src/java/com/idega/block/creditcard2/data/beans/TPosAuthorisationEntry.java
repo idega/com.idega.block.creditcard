@@ -817,6 +817,11 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 	}
 
 	@Override
+	public CreditCardMerchant getMerchant() {
+		return null;
+	}
+
+	@Override
 	public boolean isRefund() {
 		return refund == null ? false : refund;
 	}

@@ -552,6 +552,11 @@ public class DummyAuthorisationEntry implements com.idega.block.creditcard.data.
 	}
 
 	@Override
+	public CreditCardMerchant getMerchant() {
+		return null;
+	}
+
+	@Override
 	public boolean isRefund() {
 		return refund == null ? false : refund;
 	}

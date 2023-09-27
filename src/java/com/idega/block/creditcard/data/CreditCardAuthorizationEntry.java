@@ -89,6 +89,8 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 
 	public void setMerchant(CreditCardMerchant merchant);
 
+	public CreditCardMerchant getMerchant();
+
 	public boolean isRefund();
 
 	public void setRefund(boolean refund);
