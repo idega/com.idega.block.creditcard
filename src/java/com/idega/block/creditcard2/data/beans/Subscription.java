@@ -1,15 +1,25 @@
 package com.idega.block.creditcard2.data.beans;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.PrePersist;
@@ -20,7 +30,13 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import com.idega.core.idgenerator.business.UUIDGenerator;
+import com.idega.data.MetaDataCapable;
+import com.idega.data.UniqueIDCapable;
+import com.idega.data.bean.Metadata;
+import com.idega.util.DBUtil;
+import com.idega.util.ListUtil;
 import com.idega.util.StringUtil;
+import com.idega.util.datastructures.map.MapUtil;
 
 @Entity
 @Table(name = Subscription.TABLE_NAME, indexes = {
@@ -49,7 +65,7 @@ import com.idega.util.StringUtil;
 			query = "delete from Subscription s where s.userId = :" + Subscription.PARAM_USER_ID
 	)
 })
-public class Subscription implements Serializable {
+public class Subscription implements Serializable, UniqueIDCapable, MetaDataCapable {
 
 	private static final long serialVersionUID = -8493448476538128516L;
 
@@ -60,8 +76,7 @@ public class Subscription implements Serializable {
 						COLUMN_USER_ID = "user_id",
 						COLUMN_LAST_UNSUCCESSFUL_PAYMENT_DATE = "unsuccess_payment_date",
 						COLUMN_FAILED_PAYMENTS = "failed_payments",
-						COLUMN_FAILED_PAYMENTS_PER_MONTH = "failed_per_month",
-						COLUMN_CASE_ID = "case_id";
+						COLUMN_FAILED_PAYMENTS_PER_MONTH = "failed_per_month";
 
 	public static final String GET_ALL_BY_USER_ID = "Subscription.getAllByUserId";
 	public static final String GET_ALL_BY_USER_ID_AND_STATUS = "Subscription.getAllByUserIdAndStatus";
@@ -70,6 +85,9 @@ public class Subscription implements Serializable {
 
 	public static final String PARAM_USER_ID = "userId";
 	public static final String PARAM_STATUS = "status";
+
+	public static final String SQL_RELATION_METADATA = "ic_metadata_cc_subscription";
+
 
 	@Id
 	@Column(name = COLUMN_ID)
@@ -109,8 +127,9 @@ public class Subscription implements Serializable {
 	@Column(name = COLUMN_FAILED_PAYMENTS_PER_MONTH)
 	private Integer failedPaymentsPerMonth;
 
-	@Column(name = COLUMN_CASE_ID)
-	private String caseId;
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE }, targetEntity = Metadata.class)
+	@JoinTable(name = SQL_RELATION_METADATA, joinColumns = { @JoinColumn(name = COLUMN_ID) }, inverseJoinColumns = { @JoinColumn(name = Metadata.COLUMN_METADATA_ID) })
+	private Set<Metadata> metadata;
 
 	public Long getId() {
 		return id;
@@ -168,10 +187,12 @@ public class Subscription implements Serializable {
 		this.userId = userId;
 	}
 
+	@Override
 	public String getUniqueId() {
 		return uniqueId;
 	}
 
+	@Override
 	public void setUniqueId(String uniqueId) {
 		this.uniqueId = uniqueId;
 	}
@@ -210,12 +231,140 @@ public class Subscription implements Serializable {
 
 
 
-	public String getCaseId() {
-		return caseId;
+	private Metadata getMetadata(String key) {
+		Set<Metadata> list = getMetadata();
+		if (!ListUtil.isEmpty(list)) {
+			for (Metadata metaData : list) {
+				if (metaData.getKey().equals(key)) {
+					return metaData;
+				}
+			}
+		}
+
+		return null;
 	}
 
-	public void setCaseId(String caseId) {
-		this.caseId = caseId;
+	@Override
+	public String getMetaData(String metaDataKey) {
+		Set<Metadata> list = getMetadata();
+		if (!ListUtil.isEmpty(list)) {
+			for (Metadata metaData : list) {
+				if (metaData.getKey().equals(metaDataKey)) {
+					return metaData.getValue();
+				}
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getMetaDataAttributes() {
+		Map<String, String> map = new HashMap<>();
+
+		Set<Metadata> list = getMetadata();
+		if (!ListUtil.isEmpty(list)) {
+			for (Metadata metaData : list) {
+				map.put(metaData.getKey(), metaData.getValue());
+			}
+		}
+
+		return map;
+	}
+
+	@Override
+	public Map<String, String> getMetaDataTypes() {
+		Map<String, String> map = new HashMap<>();
+
+		Set<Metadata> list = getMetadata();
+		if (!ListUtil.isEmpty(list)) {
+			for (Metadata metaData : list) {
+				map.put(metaData.getKey(), metaData.getType());
+			}
+		}
+
+		return map;
+	}
+
+	@Override
+	public boolean removeMetaData(String metaDataKey) {
+		Metadata metadata = getMetadata(metaDataKey);
+		if (metadata != null) {
+			getMetadata().remove(metadata);
+		}
+
+		return false;
+	}
+
+	@Override
+	public void renameMetaData(String oldKeyName, String newKeyName, String value) {
+		Metadata metadata = getMetadata(oldKeyName);
+		if (metadata != null) {
+			metadata.setKey(newKeyName);
+			if (value != null) {
+				metadata.setValue(value);
+			}
+		}
+	}
+
+	@Override
+	public void renameMetaData(String oldKeyName, String newKeyName) {
+		renameMetaData(oldKeyName, newKeyName, null);
+	}
+
+	@Override
+	public void setMetaData(String metaDataKey, String value, String type) {
+		Metadata metadata = getMetadata(metaDataKey);
+		if (metadata == null) {
+			metadata = new Metadata();
+			metadata.setKey(metaDataKey);
+		}
+		metadata.setValue(value);
+		if (type != null) {
+			metadata.setType(type);
+		}
+
+		getMetadata().add(metadata);
+
+	}
+
+	@Override
+	public void setMetaData(String metaDataKey, String value) {
+		setMetaData(metaDataKey, value, null);
+	}
+
+	@Override
+	public void setMetaDataAttributes(Map<String, String> map) {
+		if (!MapUtil.isEmpty(map)) {
+			for (String key : map.keySet()) {
+				String value = map.get(key);
+
+				Metadata metadata = getMetadata(key);
+				if (metadata == null) {
+					metadata = new Metadata();
+					metadata.setKey(key);
+				}
+				metadata.setValue(value);
+
+				getMetadata().add(metadata);
+			}
+		}
+	}
+
+	@Override
+	public void updateMetaData() throws SQLException {
+	}
+
+	public Set<Metadata> getMetadata() {
+		metadata = DBUtil.getInstance().lazyLoad(metadata);
+		if (metadata == null) {
+			metadata = new HashSet<>();
+		}
+		return metadata;
+	}
+
+	public void setMetadata(Set<Metadata> metadata) {
+		this.metadata = metadata;
 	}
 
 	@PrePersist

@@ -1020,7 +1020,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 								getSubscriptionDAO().createUpdateSubscription(subscription);
 
 								//*** Fire the PaymentBySubscriptionEvent ***
-								ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription));
+								ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription, Boolean.TRUE, null));
 
 							} else {
 								getLogger().info("Failed to make automatic subscription payment for subscription: " + subscription);
@@ -1035,9 +1035,15 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 								failedPayments++;
 								subscription.setFailedPayments(failedPayments);
 								getSubscriptionDAO().createUpdateSubscription(subscription);
+
+								//*** Fire the PaymentBySubscriptionEvent ***
+								ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription, Boolean.FALSE, "Failed to make automatic subscription payment for subscription."));
 							}
 						} catch (Exception eSubP) {
 							getLogger().log(Level.WARNING, "Failed to make automatic subscription payment for subscription: " + subscription, eSubP);
+
+							//*** Fire the PaymentBySubscriptionEvent ***
+							ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription, Boolean.FALSE, "Failed to make automatic subscription payment for subscription. " + eSubP.getLocalizedMessage()));
 						}
 					}
 				}
