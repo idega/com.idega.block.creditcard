@@ -155,4 +155,10 @@ public abstract class PaymentEvent extends ApplicationEvent {
 		this.context = context;
 	}
 
+	@Override
+	public String toString() {
+		return "Event " + getClass().getSimpleName() + ". Payment: " + getPayment() + ", reference: " + getReference() + ", auth. code: " + getAuthCode() + ", last4: " + getLast4() +
+				". Hook " + getHook();
+	}
+
 }

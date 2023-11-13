@@ -19,4 +19,9 @@ public class ValitorWebHook implements WebHookable {
 		this.payment = payment;
 	}
 
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " payment: " + getPayment();
+	}
+
 }

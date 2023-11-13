@@ -25,4 +25,9 @@ public class PaymentSucceededEvent extends PaymentEvent {
 		super(hook, payment, reference, authCode, last4, cardBrand, paidAt, request, response, context);
 	}
 
+	@Override
+	public String toString() {
+		return super.toString();
+	}
+
 }
