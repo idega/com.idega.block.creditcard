@@ -347,6 +347,11 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 	}
 
 	@Override
+	public CreditCardMerchant getMerchant() {
+		return null;
+	}
+
+	@Override
 	public boolean isRefund() {
 		return getBooleanColumnValue(COLUMN_REFUND, false);
 	}

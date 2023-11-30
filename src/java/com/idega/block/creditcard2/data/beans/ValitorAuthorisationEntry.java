@@ -680,4 +680,9 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 		this.refund = refund;
 	}
 
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " ID: " + getId() + ". Amount: " + getAmount() + ", auth. code: " + getAuthCode() + ", timestamp: " + getTimestamp();
+	}
+
 }

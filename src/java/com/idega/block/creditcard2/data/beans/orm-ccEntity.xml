@@ -18,5 +18,7 @@
 <entity class="com.idega.block.creditcard2.data.beans.TPosAuthorisationEntry" />
 <entity class="com.idega.block.creditcard2.data.beans.TPosMerchant" />
 <entity class="com.idega.block.creditcard2.data.beans.VirtualCard" />
+<entity class="com.idega.block.creditcard2.data.beans.Subscription" />
+<entity class="com.idega.block.creditcard2.data.beans.SubscriptionPayment" />
         
 </entity-mappings>

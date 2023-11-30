@@ -99,7 +99,15 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements Auth
 	}
 
 	public ValitorAuthorisationEntry findById(Integer parentDataPK) {
-		return getSingleResultByInlineQuery("from ValitorAuthorisationEntry bae where bae.id =:id", ValitorAuthorisationEntry.class, new Param("id", parentDataPK));
+		if (parentDataPK == null || parentDataPK.intValue() < 0) {
+			return null;
+		}
+
+		return getSingleResultByInlineQuery(
+				"from ValitorAuthorisationEntry bae where bae.id =:id",
+				ValitorAuthorisationEntry.class,
+				new Param("id", Long.valueOf(parentDataPK.longValue()))
+		);
 	}
 
 	public String getLastAuthorizationForMerchant(String merchantRrnSuffix, Integer merchantId) {

@@ -679,4 +679,32 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 		return null;
 	}
 
+
+	@Override
+	public VirtualCard getVirtualCardByOwner(Integer userId) {
+		if (userId == null) {
+			getLogger().warning("User id is not provided");
+			return null;
+		}
+
+		try {
+			return debitCardInformationDAO.getSingleResult(VirtualCard.QUERY_FIND_BY_OWNER, VirtualCard.class, new Param(VirtualCard.COLUMN_OWNER, userId));
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting virtual card by user id " + userId, e);
+		}
+
+		return null;
+	}
+
+	@Override
+	public void doMakeSubscriptionPayments() {
+		getLogger().warning("Not implemented");
+	}
+
+	@Override
+	public boolean isValidForForSubscriptionPayment(Timestamp lastPaymentDate) {
+		getLogger().warning("Not implemented");
+		return false;
+	}
+
 }
