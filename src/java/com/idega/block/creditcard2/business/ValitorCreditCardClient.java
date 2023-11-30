@@ -21,7 +21,6 @@ import javax.xml.ws.BindingProvider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.idega.block.creditcard.CreditCardConstants;
 import com.idega.block.creditcard.CreditCardUtil;
@@ -38,7 +37,6 @@ import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard.model.ValitorPayCardVerificationData;
 import com.idega.block.creditcard.model.ValitorPayCardVerificationResponseData;
 import com.idega.block.creditcard.model.ValitorPayPaymentData;
-import com.idega.block.creditcard.model.ValitorPayPushFundsData;
 import com.idega.block.creditcard.model.ValitorPayRefundWithCorrelationIdData;
 import com.idega.block.creditcard.model.ValitorPayResponseData;
 import com.idega.block.creditcard.model.ValitorPayVirtualCardAdditionalData;
@@ -182,7 +180,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setErrorNumber(result.getVillunumer()+CoreConstants.EMPTY);
 				auth.setErrorText(result.getVilluskilabod());
 			}
-			auth.setMerchant((ValitorMerchant) merchant);
+			auth.setMerchant(merchant);
 			getAuthDAO().store(auth);
 
 			if (result.getVillunumer()==0){
@@ -700,7 +698,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			stream = response == null ? null : response.getEntityInputStream();
 			reader = stream == null ? null : new InputStreamReader(stream);
 			if (reader != null) {
-				valitorPayResponseData = new Gson().fromJson(reader, ValitorPayResponseData.class);
+				valitorPayResponseData = CoreConstants.GSON.fromJson(reader, ValitorPayResponseData.class);
 			}
 		} catch (Throwable e) {
 			String error = "Error reading from response " + response + ". Message: " + e.getMessage();
@@ -761,7 +759,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setErrorNumber(response.getResponseCode());
 				auth.setErrorText(response.getResponseDescription());
 			}
-			auth.setMerchant((ValitorMerchant) merchant);
+			auth.setMerchant(merchant);
 			if (!StringUtil.isEmpty(response.getTransactionID())) {
 				auth.setTransactionId(response.getTransactionID());
 			}
@@ -1125,7 +1123,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setErrorNumber(response.getResponseCode());
 				auth.setErrorText(response.getResponseDescription());
 			}
-			auth.setMerchant((ValitorMerchant) merchant);
+			auth.setMerchant(merchant);
 			if (!StringUtil.isEmpty(response.getTransactionID())) {
 				auth.setTransactionId(response.getTransactionID());
 			}
@@ -1658,7 +1656,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			ValitorAuthorisationEntry valitorAuthorisationEntry = null;
 			try {
 				//Get by ID
-				valitorAuthorisationEntry = getAuthDAO().findById(Integer.valueOf(extraField));
+				valitorAuthorisationEntry = StringHandler.isNumeric(extraField) ? getAuthDAO().findById(Integer.valueOf(extraField)) : null;
 			} catch (Exception eId) {
 				LOGGER.log(Level.WARNING, "Error getting valitor auth. entry by ID " + extraField, eId);
 			}
@@ -1666,7 +1664,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				try {
 					//Get by unique id or auth code
 					CreditCardAuthorizationEntry entry = getAuthDAO().findByAuthorizationCode(extraField, null);
-					if (entry != null) {
+					if (entry instanceof ValitorAuthorisationEntry) {
 						valitorAuthorisationEntry = (ValitorAuthorisationEntry) entry;
 					}
 				} catch (Exception eC) {
@@ -1749,8 +1747,8 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setUniqueId(valitorPayResponseData.getCorrelationID());
 				auth.setReference(paymentUUID);
 				auth.setCardNumber(valitorAuthorisationEntry.getCardNumber());
-				if (parentDataPK != null) {
-					auth.setParent( (ValitorAuthorisationEntry) parentDataPK );
+				if (parentDataPK instanceof ValitorAuthorisationEntry) {
+					auth.setParent((ValitorAuthorisationEntry) parentDataPK);
 				}
 				auth.setMerchant(merchant);
 				auth.setRefund(Boolean.TRUE);
@@ -1783,57 +1781,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData, e, "PAYMENT_DATA", error);
 			throw ex;
 		}
-	}
-
-	@SuppressWarnings("unused")
-	private String getValitorPushFundsWebServiceURL(IWMainApplicationSettings settings) {
-		String webServiceURL = settings.getProperty(
-				"valitorpay.url.push_funds",
-				getDefaultValitorPayURL(settings, "PAYMENT") + "/PushFunds"
-		);
-		return webServiceURL;
-	}
-
-	@SuppressWarnings("unused")
-	private ValitorPayPushFundsData getValitorPayRefundData(
-			IWMainApplicationSettings settings,
-			String cardNumber,
-			String monthExpires,
-			String yearExpires,
-			String ccVerifyNumber,
-			double amount,
-			String currency,
-			String extraField,
-			String paymentUUID,
-			String auditNumber,
-			IWTimestamp now
-	) {
-
-		ValitorPayPushFundsData valitorPayPushFundsData = null;
-
-		try {
-			//According the ValitorPay, amount should be provided in minor currency unit:
-			//EXPLANATION: The total amount of the payment specified in a minor currency unit. This means that GBP is quoted in pence, USD in cents, DKK in öre, ISK in aurar etc.
-			Integer amountInt = CreditCardUtil.getAmountWithExponents(amount, "2");
-
-			valitorPayPushFundsData = new ValitorPayPushFundsData(
-					amountInt,
-					currency,
-					cardNumber,
-					monthExpires,
-					yearExpires,
-					ccVerifyNumber,
-					Integer.valueOf(auditNumber),
-					paymentUUID,
-					null, //agreementNumber
-					null, //terminalId
-					(now.getDateString("yyyy-MM-dd") + "T" + now.getDateString("HH:mm:ss"))
-			);
-		} catch (Exception e) {
-			LOGGER.log(Level.WARNING, "Could not construct the ValitorPayPushFundsData object.", e);
-		}
-
-		return valitorPayPushFundsData;
 	}
 
 	private String getValitorRefundWithCorrelationIdWebServiceURL(IWMainApplicationSettings settings) {
@@ -1878,7 +1825,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (!StringUtil.isEmpty(valitorAuthorisationEntry.getServerResponse())) {
 				ValitorPayResponseData valitorPayResponseData = null;
 				try {
-					valitorPayResponseData = new Gson().fromJson(valitorAuthorisationEntry.getServerResponse(), ValitorPayResponseData.class);
+					valitorPayResponseData = CoreConstants.GSON.fromJson(valitorAuthorisationEntry.getServerResponse(), ValitorPayResponseData.class);
 				} catch (Exception e) {
 					LOGGER.log(Level.WARNING, "Could not convert valitor authorisation entry server response from JSON to object. Server response: " + valitorAuthorisationEntry.getServerResponse(), e);
 				}
@@ -1907,6 +1854,5 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 		return valitorPayRefundWithCorrelationIdData;
 	}
-
 
 }
