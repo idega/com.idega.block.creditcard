@@ -1752,6 +1752,24 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				if (parentDataPK != null) {
 					auth.setParent( (ValitorAuthorisationEntry) parentDataPK );
 				}
+				if (!StringUtil.isEmpty(valitorPayResponseData.getTransactionLifecycleId())) {
+					auth.setTransactionLifecycleId(valitorPayResponseData.getTransactionLifecycleId());
+				}
+				if (!StringUtil.isEmpty(valitorPayResponseData.getTransactionID())) {
+					auth.setTransactionId(valitorPayResponseData.getTransactionID());
+				}
+				if (valitorPayResponseData.getIsSuccess() != null && valitorPayResponseData.getIsSuccess().booleanValue() == false){
+					auth.setErrorNumber(valitorPayResponseData.getResponseCode());
+					auth.setErrorText(valitorPayResponseData.getResponseDescription());
+				}
+				IWTimestamp timestamp = new IWTimestamp();
+				auth.setDate(timestamp.getDate());
+				auth.setTimestamp(timestamp.getTimestamp());
+				auth.setSuccess(Boolean.TRUE);
+				String serverResponse = getJSON(valitorPayResponseData);
+				serverResponse = serverResponse.length() > 255 ? serverResponse.substring(0, 255) : serverResponse;
+				auth.setServerResponse(serverResponse);
+
 				auth.setMerchant(merchant);
 				auth.setRefund(Boolean.TRUE);
 				getAuthDAO().store(auth);
