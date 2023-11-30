@@ -91,8 +91,15 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements Auth
 	}
 
 	public ValitorAuthorisationEntry findById(Integer parentDataPK) {
-		return getSingleResultByInlineQuery("from ValitorAuthorisationEntry bae where bae.id =:id",
-				ValitorAuthorisationEntry.class, new Param("id", parentDataPK != null ? new Long(parentDataPK.toString()) : -1));
+		if (parentDataPK == null || parentDataPK.intValue() < 0) {
+			return null;
+		}
+
+		return getSingleResultByInlineQuery(
+				"from ValitorAuthorisationEntry bae where bae.id =:id",
+				ValitorAuthorisationEntry.class,
+				new Param("id", Long.valueOf(parentDataPK.longValue()))
+		);
 	}
 
 	public String getLastAuthorizationForMerchant(String merchantRrnSuffix, Integer merchantId) {
@@ -100,7 +107,6 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements Auth
 				"select max(bae.rrn) from ValitorAuthorisationEntry bae where bae.rrn Like :rrn and bae.merchant.id = :id",
 				String.class, new Param("rrn", merchantRrnSuffix + "%"), new Param("id", merchantId));
 	}
-
 
 	public ValitorAuthorisationEntry getByMetadata(String key, String value) {
 		if (StringUtil.isEmpty(key) || StringUtil.isEmpty(value)) {
@@ -125,6 +131,5 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements Auth
 
 		return null;
 	}
-
 
 }
