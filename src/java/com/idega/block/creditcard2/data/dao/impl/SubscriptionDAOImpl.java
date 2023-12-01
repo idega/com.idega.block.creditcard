@@ -73,11 +73,12 @@ public class SubscriptionDAOImpl extends GenericDaoImpl implements SubscriptionD
 			List<Param> params = new ArrayList<>();
 			params.add(new Param(Subscription.PARAM_USER_ID, userId));
 			params.add(new Param(Subscription.PARAM_STATUS, status));
-			return getSingleResult(
+			List<Subscription> subscriptions = getResultList(
 					Subscription.GET_ALL_BY_USER_ID_AND_STATUS,
 					Subscription.class,
 					params.toArray(new Param[params.size()])
 			);
+			return ListUtil.isEmpty(subscriptions) ? null : subscriptions.iterator().next();
 		} catch (Exception e) {
 			getLogger().log(Level.WARNING, "Error getting subscriptions by user id: " + userId + " and status (is enabled): " + status, e);
 		}
