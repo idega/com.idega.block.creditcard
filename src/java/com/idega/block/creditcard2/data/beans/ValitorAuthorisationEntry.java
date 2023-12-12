@@ -41,28 +41,43 @@ import com.idega.util.StringUtil;
 @Entity
 @Table(name = ValitorAuthorisationEntry.TABLE_NAME)
 @NamedQueries({
-		@NamedQuery(name = ValitorAuthorisationEntry.GET_BY_ID, query = "from ValitorAuthorisationEntry bae where bae."
-				+ ValitorAuthorisationEntry.idProp + " = :" + ValitorAuthorisationEntry.idProp),
-		@NamedQuery(name = ValitorAuthorisationEntry.GET_BY_PARENT_ID, query = "from ValitorAuthorisationEntry bae where bae."
-				+ ValitorAuthorisationEntry.parentProp + " = :" + ValitorAuthorisationEntry.parentProp),
-		@NamedQuery(name = ValitorAuthorisationEntry.GET_BY_AUTH_CODE, query = "from ValitorAuthorisationEntry bae where bae."
-				+ ValitorAuthorisationEntry.authCodeProp + " = :" + ValitorAuthorisationEntry.authCodeProp),
-		@NamedQuery(name = ValitorAuthorisationEntry.GET_BY_UNIQUE_ID, query = "from ValitorAuthorisationEntry bae where bae."
-				+ ValitorAuthorisationEntry.uniqueIdProp + " = :" + ValitorAuthorisationEntry.uniqueIdProp),
-		@NamedQuery(name = ValitorAuthorisationEntry.GET_BY_DATES, query = "from ValitorAuthorisationEntry bae where bae."
-				+ ValitorAuthorisationEntry.dateProp + " >= :" + ValitorAuthorisationEntry.dateFromProp + " and "
-				+ ValitorAuthorisationEntry.dateProp + " <=:" + ValitorAuthorisationEntry.dateToProp),
-		@NamedQuery(name = ValitorAuthorisationEntry.GET_REFUNDS_BY_DATES, query = "from ValitorAuthorisationEntry bae where bae.transactionType = "
-				+ ValitorAuthorisationEntry.AUTHORIZATION_TYPE_REFUND + " and bae." + ValitorAuthorisationEntry.dateProp
-				+ " >= :" + ValitorAuthorisationEntry.dateFromProp + " and " + ValitorAuthorisationEntry.dateProp + " <=:"
-				+ ValitorAuthorisationEntry.dateToProp),
+		@NamedQuery(
+				name = ValitorAuthorisationEntry.GET_BY_ID,
+				query = "from ValitorAuthorisationEntry bae where bae."	+ ValitorAuthorisationEntry.idProp + " = :" + ValitorAuthorisationEntry.idProp
+		),
+		@NamedQuery(
+				name = ValitorAuthorisationEntry.GET_BY_PARENT_ID,
+				query = "from ValitorAuthorisationEntry bae where bae." + ValitorAuthorisationEntry.parentProp + " = :" + ValitorAuthorisationEntry.parentProp
+		),
+		@NamedQuery(
+				name = ValitorAuthorisationEntry.GET_BY_AUTH_CODE,
+				query = "from ValitorAuthorisationEntry bae where bae." + ValitorAuthorisationEntry.authCodeProp + " = :" + ValitorAuthorisationEntry.authCodeProp
+		),
+		@NamedQuery(
+				name = ValitorAuthorisationEntry.GET_BY_UNIQUE_ID,
+				query = "from ValitorAuthorisationEntry bae where bae." + ValitorAuthorisationEntry.uniqueIdProp + " = :" + ValitorAuthorisationEntry.uniqueIdProp
+		),
+		@NamedQuery(
+				name = ValitorAuthorisationEntry.GET_BY_DATES,
+				query = "from ValitorAuthorisationEntry bae where bae." + ValitorAuthorisationEntry.dateProp + " >= :" + ValitorAuthorisationEntry.dateFromProp + " and " +
+				ValitorAuthorisationEntry.dateProp + " <=:" + ValitorAuthorisationEntry.dateToProp
+		),
+		@NamedQuery(
+				name = ValitorAuthorisationEntry.GET_REFUNDS_BY_DATES,
+				query = "from ValitorAuthorisationEntry bae where bae.transactionType = " + ValitorAuthorisationEntry.AUTHORIZATION_TYPE_REFUND + " and bae." +
+				ValitorAuthorisationEntry.dateProp 	+ " >= :" + ValitorAuthorisationEntry.dateFromProp + " and " + ValitorAuthorisationEntry.dateProp + " <=:" + ValitorAuthorisationEntry.dateToProp
+		),
 		@NamedQuery(
 				name = ValitorAuthorisationEntry.QUERY_FIND_BY_METADATA,
 				query = "select vae from ValitorAuthorisationEntry vae "
 						+ "join vae.metadata meta "
 						+ " where meta.key = :" + ValitorAuthorisationEntry.METADATA_KEY_PROP
 						+ " and meta.value = :" + ValitorAuthorisationEntry.METADATA_VALUE_PROP
-
+		),
+		@NamedQuery(
+				name = ValitorAuthorisationEntry.QUERY_GET_SUCCESSFULL_PAYMENTS_TO_MERCHANT,
+				query = "select distinct vae.id from ValitorAuthorisationEntry vae where vae.success = '1' and vae.merchant.id = :" + ValitorAuthorisationEntry.PARAM_MERCHANT + " and vae." +
+				ValitorAuthorisationEntry.dateProp 	+ " >= :" + ValitorAuthorisationEntry.dateFromProp
 		)
 })
 public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
@@ -84,8 +99,11 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	public static final String dateToProp = "dateTo";
 	public static final String QUERY_FIND_BY_METADATA = "ValitorAuthorisationEntry.findByMetadata";
 	public static final String METADATA_KEY_PROP = "metadataKey";
-	public static final String METADATA_VALUE_PROP = "metadataValue";
+	public static final String METADATA_VALUE_PROP = "metadataValue",
 
+			QUERY_GET_SUCCESSFULL_PAYMENTS_TO_MERCHANT = "ValitorAuthorisationEntry.getSuccessfullPaymentsToMerchant",
+
+			PARAM_MERCHANT = "merchantId";
 
 	//for Valitor these are Idega internal
 	public static final String AUTHORIZATION_TYPE_SALE = "1";
@@ -240,6 +258,7 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@JoinColumn(name = "merchant", nullable = false)
 	private ValitorMerchant merchant;
 
+	@Override
 	public ValitorMerchant getMerchant() {
 		return merchant;
 	}

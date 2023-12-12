@@ -145,3 +145,22 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements Auth
 	}
 
 }
+	public List<Long> getIdsOfSuccfullPaymentsToMarchant(Integer merchantId, Date date) {
+		if (merchantId == null || date == null) {
+			return null;
+		}
+
+		try {
+			return getResultList(
+					ValitorAuthorisationEntry.QUERY_GET_SUCCESSFULL_PAYMENTS_TO_MERCHANT,
+					Long.class,
+					new Param(ValitorAuthorisationEntry.PARAM_MERCHANT, merchantId),
+					new Param(ValitorAuthorisationEntry.dateFromProp, date)
+			);
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting IDs of successfull payments to merchant " + merchantId + " starting from " + date, e);
+		}
+
+		return null;
+	}
+
