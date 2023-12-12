@@ -144,7 +144,20 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements Auth
 		return null;
 	}
 
-}
+	public ValitorAuthorisationEntry getById(Long id) {
+		if (id == null) {
+			return null;
+		}
+
+		try {
+			return getSingleResult(ValitorAuthorisationEntry.GET_BY_ID, ValitorAuthorisationEntry.class, new Param(ValitorAuthorisationEntry.idProp, id));
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting auth. entry by ID " + id, e);
+		}
+
+		return null;
+	}
+
 	public List<Long> getIdsOfSuccfullPaymentsToMarchant(Integer merchantId, Date date) {
 		if (merchantId == null || date == null) {
 			return null;
@@ -164,3 +177,4 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements Auth
 		return null;
 	}
 
+}
