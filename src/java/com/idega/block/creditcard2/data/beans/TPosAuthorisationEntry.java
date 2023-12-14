@@ -183,7 +183,7 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@JoinTable(name = ENTITY_NAME + "_" + Metadata.ENTITY_NAME, joinColumns = { @JoinColumn(name = ENTITY_NAME + "_id") }, inverseJoinColumns = { @JoinColumn(name = Metadata.COLUMN_METADATA_ID) })
 	private Set<Metadata> metadata;
 
-	@Column(name = "reference")
+	@Column(name = COLUMN_REFERENCE)
 	private String reference;
 
 	public final static String ENTITY_NAME = "tpos_auth_entries";

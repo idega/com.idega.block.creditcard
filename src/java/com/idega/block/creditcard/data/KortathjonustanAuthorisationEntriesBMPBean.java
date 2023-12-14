@@ -39,8 +39,6 @@ public class KortathjonustanAuthorisationEntriesBMPBean extends GenericEntity im
 	private static final String COLUMN_SERVER_RESPONSE = "SERVER_RESPONSE";
 	private static final String COLUMN_PARENT_ID = "PARENT_ID";
 	private static final String COLUMN_TRANSACTION_TYPE = "TRANSACTION_TYPE"; //sale or refund ?
-	private static final String COLUMN_REFERENCE = "reference";
-	private static final String COLUMN_CARD_TOKEN = "card_token";
 
 	@Override
 	public String getEntityName() {

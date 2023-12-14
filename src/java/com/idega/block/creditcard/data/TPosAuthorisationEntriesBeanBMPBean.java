@@ -73,8 +73,6 @@ private final static String ENTITY_NAME = "tpos_auth_entries";
   private final static String XML_ATTACHMENT = "xml";
   private final static String CARD_NUMBER = "card_number";
   private final static String PARENT_ID = "parent_id";
-  private static final String COLUMN_REFERENCE = "reference";
-  private static final String COLUMN_CARD_TOKEN = "card_token";
 
   /**
    * Constructor for the TPosAuthorisationEntriesBean object

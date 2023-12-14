@@ -41,9 +41,6 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 
 	private static final String COLUMN_TRANSACTION_TYPE = "TRANSACTION_TYPE"; //sale or refund ?
 
-	private static final String COLUMN_REFERENCE = "reference";
-	private static final String COLUMN_CARD_TOKEN = "card_token";
-
 	@Override
 	public String getEntityName() {
 		return TABLE_NAME;

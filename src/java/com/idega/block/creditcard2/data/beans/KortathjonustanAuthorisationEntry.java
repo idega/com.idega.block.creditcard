@@ -124,7 +124,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 	@JoinTable(name = TABLE_NAME + "_" + Metadata.ENTITY_NAME, joinColumns = { @JoinColumn(name = TABLE_NAME + "_ID") }, inverseJoinColumns = { @JoinColumn(name = Metadata.COLUMN_METADATA_ID) })
 	private Set<Metadata> metadata;
 
-	@Column(name = "reference")
+	@Column(name = COLUMN_REFERENCE)
 	private String reference;
 
 	@Column(name = COLUMN_TIMESTAMP)
