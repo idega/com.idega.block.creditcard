@@ -52,7 +52,12 @@ import com.idega.util.DBUtil;
 		@NamedQuery(name = ValitorDebitAuthorisationEntry.GET_REFUNDS_BY_DATES, query = "from ValitorDebitAuthorisationEntry bae where bae.transactionType = "
 				+ ValitorDebitAuthorisationEntry.AUTHORIZATION_TYPE_REFUND + " and bae." + ValitorDebitAuthorisationEntry.dateProp
 				+ " >= :" + ValitorDebitAuthorisationEntry.dateFromProp + " and " + ValitorDebitAuthorisationEntry.dateProp + " <=:"
-				+ ValitorDebitAuthorisationEntry.dateToProp) })
+				+ ValitorDebitAuthorisationEntry.dateToProp),
+		@NamedQuery(
+				name = ValitorDebitAuthorisationEntry.GET_BY_REFRENCE,
+				query = "from ValitorDebitAuthorisationEntry vdae where vdae." + CreditCardAuthorizationEntry.COLUMN_REFERENCE + " = :" + CreditCardAuthorizationEntry.COLUMN_REFERENCE
+		)
+})
 public class ValitorDebitAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public static final String TABLE_NAME = "VALITORDEBIT_AUTHORISATION_ENTRIES";
@@ -65,10 +70,10 @@ public class ValitorDebitAuthorisationEntry implements CreditCardAuthorizationEn
 	public static final String authCodeProp = "authCode";
 	public static final String GET_BY_DATES = "ValitorDebitAuthorisationEntry.GET_BY_DATES";
 	public static final String GET_REFUNDS_BY_DATES = "ValitorDebitAuthorisationEntry.GET_REFUNDS_BY_DATES";
+	public static final String GET_BY_REFRENCE = "ValitorDebitAuthorisationEntry.getByReference";
 	public static final String dateProp = "date";
 	public static final String dateFromProp = "dateFrom";
 	public static final String dateToProp = "dateTo";
-
 
 	//for Valitor these are Idega internal
 	public static final String AUTHORIZATION_TYPE_SALE = "1";
@@ -202,6 +207,7 @@ public class ValitorDebitAuthorisationEntry implements CreditCardAuthorizationEn
 	@JoinColumn(name = "merchant", nullable = false)
 	private ValitorDebitMerchant merchant;
 
+	@Override
 	public ValitorDebitMerchant getMerchant() {
 		return merchant;
 	}

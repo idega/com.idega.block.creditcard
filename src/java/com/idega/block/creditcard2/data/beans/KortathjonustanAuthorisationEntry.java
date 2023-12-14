@@ -54,7 +54,12 @@ import com.idega.util.DBUtil;
 				+ KortathjonustanAuthorisationEntry.AUTHORIZATION_TYPE_REFUND + " and bae."
 				+ KortathjonustanAuthorisationEntry.dateProp + " >= :" + KortathjonustanAuthorisationEntry.dateFromProp
 				+ " and " + KortathjonustanAuthorisationEntry.dateProp + " <=:"
-				+ KortathjonustanAuthorisationEntry.dateToProp) })
+				+ KortathjonustanAuthorisationEntry.dateToProp),
+		@NamedQuery(
+				name = KortathjonustanAuthorisationEntry.GET_BY_REFRENCE,
+				query = "from KortathjonustanAuthorisationEntry kae where kae." + CreditCardAuthorizationEntry.COLUMN_REFERENCE + " = :" + CreditCardAuthorizationEntry.COLUMN_REFERENCE
+		)
+})
 public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public static final String TABLE_NAME = "CC_KORTTHJ_AUTH_ENTRIES";
@@ -63,6 +68,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 	public static final String GET_BY_AUTH_CODE = "KortathjonustanAuthorisationEntry.GET_BY_AUTH_CODE";
 	public static final String GET_BY_DATES = "KortathjonustanAuthorisationEntry.GET_BY_DATES";
 	public static final String GET_REFUNDS_BY_DATES = "KortathjonustanAuthorisationEntry.GET_REFUNDS_BY_DATES";
+	public static final String GET_BY_REFRENCE = "KortathjonustanAuthorisationEntry.getByReference";
 
 	public static final String idProp = "id";
 	public static final String parentProp = "parent";

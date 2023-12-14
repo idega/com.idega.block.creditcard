@@ -64,11 +64,6 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 
 	public final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.creditcard";
 
-	private final static String PROPERTY_KORTATHJONUSTAN_HOST_NAME = "kortathjonustan_host_name";
-	private final static String PROPERTY_KORTATHJONUSTAN_HOST_PORT = "kortathjonustan_host_port";
-	private final static String PROPERTY_KORTATHJONUSTAN_KEYSTORE = "kortathjonustan_keystore";
-	private final static String PROPERTY_KORTATHJONUSTAN_KEYSTORE_PASS = "kortathjonustan_keystore_pass";
-
 	public final static int CLIENT_TYPE_VALITOR = 1;
 
 	public static final String BEAN_NAME = "DebitCardBusiness";
@@ -705,6 +700,12 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 	public boolean isValidForForSubscriptionPayment(Timestamp lastPaymentDate) {
 		getLogger().warning("Not implemented");
 		return false;
+	}
+
+	@Override
+	public CreditCardAuthorizationEntry getByReference(String reference) {
+		getLogger().warning("Not implemented");
+		return null;
 	}
 
 }

@@ -78,6 +78,10 @@ import com.idega.util.StringUtil;
 				name = ValitorAuthorisationEntry.QUERY_GET_SUCCESSFULL_PAYMENTS_TO_MERCHANT,
 				query = "select distinct vae.id from ValitorAuthorisationEntry vae where vae.success = '1' and vae.merchant.id = :" + ValitorAuthorisationEntry.PARAM_MERCHANT + " and vae." +
 				ValitorAuthorisationEntry.dateProp 	+ " >= :" + ValitorAuthorisationEntry.dateFromProp
+		),
+		@NamedQuery(
+				name = ValitorAuthorisationEntry.QUERY_GET_BY_REFRENCE,
+				query = "from ValitorAuthorisationEntry vae where vae." + CreditCardAuthorizationEntry.COLUMN_REFERENCE + " = :" + CreditCardAuthorizationEntry.COLUMN_REFERENCE
 		)
 })
 public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
@@ -102,6 +106,7 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	public static final String METADATA_VALUE_PROP = "metadataValue",
 
 			QUERY_GET_SUCCESSFULL_PAYMENTS_TO_MERCHANT = "ValitorAuthorisationEntry.getSuccessfullPaymentsToMerchant",
+			QUERY_GET_BY_REFRENCE = "ValitorAuthorisationEntry.getByReference",
 
 			PARAM_MERCHANT = "merchantId";
 

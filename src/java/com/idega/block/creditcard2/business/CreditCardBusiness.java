@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -17,6 +18,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.idega.block.creditcard.CreditCardConstants;
 import com.idega.block.creditcard.business.CreditCardClient;
@@ -78,6 +81,7 @@ import com.idega.util.Encrypter;
 import com.idega.util.IWTimestamp;
 import com.idega.util.ListUtil;
 import com.idega.util.StringUtil;
+import com.idega.util.datastructures.map.MapUtil;
 import com.idega.util.expression.ELUtil;
 
 @Service(CreditCardBusiness.BEAN_NAME)
@@ -1374,6 +1378,35 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		} finally {
 			CoreUtil.clearAllCaches();
 		}
+		return null;
+	}
+
+	@Override
+	public CreditCardAuthorizationEntry getByReference(String reference) {
+		if (StringUtil.isEmpty(reference)) {
+			return null;
+		}
+
+		try {
+			WebApplicationContext webAppContext = WebApplicationContextUtils.getWebApplicationContext(getApplication().getServletContext());
+			@SuppressWarnings("rawtypes")
+			Map<String, AuthorisationEntriesDAO> daos = webAppContext.getBeansOfType(AuthorisationEntriesDAO.class);
+			if (MapUtil.isEmpty(daos)) {
+				return null;
+			}
+
+			for (AuthorisationEntriesDAO<?> dao: daos.values()) {
+				CreditCardAuthorizationEntry entry = dao.findByReference(reference);
+				if (entry != null) {
+					return entry;
+				}
+			}
+
+			return null;
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting card auth. entry by reference " + reference, e);
+		}
+
 		return null;
 	}
 

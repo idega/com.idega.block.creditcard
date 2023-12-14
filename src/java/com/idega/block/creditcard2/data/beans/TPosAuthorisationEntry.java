@@ -50,7 +50,12 @@ import com.idega.util.IWTimestamp;
 				+ TPosAuthorisationEntry.dateProp + " <=:" + TPosAuthorisationEntry.dateToProp),
 		@NamedQuery(name = TPosAuthorisationEntry.GET_REFUNDS_BY_DATES, query = "from TPosAuthorisationEntry bae where bae.authCode = 'T5' and bae."
 				+ TPosAuthorisationEntry.dateProp + " >= :" + TPosAuthorisationEntry.dateFromProp + " and "
-				+ TPosAuthorisationEntry.dateProp + " <=:" + TPosAuthorisationEntry.dateToProp) })
+				+ TPosAuthorisationEntry.dateProp + " <=:" + TPosAuthorisationEntry.dateToProp),
+		@NamedQuery(
+				name = TPosAuthorisationEntry.GET_BY_REFRENCE,
+				query = "from TPosAuthorisationEntry tpae where tpae." + CreditCardAuthorizationEntry.COLUMN_REFERENCE + " = :" + CreditCardAuthorizationEntry.COLUMN_REFERENCE
+		)
+})
 public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public static final String GET_BY_ID = "TPosAuthorisationEntry.GET_BY_ID";
@@ -58,6 +63,7 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 	public static final String GET_BY_AUTH_CODE = "TPosAuthorisationEntry.GET_BY_AUTH_CODE";
 	public static final String GET_BY_DATES = "TPosAuthorisationEntry.GET_BY_DATES";
 	public static final String GET_REFUNDS_BY_DATES = "TPosAuthorisationEntry.GET_REFUNDS_BY_DATES";
+	public static final String GET_BY_REFRENCE = "TPosAuthorisationEntry.getByReference";
 
 	public static final String idProp = "id";
 	public static final String parentProp = "parentId";
