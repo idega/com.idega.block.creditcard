@@ -96,4 +96,6 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 
 	public void setRefund(boolean refund);
 
+	public boolean isSuccess();
+
 }

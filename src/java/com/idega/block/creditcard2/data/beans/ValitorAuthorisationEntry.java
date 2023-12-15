@@ -643,6 +643,11 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 		return success;
 	}
 
+	@Override
+	public boolean isSuccess() {
+		return success != null && success;
+	}
+
 	public void setSuccess(Boolean success) {
 		this.success = success;
 	}

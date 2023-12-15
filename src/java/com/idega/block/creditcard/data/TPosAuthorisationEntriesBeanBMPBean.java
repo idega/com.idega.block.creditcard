@@ -27,6 +27,7 @@ import com.idega.data.query.Table;
 import com.idega.data.query.WildCardColumn;
 import com.idega.util.IWTimestamp;
 import com.idega.util.ListUtil;
+import com.idega.util.StringUtil;
 
 /**
  * @author    <a href="mail:palli@idega.is">Pall Helgason</a>
@@ -1433,6 +1434,11 @@ public void setXMLAttachment(String xml) {
 	@Override
 	public void setRefund(boolean refund) {
 		setColumn(COLUMN_REFUND, refund);
+	}
+
+	@Override
+	public boolean isSuccess() {
+		return !StringUtil.isEmpty(getAuthorisationCode());
 	}
 
 }
