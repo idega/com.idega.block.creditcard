@@ -16,6 +16,7 @@ public interface CreditCardConstants {
 
 								CARD = "card",
 								CLOSED = "CLO",
+								ACTIVE = "ACT",
 
 								CARD_HOLDER_DEVICE_TYPE_WWW = "WWW",
 

@@ -156,10 +156,18 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 		entry.setCurrency(currency);
 		if (hook != null) {
 			rapydEntry.setSuccess(financeHelper.isSuccess(hook));
-			rapydEntry.setServerResponse(CreditCardConstants.GSON.toJson(hook));
+			String serverResponse = CreditCardConstants.GSON.toJson(hook);
+			if (!StringUtil.isEmpty(serverResponse) && serverResponse.length() >= 1000) {
+				serverResponse = serverResponse.substring(0, 1000);
+			}
+			rapydEntry.setServerResponse(serverResponse);
 
 		} else if (data != null) {
-			rapydEntry.setServerResponse(CreditCardConstants.GSON.toJson(data));
+			String serverResponse = CreditCardConstants.GSON.toJson(data);
+			if (!StringUtil.isEmpty(serverResponse) && serverResponse.length() >= 1000) {
+				serverResponse = serverResponse.substring(0, 1000);
+			}
+			rapydEntry.setServerResponse(serverResponse);
 		}
 
 		data = data == null && hook != null ? hook.getData() : data;

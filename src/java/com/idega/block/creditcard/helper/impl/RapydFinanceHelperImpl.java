@@ -11,6 +11,7 @@ import com.idega.block.creditcard.helper.RapydFinanceHelper;
 import com.idega.block.creditcard.model.rapyd.Data;
 import com.idega.block.creditcard.model.rapyd.WebHook;
 import com.idega.core.business.DefaultSpringBean;
+import com.idega.util.CoreConstants;
 import com.idega.util.StringUtil;
 
 @Service
@@ -42,7 +43,7 @@ public class RapydFinanceHelperImpl extends DefaultSpringBean implements RapydFi
 			return true;
 		}
 
-		String correctStatusesProp = getSettings().getProperty("rapyd.correct_statuses", CreditCardConstants.CLOSED);
+		String correctStatusesProp = getSettings().getProperty("rapyd.correct_statuses", CreditCardConstants.CLOSED + CoreConstants.COMMA + CreditCardConstants.ACTIVE);
 		return StringUtil.isEmpty(correctStatusesProp) || correctStatusesProp.indexOf(status) == -1;
 	}
 
