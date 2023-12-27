@@ -89,6 +89,10 @@ import com.idega.util.expression.ELUtil;
 				name = RapydAuthorisationEntry.QUERY_FIND_BY_METADATA,
 				query = "select rae from RapydAuthorisationEntry rae join rae.metadata meta where meta.key = :"
 						+ RapydAuthorisationEntry.METADATA_KEY_PROP + " and meta.value = :" + RapydAuthorisationEntry.METADATA_VALUE_PROP + " order by rae.id desc"
+		),
+		@NamedQuery(
+				name = RapydAuthorisationEntry.QUERY_GET_BY_REFRENCE,
+				query = "from RapydAuthorisationEntry rae where rae." + CreditCardAuthorizationEntry.COLUMN_REFERENCE + " = :" + CreditCardAuthorizationEntry.COLUMN_REFERENCE
 		)
 })
 public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
@@ -105,6 +109,7 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 								GET_BY_DATES = "RapydAuthorisationEntry.GET_BY_DATES",
 								GET_REFUNDS_BY_DATES = "RapydAuthorisationEntry.GET_REFUNDS_BY_DATES",
 								QUERY_FIND_BY_METADATA = "RapydAuthorisationEntry.findByMetadata",
+								QUERY_GET_BY_REFRENCE = "RapydAuthorisationEntry.getByReference",
 
 								idProp = "id",
 								parentProp = "parent",
@@ -274,6 +279,7 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@JoinColumn(name = "merchant", nullable = false)
 	private RapydMerchant merchant;
 
+	@Override
 	public RapydMerchant getMerchant() {
 		return merchant;
 	}
@@ -715,6 +721,11 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Override
 	public void setRefund(boolean refund) {
 		this.refund = refund;
+	}
+
+	@Override
+	public boolean isSuccess() {
+		return success == null ? false : success;
 	}
 
 	@Override

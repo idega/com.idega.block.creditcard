@@ -1,6 +1,7 @@
 package com.idega.block.creditcard.model.rapyd;
 
 import com.idega.block.creditcard.CreditCardConstants;
+import com.idega.block.creditcard.model.Payable;
 import com.idega.block.creditcard.model.WebHookable;
 
 public class WebHook implements WebHookable {
@@ -18,6 +19,8 @@ public class WebHook implements WebHookable {
     private String status;
 
     private int created_at;
+
+    private Payable payment;
 
 	public String getId() {
 		return id;
@@ -65,6 +68,11 @@ public class WebHook implements WebHookable {
 
 	public void setCreated_at(int created_at) {
 		this.created_at = created_at;
+	}
+
+	@Override
+	public Payable getPayment() {
+		return payment;
 	}
 
 	@Override

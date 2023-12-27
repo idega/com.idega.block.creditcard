@@ -245,4 +245,19 @@ public class RapydAuthorisationEntryDAO extends GenericDaoImpl implements Author
 		return null;
 	}
 
+	@Override
+	public CreditCardAuthorizationEntry findByReference(String reference) {
+		if (StringUtil.isEmpty(reference)) {
+			return null;
+		}
+
+		try {
+			return getSingleResult(RapydAuthorisationEntry.QUERY_GET_BY_REFRENCE, RapydAuthorisationEntry.class, new Param(CreditCardAuthorizationEntry.COLUMN_REFERENCE, reference));
+ 		} catch (Exception e) {
+ 			getLogger().log(Level.WARNING, "Error getting auth. entry by reference " + reference, e);
+ 		}
+
+		return null;
+	}
+
 }
