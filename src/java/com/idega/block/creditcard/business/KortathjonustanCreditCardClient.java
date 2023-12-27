@@ -23,6 +23,8 @@ import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntries;
 import com.idega.block.creditcard.data.KortathjonustanAuthorisationEntriesHome;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
+import com.idega.block.creditcard.model.HostedCheckoutPageRequest;
+import com.idega.block.creditcard.model.HostedCheckoutPageResponse;
 import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.block.trade.business.CurrencyHolder;
@@ -1273,6 +1275,11 @@ public class KortathjonustanCreditCardClient implements CreditCardClient {
 	@Override
 	public String doVerifyCard(String cardNumber, Integer monthExpires, Integer yearExpires, double amount,
 			String currency, String verificationType, String referenceNumber) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
+	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
 	}
 

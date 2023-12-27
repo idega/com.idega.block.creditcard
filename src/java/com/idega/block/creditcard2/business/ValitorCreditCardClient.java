@@ -33,6 +33,8 @@ import com.idega.block.creditcard.data.CreditCardMerchant;
 import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard.model.CaptureResult;
 import com.idega.block.creditcard.model.FirstTransactionData;
+import com.idega.block.creditcard.model.HostedCheckoutPageRequest;
+import com.idega.block.creditcard.model.HostedCheckoutPageResponse;
 import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard.model.ValitorPayCardVerificationData;
 import com.idega.block.creditcard.model.ValitorPayCardVerificationResponseData;
@@ -1602,6 +1604,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	 * @param extraField - REQUIRED - Valitor authorisation entry id from the DB table VALITOR_AUTHORISATION_ENTRIES
 	 */
 	@Override
+	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request) throws CreditCardAuthorizationException {
+		throw new CreditCardAuthorizationException("Not implemented");
+	}
+
+	@Override
 	public String doRefund(
 			String cardnumber,
 			String monthExpires,
@@ -1813,7 +1820,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			ValitorAuthorisationEntry valitorAuthorisationEntry,
 			String uniqueTransactionId
 	) {
-
 		ValitorPayRefundWithCorrelationIdData valitorPayRefundWithCorrelationIdData = null;
 
 		try {

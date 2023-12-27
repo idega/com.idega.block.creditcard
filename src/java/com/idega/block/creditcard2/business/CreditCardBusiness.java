@@ -31,6 +31,7 @@ import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
 import com.idega.block.creditcard2.data.beans.DummyMerchant;
 import com.idega.block.creditcard2.data.beans.KortathjonustanMerchant;
+import com.idega.block.creditcard2.data.beans.RapydMerchant;
 import com.idega.block.creditcard2.data.beans.Subscription;
 import com.idega.block.creditcard2.data.beans.TPosMerchant;
 import com.idega.block.creditcard2.data.beans.ValitorAuthorisationEntry;
@@ -45,6 +46,8 @@ import com.idega.block.creditcard2.data.dao.impl.DummyAuthorisationEntryDAO;
 import com.idega.block.creditcard2.data.dao.impl.DummyMerchantDAO;
 import com.idega.block.creditcard2.data.dao.impl.KortathjonustanAuthorisationEntryDAO;
 import com.idega.block.creditcard2.data.dao.impl.KortathjonustanMerchantDAO;
+import com.idega.block.creditcard2.data.dao.impl.RapydAuthorisationEntryDAO;
+import com.idega.block.creditcard2.data.dao.impl.RapydMerchantDAO;
 import com.idega.block.creditcard2.data.dao.impl.TPosAuthorisationEntryDAO;
 import com.idega.block.creditcard2.data.dao.impl.TPosMerchantDAO;
 import com.idega.block.creditcard2.data.dao.impl.ValitorAuthorisationEntryDAO;
@@ -117,6 +120,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 	public final static int CLIENT_TYPE_DUMMY = 3;
 	public final static int CLIENT_TYPE_BORGUN = 4;
 	public final static int CLIENT_TYPE_VALITOR = 5;
+	public final static int CLIENT_TYPE_RAPYD = 6;
 
 	public static final String BEAN_NAME = "CreditCardBusiness";
 
@@ -147,6 +151,10 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		return ELUtil.getInstance().getBean(ValitorMerchantDAO.BEAN_NAME);
 	}
 
+	public MerchantDAO<RapydMerchant> getRapydMerchantDao() {
+		return ELUtil.getInstance().getBean(RapydMerchantDAO.BEAN_NAME);
+	}
+
 	public TPosAuthorisationEntryDAO getTposAuthorisationEntryDAO() {
 		return ELUtil.getInstance().getBean(TPosAuthorisationEntryDAO.BEAN_NAME);
 	}
@@ -163,68 +171,91 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		return ELUtil.getInstance().getBean(ValitorAuthorisationEntryDAO.BEAN_NAME);
 	}
 
+	public RapydAuthorisationEntryDAO getRapydAuthorisationEntryDAO() {
+		return ELUtil.getInstance().getBean(RapydAuthorisationEntryDAO.BEAN_NAME);
+	}
+
 	public AuthorisationEntriesDAO<?> getAuthorisationEntriesDAO(int clientType) {
-		if (clientType > 0) {
-			if (clientType == CLIENT_TYPE_KORTATHJONUSTAN) {
-				return getKortathjonustanAuthorisationEntryDAO();
-			} else if (clientType == CLIENT_TYPE_TPOS) {
-				return getTposAuthorisationEntryDAO();
-			} else if (clientType == CLIENT_TYPE_DUMMY) {
-				return getDummyAuthorisationEntryDAO();
-			} else if (clientType == CLIENT_TYPE_BORGUN) {
-				return getBorgunAuthorisationEntryDAO();
-			} else if (clientType == CLIENT_TYPE_VALITOR) {
-				return getValitorAuthorisationEntryDAO();
-			}
+		if (clientType <= 0) {
+			return null;
 		}
-		return null;
+
+		switch (clientType) {
+		case CLIENT_TYPE_KORTATHJONUSTAN:
+			return getKortathjonustanAuthorisationEntryDAO();
+
+		case CLIENT_TYPE_TPOS:
+			return getTposAuthorisationEntryDAO();
+
+		case CLIENT_TYPE_BORGUN:
+			return getBorgunAuthorisationEntryDAO();
+
+		case CLIENT_TYPE_VALITOR:
+			return getValitorAuthorisationEntryDAO();
+
+		case CLIENT_TYPE_RAPYD:
+			return getRapydAuthorisationEntryDAO();
+
+		default:
+			return getDummyAuthorisationEntryDAO();
+		}
 	}
 
 	public AuthorisationEntriesDAO<?> getAuthorisationEntriesDAO(CreditCardInformation info) {
-		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(info.getType())) {
-			return getTposAuthorisationEntryDAO();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(info.getType())) {
-			return getKortathjonustanAuthorisationEntryDAO();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(info.getType())) {
-			return getDummyAuthorisationEntryDAO();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(info.getType())) {
-			return getBorgunAuthorisationEntryDAO();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(info.getType())) {
-			return getValitorAuthorisationEntryDAO();
+		String type = info == null ? null : info.getType();
+		if (StringUtil.isEmpty(type)) {
+			return null;
 		}
-		return null;
+
+		switch (type) {
+		case CreditCardMerchant.MERCHANT_TYPE_TPOS:
+			return getTposAuthorisationEntryDAO();
+
+		case CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN:
+			return getKortathjonustanAuthorisationEntryDAO();
+
+		case CreditCardMerchant.MERCHANT_TYPE_BORGUN:
+			return getBorgunAuthorisationEntryDAO();
+
+		case CreditCardMerchant.MERCHANT_TYPE_VALITOR:
+			return getValitorAuthorisationEntryDAO();
+
+		case CreditCardMerchant.MERCHANT_TYPE_RAPYD:
+			return getRapydAuthorisationEntryDAO();
+
+		default:
+			return getDummyAuthorisationEntryDAO();
+		}
 	}
 
 	public MerchantDAO<?> getCreditCardMerchantDAO(CreditCardInformation ccInfo) {
-		String type = ccInfo.getType();
-		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
-			return getTposMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
-			return getKortathjonustanMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(type)) {
-			return getDummyMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(type)) {
-			return getBorgunMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(type)) {
-			return getValitorMerchantDao();
-		}
-
-		return null;
+		return getCreditCardMerchantDAO(ccInfo == null ? null : ccInfo.getType());
 	}
 
 	public MerchantDAO<?> getCreditCardMerchantDAO(String type) {
-		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
-			return getTposMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
-			return getKortathjonustanMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(type)) {
-			return getDummyMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(type)) {
-			return getBorgunMerchantDao();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(type)) {
-			return getValitorMerchantDao();
+		if (StringUtil.isEmpty(type)) {
+			return null;
 		}
-		return null;
+
+		switch (type) {
+		case CreditCardMerchant.MERCHANT_TYPE_TPOS:
+			return getTposMerchantDao();
+
+		case CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN:
+			return getKortathjonustanMerchantDao();
+
+		case CreditCardMerchant.MERCHANT_TYPE_BORGUN:
+			return getBorgunMerchantDao();
+
+		case CreditCardMerchant.MERCHANT_TYPE_VALITOR:
+			return getValitorMerchantDao();
+
+		case CreditCardMerchant.MERCHANT_TYPE_RAPYD:
+			return getRapydMerchantDao();
+
+		default:
+			return getDummyMerchantDao();
+		}
 	}
 
 	public enum CreditCardType {
@@ -305,28 +336,42 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 	}
 
 	public CreditCardClient getCreditCardClient(CreditCardMerchant merchant) throws Exception {
-		if (merchant != null && merchant.getType() != null) {
-			if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(merchant.getType())) {
-				return new TPosClient(getIWApplicationContext(), merchant);
-			} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(merchant.getType())) {
-				String hostName = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_HOST_NAME);
-				String hostPort = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_HOST_PORT);
-				String keystore = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_KEYSTORE);
-				String keystorePass = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_KEYSTORE_PASS);
-
-				return new KortathjonustanCreditCardClient(getIWApplicationContext(), hostName,
-						Integer.parseInt(hostPort), keystore, keystorePass, merchant);
-			} else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(merchant.getType())) {
-				return new DummyCreditCardClient(getIWApplicationContext());
-			} else if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(merchant.getType())) {
-				return new BorgunCreditCardClient(merchant);
-			} else if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(merchant.getType())) {
-				return new ValitorCreditCardClient(merchant);
-			}
+		String type = merchant == null ? null : merchant.getType();
+		if (StringUtil.isEmpty(type)) {
+			return null;
 		}
-		return null;
-		// Default client
-		// return new TPosClient(getIWApplicationContext());
+
+		switch (type) {
+		case CreditCardMerchant.MERCHANT_TYPE_TPOS:
+			return new TPosClient(getIWApplicationContext(), merchant);
+
+		case CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN:
+			String hostName = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_HOST_NAME);
+			String hostPort = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_HOST_PORT);
+			String keystore = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_KEYSTORE);
+			String keystorePass = getBundle().getProperty(PROPERTY_KORTATHJONUSTAN_KEYSTORE_PASS);
+
+			return new KortathjonustanCreditCardClient(
+					getIWApplicationContext(),
+					hostName,
+					Integer.parseInt(hostPort),
+					keystore,
+					keystorePass,
+					merchant
+			);
+
+		case CreditCardMerchant.MERCHANT_TYPE_BORGUN:
+			return new BorgunCreditCardClient(merchant);
+
+		case CreditCardMerchant.MERCHANT_TYPE_VALITOR:
+			return new ValitorCreditCardClient(merchant);
+
+		case CreditCardMerchant.MERCHANT_TYPE_RAPYD:
+				return new RapydCreditCardClient(merchant);
+
+		default:
+			return new DummyCreditCardClient(getIWApplicationContext());
+		}
 	}
 
 	public CreditCardMerchant getCreditCardMerchant(String merchantPK, String merchantType) {
@@ -515,18 +560,29 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 	}
 
 	public CreditCardMerchant createCreditCardMerchant(String type) {
-		if (CreditCardMerchant.MERCHANT_TYPE_TPOS.equals(type)) {
-			return new TPosMerchant();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN.equals(type)) {
-			return new KortathjonustanMerchant();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_DUMMY.equals(type)) {
-			return new DummyMerchant();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_BORGUN.equals(type)) {
-			return new BorgunMerchant();
-		} else if (CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(type)) {
-			return new ValitorMerchant();
+		if (StringUtil.isEmpty(type)) {
+			return null;
 		}
-		return null;
+
+		switch (type) {
+		case CreditCardMerchant.MERCHANT_TYPE_TPOS:
+			return new TPosMerchant();
+
+		case CreditCardMerchant.MERCHANT_TYPE_KORTHATHJONUSTAN:
+			return new KortathjonustanMerchant();
+
+		case CreditCardMerchant.MERCHANT_TYPE_BORGUN:
+			return new BorgunMerchant();
+
+		case CreditCardMerchant.MERCHANT_TYPE_VALITOR:
+			return new ValitorMerchant();
+
+		case CreditCardMerchant.MERCHANT_TYPE_RAPYD:
+			return new RapydMerchant();
+
+		default:
+			return new DummyMerchant();
+		}
 	}
 
 	public void addCreditCardMerchant(Group supplierManager, CreditCardMerchant merchant) throws CreateException {

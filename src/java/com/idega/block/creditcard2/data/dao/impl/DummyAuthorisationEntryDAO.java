@@ -67,6 +67,10 @@ public class DummyAuthorisationEntryDAO extends GenericDaoImpl implements Author
 	}
 
 	@Override
+	public CreditCardAuthorizationEntry getByMetadata(String key, String value) {
+		return null;
+	}
+
 	public CreditCardAuthorizationEntry findByReference(String reference) {
 		if (StringUtil.isEmpty(reference)) {
 			return null;

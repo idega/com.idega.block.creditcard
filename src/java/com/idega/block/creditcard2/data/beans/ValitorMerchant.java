@@ -97,6 +97,12 @@ public class ValitorMerchant implements CreditCardMerchant {
 	@Column(name = COLUMN_AUTHORIZATION_TERMINAL)
 	private String authorizationTerminal;
 
+	@Column(name = COLUMN_ERROR_REDIRECT_URL)
+	private String errorRedirectURL;
+
+	@Column(name = COLUMN_COUNTRY)
+	private String country;
+
 	@Override
 	public String getAuthorizationTerminal() {
 		return authorizationTerminal;
@@ -117,6 +123,7 @@ public class ValitorMerchant implements CreditCardMerchant {
 		this.successRedirectURL = successRedirectURL;
 	}
 
+	@Override
 	public Integer getId() {
 		return id;
 	}
@@ -307,49 +314,40 @@ public class ValitorMerchant implements CreditCardMerchant {
 
 	@Override
 	public IDOEntityDefinition getEntityDefinition() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Integer decode(String pkString) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Collection<Integer> decode(String[] pkString) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getDatasource() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void setDatasource(String datasource) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public EJBLocalHome getEJBLocalHome() throws EJBException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean isIdentical(EJBLocalObject arg0) throws EJBException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public int compareTo(IDOEntity o) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -379,14 +377,10 @@ public class ValitorMerchant implements CreditCardMerchant {
 
 	@Override
 	public void store() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void remove() throws RemoveException {
-		// TODO Auto-generated method stub
-
 	}
 
 	public String getMerchantContractNumber() {
@@ -405,6 +399,26 @@ public class ValitorMerchant implements CreditCardMerchant {
 	@Override
 	public String getSharedSecret() {
 		return secret;
+	}
+
+	@Override
+	public String getErrorRedirectURL() {
+		return errorRedirectURL;
+	}
+
+	@Override
+	public void setErrorRedirectURL(String errorRedirectURL) {
+		this.errorRedirectURL = errorRedirectURL;
+	}
+
+	@Override
+	public String getCountry() {
+		return country;
+	}
+
+	@Override
+	public void setCountry(String country) {
+		this.country = country;
 	}
 
 }

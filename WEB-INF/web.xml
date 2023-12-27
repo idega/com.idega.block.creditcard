@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID"
+	version="2.5">
+
+	<display-name>WebServices</display-name>
+
+	<servlet>
+		<servlet-name>Credit Card Servlet</servlet-name>
+		<servlet-class>com.idega.block.creditcard.servlet.CreditCardServlet</servlet-class>
+		<init-param>
+			<param-name>com.sun.jersey.config.property.packages</param-name>
+			<param-value>com.idega.block.creditcard.gateway;com.idega.block.creditcard.service;com.idega.block.creditcard.model;com.idega.block.creditcard.model.rapyd;</param-value>
+		</init-param>
+		<init-param>
+			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<filter>
+		<filter-name>Credit Card Filter</filter-name>
+		<filter-class>com.idega.block.creditcard.servlet.CreditCardServlet</filter-class>
+		<init-param>
+	       <param-name>allowedOrigins</param-name>
+	       <param-value>*</param-value>
+	   	</init-param>
+	   	<init-param>
+	       <param-name>allowedMethods</param-name>
+	       <param-value>*</param-value>
+	   	</init-param>
+	   	<init-param>
+	       <param-name>allowedHeaders</param-name>
+	       <param-value>*</param-value>
+	   	</init-param>
+	</filter>
+	
+	<servlet-mapping>
+		<servlet-name>Credit Card Servlet</servlet-name>
+		<url-pattern>/finance/*</url-pattern>
+	</servlet-mapping>
+	<filter-mapping>
+		<filter-name>Credit Card Filter</filter-name>
+		<url-pattern>/finance/*</url-pattern>
+	</filter-mapping>
+	
+</web-app>

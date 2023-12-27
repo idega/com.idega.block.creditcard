@@ -78,6 +78,11 @@ public class ValitorDebitAuthorisationEntryDAO extends GenericDaoImpl
 	}
 
 	@Override
+	public CreditCardAuthorizationEntry getByMetadata(String key, String value) {
+		return null;
+	}
+
+	@Override
 	public CreditCardAuthorizationEntry findByReference(String reference) {
 		if (StringUtil.isEmpty(reference)) {
 			return null;

@@ -1,14 +1,20 @@
 package com.idega.block.creditcard.business;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import javax.ejb.CreateException;
 import javax.ejb.FinderException;
 import javax.transaction.TransactionManager;
+
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
@@ -26,7 +32,7 @@ import com.idega.block.creditcard.data.TPosAuthorisationEntriesBean;
 import com.idega.block.creditcard.data.TPosAuthorisationEntriesBeanHome;
 import com.idega.block.creditcard.data.TPosMerchant;
 import com.idega.block.creditcard.data.TPosMerchantHome;
-import com.idega.block.creditcard2.data.dao.impl.ValitorAuthorisationEntryDAO;
+import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.block.trade.data.CreditCardInformation;
 import com.idega.block.trade.data.CreditCardInformationHome;
 import com.idega.block.trade.stockroom.data.Supplier;
@@ -44,7 +50,7 @@ import com.idega.user.data.Group;
 import com.idega.util.Encrypter;
 import com.idega.util.IWTimestamp;
 import com.idega.util.StringUtil;
-import com.idega.util.expression.ELUtil;
+import com.idega.util.datastructures.map.MapUtil;
 
 /**
  * @author gimmi
@@ -112,7 +118,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 	@Override
 	public Collection<Image> getCreditCardTypeImages(CreditCardClient client) {
 		Collection<String> types = client.getValidCardTypes();
-		Collection<Image> images = new ArrayList<Image>();
+		Collection<Image> images = new ArrayList<>();
 		if (types != null && !types.isEmpty()) {
 			Iterator<String> iter = types.iterator();
 			IWBundle bundle = this.getBundle();
@@ -620,7 +626,8 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 				e.printStackTrace(System.err);
 			}
 		}
-		return null;
+
+		return getAuthorizationEntry(authorizationCode);
 	}
 
 	@Override
@@ -690,6 +697,36 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			return entry;
 		}
 
+		return getAuthorizationEntry(authorizationCode);
+	}
+
+	private CreditCardAuthorizationEntry getAuthorizationEntry(String id) {
+		if (StringUtil.isEmpty(id)) {
+			return null;
+		}
+
+		try {
+			WebApplicationContext webAppContext = WebApplicationContextUtils.findWebApplicationContext(getIWMainApplication().getServletContext());
+			@SuppressWarnings("rawtypes")
+			Map<String, AuthorisationEntriesDAO> daos = webAppContext.getBeansOfType(AuthorisationEntriesDAO.class);
+			if (MapUtil.isEmpty(daos)) {
+				return null;
+			}
+
+			CreditCardAuthorizationEntry entry = null;
+			Date now = new Date(System.currentTimeMillis());
+			for (AuthorisationEntriesDAO<?> dao: daos.values()) {
+				try {
+					entry = dao == null ? null : dao.findByAuthorizationCode(id, now);
+					if (entry != null) {
+						return entry;
+					}
+				} catch (Exception e) {}
+			}
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting auth. entry by " + id, e);
+		}
+
 		return null;
 	}
 
@@ -724,7 +761,7 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 			return entry;
 		}
 
-		return null;
+		return getAuthorizationEntry(uniqueId);
 	}
 
 	@Override
@@ -759,14 +796,26 @@ public class CreditCardBusinessBean extends IBOServiceBean implements CreditCard
 		}
 
 		try {
-			ValitorAuthorisationEntryDAO valitorAuthorisationEntryDAO = ELUtil.getInstance().getBean(ValitorAuthorisationEntryDAO.class);
-			entry = valitorAuthorisationEntryDAO.getByMetadata(key, value);
-		} catch (Exception e) {}
-		if (entry != null) {
-			return entry;
+			WebApplicationContext webAppContext = WebApplicationContextUtils.findWebApplicationContext(getIWMainApplication().getServletContext());
+			@SuppressWarnings("rawtypes")
+			Map<String, AuthorisationEntriesDAO> daos = webAppContext.getBeansOfType(AuthorisationEntriesDAO.class);
+			if (MapUtil.isEmpty(daos)) {
+				return null;
+			}
+
+			for (AuthorisationEntriesDAO<?> dao: daos.values()) {
+				try {
+					entry = dao == null ? null : dao.getByMetadata(key, value);
+					if (entry != null) {
+						return entry;
+					}
+				} catch (Exception e) {}
+			}
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting auth. entry by metadata key '" + key + "' and metadata value '" + value + "'", e);
 		}
 
-
+		getLogger().warning("Failed to find auth. entry by metadata key '" + key + "' and metadata value '" + value + "'");
 		return null;
 	}
 

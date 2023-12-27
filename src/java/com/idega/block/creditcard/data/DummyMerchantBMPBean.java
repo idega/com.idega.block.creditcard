@@ -52,6 +52,8 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	    addAttribute(COLUMN_SHARED_SECRET, "Shared secret", true, true, String.class);
 	    addAttribute(COLUMN_SUCCESS_REDIRECT_URL, "Success redirect URL", true, true, String.class);
 	    addAttribute(COLUMN_AUTHORIZATION_TERMINAL, "Authorization terminal", true, true, String.class);
+	    addAttribute(COLUMN_ERROR_REDIRECT_URL, "Error redirect URL", true, true, String.class);
+	    addAttribute(COLUMN_COUNTRY, "Country", true, true, String.class);
 	}
 
 	@Override
@@ -276,6 +278,26 @@ public class DummyMerchantBMPBean extends GenericEntity implements DummyMerchant
 	public Integer getId() {
 		Object pk = getPrimaryKey();
 		return (Integer) pk;
+	}
+
+	@Override
+	public String getErrorRedirectURL() {
+		return getStringColumnValue(COLUMN_ERROR_REDIRECT_URL);
+	}
+
+	@Override
+	public void setErrorRedirectURL(String errorRedirectURL) {
+		setColumn(COLUMN_ERROR_REDIRECT_URL, errorRedirectURL);
+	}
+
+	@Override
+	public String getCountry() {
+		return getStringColumnValue(COLUMN_COUNTRY);
+	}
+
+	@Override
+	public void setCountry(String country) {
+		setColumn(COLUMN_COUNTRY, country);
 	}
 
 }

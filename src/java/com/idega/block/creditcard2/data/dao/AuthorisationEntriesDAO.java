@@ -11,6 +11,8 @@ public interface AuthorisationEntriesDAO<T> {
 
 	public CreditCardAuthorizationEntry findByAuthorizationCode(String code, Date date);
 
+	public CreditCardAuthorizationEntry getByMetadata(String key, String value);
+
 	public CreditCardAuthorizationEntry findByReference(String reference);
 
 	public List<CreditCardAuthorizationEntry> findByDates(Date from, Date to);

@@ -119,6 +119,7 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements Auth
 		);
 	}
 
+	@Override
 	public ValitorAuthorisationEntry getByMetadata(String key, String value) {
 		if (StringUtil.isEmpty(key) || StringUtil.isEmpty(value)) {
 			return null;
