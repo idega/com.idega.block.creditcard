@@ -1,6 +1,7 @@
 package com.idega.block.creditcard;
 
 import com.google.gson.Gson;
+import com.idega.util.CoreConstants;
 
 public interface CreditCardConstants {
 
@@ -36,7 +37,7 @@ public interface CreditCardConstants {
 
 								IW_BUNDLE_IDENTIFIER = "com.idega.block.creditcard";
 
-	public static final Gson GSON = new Gson();
+	public static final Gson GSON = CoreConstants.GSON;
 
 	public static final String APP_PROPERTY_CC_PAYMENT_INFO_ID = "CC_PAYMENT_INFO_ID";
 	public static final String DEFAULT_CC_PAYMENT_INFO_ID = "1";
