@@ -27,6 +27,7 @@ import com.idega.data.query.Table;
 import com.idega.data.query.WildCardColumn;
 import com.idega.util.IWTimestamp;
 import com.idega.util.ListUtil;
+import com.idega.util.StringUtil;
 
 /**
  * @author    <a href="mail:palli@idega.is">Pall Helgason</a>
@@ -73,8 +74,6 @@ private final static String ENTITY_NAME = "tpos_auth_entries";
   private final static String XML_ATTACHMENT = "xml";
   private final static String CARD_NUMBER = "card_number";
   private final static String PARENT_ID = "parent_id";
-  private static final String COLUMN_REFERENCE = "reference";
-  private static final String COLUMN_CARD_TOKEN = "card_token";
 
   /**
    * Constructor for the TPosAuthorisationEntriesBean object
@@ -1435,6 +1434,11 @@ public void setXMLAttachment(String xml) {
 	@Override
 	public void setRefund(boolean refund) {
 		setColumn(COLUMN_REFUND, refund);
+	}
+
+	@Override
+	public boolean isSuccess() {
+		return !StringUtil.isEmpty(getAuthorisationCode());
 	}
 
 }

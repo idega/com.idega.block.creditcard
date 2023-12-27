@@ -4,4 +4,6 @@ import java.io.Serializable;
 
 public interface WebHookable extends Serializable {
 
+	public Payable getPayment();
+
 }

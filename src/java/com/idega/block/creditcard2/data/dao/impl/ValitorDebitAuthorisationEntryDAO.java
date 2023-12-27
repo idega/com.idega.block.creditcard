@@ -2,6 +2,7 @@ package com.idega.block.creditcard2.data.dao.impl;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -13,6 +14,7 @@ import com.idega.block.creditcard2.data.beans.ValitorDebitAuthorisationEntry;
 import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.core.persistence.Param;
 import com.idega.core.persistence.impl.GenericDaoImpl;
+import com.idega.util.StringUtil;
 
 @Repository(ValitorDebitAuthorisationEntryDAO.BEAN_NAME)
 @Scope(BeanDefinition.SCOPE_SINGLETON)
@@ -73,6 +75,21 @@ public class ValitorDebitAuthorisationEntryDAO extends GenericDaoImpl
 		return getSingleResultByInlineQuery(
 				"select max(bae.rrn) from ValitorDebitAuthorisationEntry bae where bae.rrn Like :rrn and bae.merchant.id = :id",
 				String.class, new Param("rrn", merchantRrnSuffix + "%"), new Param("id", merchantId));
+	}
+
+	@Override
+	public CreditCardAuthorizationEntry findByReference(String reference) {
+		if (StringUtil.isEmpty(reference)) {
+			return null;
+		}
+
+		try {
+			return getSingleResult(ValitorDebitAuthorisationEntry.GET_BY_REFRENCE, ValitorDebitAuthorisationEntry.class, new Param(CreditCardAuthorizationEntry.COLUMN_REFERENCE, reference));
+ 		} catch (Exception e) {
+ 			getLogger().log(Level.WARNING, "Error getting auth. entry by reference " + reference, e);
+ 		}
+
+		return null;
 	}
 
 }

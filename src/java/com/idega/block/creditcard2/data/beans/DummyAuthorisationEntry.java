@@ -34,6 +34,7 @@ import com.idega.data.IDOEntityDefinition;
 import com.idega.data.IDOStoreException;
 import com.idega.data.bean.Metadata;
 import com.idega.util.DBUtil;
+import com.idega.util.StringUtil;
 
 @Entity
 @Table(name = DummyAuthorisationEntry.TABLE_NAME)
@@ -49,7 +50,12 @@ import com.idega.util.DBUtil;
 				+ DummyAuthorisationEntry.dateProp + " <=:" + DummyAuthorisationEntry.dateToProp),
 		@NamedQuery(name = DummyAuthorisationEntry.GET_REFUNDS_BY_DATES, query = "from DummyAuthorisationEntry bae where bae.transactionType = 1 and bae."
 				+ DummyAuthorisationEntry.dateProp + " >= :" + DummyAuthorisationEntry.dateFromProp + " and "
-				+ DummyAuthorisationEntry.dateProp + " <=:" + DummyAuthorisationEntry.dateToProp) })
+				+ DummyAuthorisationEntry.dateProp + " <=:" + DummyAuthorisationEntry.dateToProp),
+		@NamedQuery(
+				name = DummyAuthorisationEntry.GET_BY_REFRENCE,
+				query = "from DummyAuthorisationEntry dae where dae." + CreditCardAuthorizationEntry.COLUMN_REFERENCE + " = :" + CreditCardAuthorizationEntry.COLUMN_REFERENCE
+		)
+})
 public class DummyAuthorisationEntry implements com.idega.block.creditcard.data.CreditCardAuthorizationEntry {
 
 	public static final String AUTHORIZATION_TYPE_SALE = "0";
@@ -62,6 +68,7 @@ public class DummyAuthorisationEntry implements com.idega.block.creditcard.data.
 	public static final String GET_BY_AUTH_CODE = "DummyAuthorisationEntry.GET_BY_AUTH_CODE";
 	public static final String GET_BY_DATES = "DummyAuthorisationEntry.GET_BY_DATES";
 	public static final String GET_REFUNDS_BY_DATES = "DummyAuthorisationEntry.GET_REFUNDS_BY_DATES";
+	public static final String GET_BY_REFRENCE = "DummyAuthorisationEntry.getByReference";
 
 	public static final String idProp = "id";
 	public static final String parentProp = "parentId";
@@ -118,7 +125,7 @@ public class DummyAuthorisationEntry implements com.idega.block.creditcard.data.
 	@JoinTable(name = TABLE_NAME + "_" + Metadata.ENTITY_NAME, joinColumns = { @JoinColumn(name = TABLE_NAME + "_ID") }, inverseJoinColumns = { @JoinColumn(name = Metadata.COLUMN_METADATA_ID) })
 	private Set<Metadata> metadata;
 
-	@Column(name = "reference")
+	@Column(name = COLUMN_REFERENCE)
 	private String reference;
 
 	@Column(name = COLUMN_TIMESTAMP)
@@ -564,6 +571,11 @@ public class DummyAuthorisationEntry implements com.idega.block.creditcard.data.
 	@Override
 	public void setRefund(boolean refund) {
 		this.refund = refund;
+	}
+
+	@Override
+	public boolean isSuccess() {
+		return !StringUtil.isEmpty(getAuthCode());
 	}
 
 }

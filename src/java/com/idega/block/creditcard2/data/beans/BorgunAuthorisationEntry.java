@@ -37,6 +37,7 @@ import com.idega.data.IDOEntityDefinition;
 import com.idega.data.IDOStoreException;
 import com.idega.data.bean.Metadata;
 import com.idega.util.DBUtil;
+import com.idega.util.StringUtil;
 
 @Entity
 @Table(name = BorgunAuthorisationEntry.TABLE_NAME)
@@ -53,7 +54,12 @@ import com.idega.util.DBUtil;
 		@NamedQuery(name = BorgunAuthorisationEntry.GET_REFUNDS_BY_DATES, query = "from BorgunAuthorisationEntry bae where bae.transactionType = "
 				+ BorgunAuthorisationEntry.AUTHORIZATION_TYPE_REFUND + " and bae." + BorgunAuthorisationEntry.dateProp
 				+ " >= :" + BorgunAuthorisationEntry.dateFromProp + " and " + BorgunAuthorisationEntry.dateProp + " <=:"
-				+ BorgunAuthorisationEntry.dateToProp) })
+				+ BorgunAuthorisationEntry.dateToProp),
+		@NamedQuery(
+				name = BorgunAuthorisationEntry.GET_BY_REFRENCE,
+				query = "from BorgunAuthorisationEntry bae where bae." + CreditCardAuthorizationEntry.COLUMN_REFERENCE + " = :" + CreditCardAuthorizationEntry.COLUMN_REFERENCE
+		)
+})
 public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public static final String TABLE_NAME = "BORGUN_AUTHORISATION_ENTRIES";
@@ -66,6 +72,7 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	public static final String authCodeProp = "authCode";
 	public static final String GET_BY_DATES = "BorgunAuthorisationEntry.GET_BY_DATES";
 	public static final String GET_REFUNDS_BY_DATES = "BorgunAuthorisationEntry.GET_REFUNDS_BY_DATES";
+	public static final String GET_BY_REFRENCE = "BorgunAuthorisationEntry.getByReference";
 	public static final String dateProp = "date";
 	public static final String dateFromProp = "dateFrom";
 	public static final String dateToProp = "dateTo";
@@ -121,7 +128,7 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "rrn")
 	private String rrn;
 
-	@Column(name = "reference")
+	@Column(name = COLUMN_REFERENCE)
 	private String reference;
 
 	@Column(name = COLUMN_TIMESTAMP)
@@ -202,6 +209,7 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "UNIQUE_ID")
 	private String uniqueId;
 
+	@Override
 	public BorgunMerchant getMerchant() {
 		return merchant;
 	}
@@ -578,6 +586,11 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Override
 	public void setRefund(boolean refund) {
 		this.refund = refund;
+	}
+
+	@Override
+	public boolean isSuccess() {
+		return !StringUtil.isEmpty(getAuthCode());
 	}
 
 }

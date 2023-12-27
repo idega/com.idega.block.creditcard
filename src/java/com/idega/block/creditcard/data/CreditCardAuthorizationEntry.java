@@ -21,7 +21,8 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 								COLUMN_PAYMENT_ID = "payment_id",
 								COLUMN_CARD_TOKEN = "card_token",
 								COLUMN_TRANSACTION_ID = "transaction_id",
-								COLUMN_REFUND = "refund";
+								COLUMN_REFUND = "refund",
+								COLUMN_REFERENCE = "reference";
 
 	public static float amountMultiplier = 100;
 
@@ -94,5 +95,7 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 	public boolean isRefund();
 
 	public void setRefund(boolean refund);
+
+	public boolean isSuccess();
 
 }

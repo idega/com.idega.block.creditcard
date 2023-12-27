@@ -36,6 +36,7 @@ import com.idega.data.IDOEntityDefinition;
 import com.idega.data.IDOStoreException;
 import com.idega.data.bean.Metadata;
 import com.idega.util.DBUtil;
+import com.idega.util.StringUtil;
 
 @Entity
 @Table(name = ValitorDebitAuthorisationEntry.TABLE_NAME)
@@ -52,7 +53,12 @@ import com.idega.util.DBUtil;
 		@NamedQuery(name = ValitorDebitAuthorisationEntry.GET_REFUNDS_BY_DATES, query = "from ValitorDebitAuthorisationEntry bae where bae.transactionType = "
 				+ ValitorDebitAuthorisationEntry.AUTHORIZATION_TYPE_REFUND + " and bae." + ValitorDebitAuthorisationEntry.dateProp
 				+ " >= :" + ValitorDebitAuthorisationEntry.dateFromProp + " and " + ValitorDebitAuthorisationEntry.dateProp + " <=:"
-				+ ValitorDebitAuthorisationEntry.dateToProp) })
+				+ ValitorDebitAuthorisationEntry.dateToProp),
+		@NamedQuery(
+				name = ValitorDebitAuthorisationEntry.GET_BY_REFRENCE,
+				query = "from ValitorDebitAuthorisationEntry vdae where vdae." + CreditCardAuthorizationEntry.COLUMN_REFERENCE + " = :" + CreditCardAuthorizationEntry.COLUMN_REFERENCE
+		)
+})
 public class ValitorDebitAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public static final String TABLE_NAME = "VALITORDEBIT_AUTHORISATION_ENTRIES";
@@ -65,10 +71,10 @@ public class ValitorDebitAuthorisationEntry implements CreditCardAuthorizationEn
 	public static final String authCodeProp = "authCode";
 	public static final String GET_BY_DATES = "ValitorDebitAuthorisationEntry.GET_BY_DATES";
 	public static final String GET_REFUNDS_BY_DATES = "ValitorDebitAuthorisationEntry.GET_REFUNDS_BY_DATES";
+	public static final String GET_BY_REFRENCE = "ValitorDebitAuthorisationEntry.getByReference";
 	public static final String dateProp = "date";
 	public static final String dateFromProp = "dateFrom";
 	public static final String dateToProp = "dateTo";
-
 
 	//for Valitor these are Idega internal
 	public static final String AUTHORIZATION_TYPE_SALE = "1";
@@ -124,7 +130,7 @@ public class ValitorDebitAuthorisationEntry implements CreditCardAuthorizationEn
 	@JoinTable(name = TABLE_NAME + "_" + Metadata.ENTITY_NAME, joinColumns = { @JoinColumn(name = "ID") }, inverseJoinColumns = { @JoinColumn(name = Metadata.COLUMN_METADATA_ID) })
 	private Set<Metadata> metadata;
 
-	@Column(name = "reference")
+	@Column(name = COLUMN_REFERENCE)
 	private String reference;
 
 	@Column(name = COLUMN_TIMESTAMP)
@@ -202,6 +208,7 @@ public class ValitorDebitAuthorisationEntry implements CreditCardAuthorizationEn
 	@JoinColumn(name = "merchant", nullable = false)
 	private ValitorDebitMerchant merchant;
 
+	@Override
 	public ValitorDebitMerchant getMerchant() {
 		return merchant;
 	}
@@ -583,6 +590,11 @@ public class ValitorDebitAuthorisationEntry implements CreditCardAuthorizationEn
 	@Override
 	public void setRefund(boolean refund) {
 		this.refund = refund;
+	}
+
+	@Override
+	public boolean isSuccess() {
+		return !StringUtil.isEmpty(getAuthCode());
 	}
 
 }
