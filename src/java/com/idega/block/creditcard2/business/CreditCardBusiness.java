@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import javax.ejb.CreateException;
@@ -16,19 +18,28 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import com.idega.block.creditcard.CreditCardConstants;
 import com.idega.block.creditcard.business.CreditCardClient;
+import com.idega.block.creditcard.business.ValitorPayException;
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard.data.CreditCardMerchant;
+import com.idega.block.creditcard.event.PaymentBySubscriptionEvent;
+import com.idega.block.creditcard.model.AuthEntryData;
 import com.idega.block.creditcard2.data.beans.BorgunMerchant;
 import com.idega.block.creditcard2.data.beans.DummyMerchant;
 import com.idega.block.creditcard2.data.beans.KortathjonustanMerchant;
 import com.idega.block.creditcard2.data.beans.RapydMerchant;
+import com.idega.block.creditcard2.data.beans.Subscription;
 import com.idega.block.creditcard2.data.beans.TPosMerchant;
+import com.idega.block.creditcard2.data.beans.ValitorAuthorisationEntry;
 import com.idega.block.creditcard2.data.beans.ValitorMerchant;
 import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.block.creditcard2.data.dao.AuthorisationEntriesDAO;
 import com.idega.block.creditcard2.data.dao.MerchantDAO;
+import com.idega.block.creditcard2.data.dao.SubscriptionDAO;
 import com.idega.block.creditcard2.data.dao.impl.BorgunAuthorisationEntryDAO;
 import com.idega.block.creditcard2.data.dao.impl.BorgunMerchantDAO;
 import com.idega.block.creditcard2.data.dao.impl.DummyAuthorisationEntryDAO;
@@ -41,26 +52,39 @@ import com.idega.block.creditcard2.data.dao.impl.TPosAuthorisationEntryDAO;
 import com.idega.block.creditcard2.data.dao.impl.TPosMerchantDAO;
 import com.idega.block.creditcard2.data.dao.impl.ValitorAuthorisationEntryDAO;
 import com.idega.block.creditcard2.data.dao.impl.ValitorMerchantDAO;
+import com.idega.block.trade.business.CurrencyHolder;
+import com.idega.block.trade.data.CreditCardInformationHome;
 import com.idega.block.trade.data.bean.CreditCardInformation;
 import com.idega.block.trade.data.dao.CreditCardInformationDAO;
 import com.idega.block.trade.stockroom.data.Supplier;
+import com.idega.block.trade.stockroom.data.SupplierHome;
+import com.idega.business.IBOLookup;
+import com.idega.business.IBOLookupException;
+import com.idega.business.IBORuntimeException;
 import com.idega.core.business.DefaultSpringBean;
 import com.idega.core.persistence.Param;
+import com.idega.data.IDOLookup;
 import com.idega.data.IDOLookupException;
 import com.idega.data.IDORelationshipException;
+import com.idega.idegaweb.IWApplicationContext;
 import com.idega.idegaweb.IWBundle;
+import com.idega.idegaweb.IWMainApplication;
 import com.idega.idegaweb.IWResourceBundle;
 import com.idega.presentation.IWContext;
 import com.idega.presentation.Image;
 import com.idega.presentation.ui.DropdownMenu;
 import com.idega.transaction.IdegaTransactionManager;
 import com.idega.user.dao.GroupDAO;
+import com.idega.user.dao.UserDAO;
 import com.idega.user.data.bean.Group;
 import com.idega.user.data.bean.User;
+import com.idega.util.CoreConstants;
+import com.idega.util.CoreUtil;
 import com.idega.util.Encrypter;
 import com.idega.util.IWTimestamp;
 import com.idega.util.ListUtil;
 import com.idega.util.StringUtil;
+import com.idega.util.datastructures.map.MapUtil;
 import com.idega.util.expression.ELUtil;
 
 @Service(CreditCardBusiness.BEAN_NAME)
@@ -69,6 +93,12 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 
 	@Autowired
 	private CreditCardInformationDAO creditCardInformationDAO;
+
+	@Autowired
+	private SubscriptionDAO subscriptionDAO;
+
+	@Autowired
+	private UserDAO userDAO;
 
 	public final static String CARD_TYPE_VISA = CreditCardType.VISA.name();
 	public final static String CARD_TYPE_ELECTRON = CreditCardType.ELECTRON.name();
@@ -924,6 +954,515 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		} catch (Exception e) {
 			getLogger().log(Level.WARNING, "Error creating new virtual card with identifier/uniqueId: " + cardUniqueId + ", card token: " + token, e);
 		}
+		return null;
+	}
+
+	@Override
+	public VirtualCard getVirtualCardByOwner(Integer userId) {
+		if (userId == null) {
+			getLogger().warning("User id is not provided");
+			return null;
+		}
+
+		try {
+			return creditCardInformationDAO.getSingleResult(VirtualCard.QUERY_FIND_BY_OWNER, VirtualCard.class, new Param(VirtualCard.PARAM_OWNER_ID, userId));
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting virtual card by user id " + userId, e);
+		}
+
+		return null;
+	}
+
+	@Override
+	public void doMakeSubscriptionPayments() {
+		try {
+
+			//**** GET ACTIVE SUBSCRIPTIONS ****
+			List<Subscription> subscriptions = getSubscriptionDAO().getAllActive();
+
+			if (!ListUtil.isEmpty(subscriptions)) {
+
+				CreditCardClient creditCardClient = getCreditCardClient(IWMainApplication.getDefaultIWApplicationContext());
+
+				if (creditCardClient == null) {
+					getLogger().warning("Could not find the credit card client. Will not execute automatic subscription payments.");
+				}
+
+				for (Subscription subscription : subscriptions) {
+
+					if (subscription == null || subscription.getUserId() == null) {
+						continue;
+					}
+
+					//**** Check, if valid for subscription payment *****
+					boolean validForPayment = isValidForForSubscriptionPayment(subscription);
+
+					if (validForPayment) {
+						try {
+							boolean successfulPayment = false;
+
+							User user = getUserDAO().getUser(subscription.getUserId());
+							if (user == null) {
+								continue;
+							}
+
+							//Can retry to pay 3 times per month
+							if (canRetryToPay(subscription) == false) {
+								continue;
+							}
+
+							//**** Get virtual cards for user *****
+							List<VirtualCard> virtualCardsForUser = getValidVirtualCardsForUser(user);
+
+							if (ListUtil.isEmpty(virtualCardsForUser)) {
+								continue;
+							}
+
+							//**** If virtual card exist, make the payment *****
+							for (Iterator<VirtualCard> iter = virtualCardsForUser.iterator(); (!successfulPayment && iter.hasNext());) {
+								VirtualCard vc = iter.next();
+								String token = vc == null ? null : vc.getToken();
+								if (StringUtil.isEmpty(token)) {
+									getLogger().warning("Token unknown for virtual card: " + vc + " and user: " + user);
+									continue;
+								}
+
+								String paymentUniqueId = UUID.randomUUID().toString();
+
+								AuthEntryData data = null;
+								try {
+									data = creditCardClient.doSaleWithCardToken(
+											vc.getToken(),
+											subscription.getUniqueId(),
+											subscription.getAmount(),
+											CurrencyHolder.ICELANDIC_KRONA,
+											vc.getToken(),
+											paymentUniqueId
+									);
+								} catch (ValitorPayException eV) {
+									getLogger().log(Level.WARNING, "Error executing automatic subscription payment. Subscription: " + subscription + " for " + user + " using " + vc, eV);
+									//Create the authorization entry about failed transaction
+									storeValitorAuthorizationEntry(
+											paymentUniqueId,
+											vc,
+											subscription.getAmount(),
+											user,
+											CurrencyHolder.ICELANDIC_KRONA,
+											eV,
+											creditCardClient
+									);
+
+								} catch (Throwable t) {
+									getLogger().log(Level.WARNING, "Error executing automatic subscription payment. Subscription: " + subscription + " for " + user + " using " + vc, t);
+								}
+
+								String authCode = data == null ? null : data.getAuthCode();
+								if (StringUtil.isEmpty(authCode)) {
+									getLogger().warning("Auth. code unknown for subscription: " + subscription
+											+ ", virtual card: " + vc + ". Can not execute automatic subscription payment for " + user);
+									continue;
+								}
+
+								successfulPayment = true;
+								getLogger().info("Successful payment with virtual card: " + vc + " for user: " + user +
+										". Auth. code " + authCode + " (unique ID: " + data.getUniqueId() + ").");
+
+								getSubscriptionDAO().doCreateSubscriptionPayment(user.getId(), subscription.getId(), authCode);
+
+								String authEntryUniqueId = data.getUniqueId();
+								setMetaData(creditCardClient, authEntryUniqueId);
+							}
+
+							//**** Update the subscription after the successful payment *****
+							if (successfulPayment) {
+								getLogger().info("Successful automatic subscription payment for subscription: " + subscription);
+								subscription.setLastPaymentDate(IWTimestamp.getTimestampRightNow());
+								getSubscriptionDAO().createUpdateSubscription(subscription);
+
+								//*** Fire the PaymentBySubscriptionEvent ***
+								ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription, Boolean.TRUE, null));
+
+							} else {
+								getLogger().info("Failed to make automatic subscription payment for subscription: " + subscription);
+
+								//Update the subscription
+								IWTimestamp now = IWTimestamp.RightNow();
+								subscription.setLastUnsuccessfulPaymentDate(now.getTimestamp());
+								Integer failedPaymentsPerMonth = subscription.getFailedPaymentsPerMonth() != null ? subscription.getFailedPaymentsPerMonth() : 0;
+								failedPaymentsPerMonth++;
+								subscription.setFailedPaymentsPerMonth(failedPaymentsPerMonth);
+								Integer failedPayments = subscription.getFailedPayments() != null ? subscription.getFailedPayments() : 0;
+								failedPayments++;
+								subscription.setFailedPayments(failedPayments);
+								getSubscriptionDAO().createUpdateSubscription(subscription);
+
+								//*** Fire the PaymentBySubscriptionEvent ***
+								ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription, Boolean.FALSE, "Failed to make automatic subscription payment for subscription."));
+							}
+						} catch (Exception eSubP) {
+							getLogger().log(Level.WARNING, "Failed to make automatic subscription payment for subscription: " + subscription, eSubP);
+
+							//*** Fire the PaymentBySubscriptionEvent ***
+							ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription, Boolean.FALSE, "Failed to make automatic subscription payment for subscription. " + eSubP.getLocalizedMessage()));
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Could not execute automatic subscription payments.", e);
+		}
+	}
+
+	private boolean canRetryToPay(Subscription subscription) {
+		try {
+			if (subscription != null && subscription.getFailedPaymentsPerMonth() != null && subscription.getLastUnsuccessfulPaymentDate() != null) {
+				IWTimestamp now = IWTimestamp.RightNow();
+				IWTimestamp lastUnsuccessfulPaymentIWT = new IWTimestamp(subscription.getLastUnsuccessfulPaymentDate());
+				if (now.getYear() == lastUnsuccessfulPaymentIWT.getYear() && now.getMonth() != lastUnsuccessfulPaymentIWT.getMonth()) {
+					subscription.setFailedPaymentsPerMonth(0);	//	Re-setting counter
+
+				} else if (
+						now.getYear() == lastUnsuccessfulPaymentIWT.getYear()
+						&& now.getMonth() == lastUnsuccessfulPaymentIWT.getMonth()
+						&& subscription.getFailedPaymentsPerMonth() >= 3
+				) {
+					return false;
+
+				} else {
+					subscription.setFailedPaymentsPerMonth(0);	//	Re-setting counter, i.e. year has changed
+				}
+			}
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Could not check, if subscription can be paid and how many time it was paid already: " + subscription);
+		}
+		return true;
+	}
+
+	private boolean isValidForForSubscriptionPayment(Subscription subscription) {
+		try {
+			if (isValidForForSubscriptionPayment(subscription == null ? null : subscription.getLastPaymentDate())) {
+				getLogger().info("Valid for a new subscription payment. Subscription: " + subscription);
+				return true;
+			}
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Could not check if subscription is valid for automatic payment: " + subscription, e);
+		}
+
+		getLogger().info("NOT valid for a new subscription payment. Subscription: " + subscription);
+		return false;
+	}
+
+	@Override
+	public boolean isValidForForSubscriptionPayment(Timestamp lastPaymentDate) {
+		boolean validForSubscriptionPayment = false;
+		IWTimestamp nowIWT = new IWTimestamp();
+		nowIWT.setHour(0);
+		nowIWT.setMinute(0);
+		nowIWT.setSecond(0);
+		nowIWT.setMilliSecond(0);
+
+		try {
+			if (lastPaymentDate != null) {
+				IWTimestamp newPaymentDateIWT = new IWTimestamp(lastPaymentDate);
+				newPaymentDateIWT.setHour(0);
+				newPaymentDateIWT.setMinute(0);
+				newPaymentDateIWT.setSecond(0);
+				newPaymentDateIWT.setMilliSecond(0);
+				newPaymentDateIWT.addMonths(1);
+
+				if (
+						(
+								nowIWT.getYear() == newPaymentDateIWT.getYear()
+								&& nowIWT.getMonth() >= newPaymentDateIWT.getMonth()
+								&& nowIWT.getDay() >= newPaymentDateIWT.getDay()
+						)
+						||
+						(
+								nowIWT.getYear() > newPaymentDateIWT.getYear()
+								&& nowIWT.getDay() >= newPaymentDateIWT.getDay()
+						)
+						||
+						(
+								IWTimestamp.getDaysBetween(newPaymentDateIWT, nowIWT) >= 0
+						)
+						||
+						(
+								nowIWT.isLaterThanOrEquals(newPaymentDateIWT)
+						)
+				) {
+					validForSubscriptionPayment = true;
+				} else {
+					validForSubscriptionPayment = false;
+				}
+
+			}
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Failed checking if subscription is valid for next payment. Last payment date: " + lastPaymentDate, e);
+		}
+
+		return validForSubscriptionPayment;
+	}
+
+	private SubscriptionDAO getSubscriptionDAO() {
+		if (subscriptionDAO == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+		return subscriptionDAO;
+	}
+
+	public List<VirtualCard> getValidVirtualCardsForUser(com.idega.user.data.bean.User user) {
+		try {
+			if (user == null) {
+				return null;
+			}
+
+			List<VirtualCard> cards = creditCardInformationDAO.getResultList(
+					VirtualCard.QUERY_FIND_ACTIVE_BY_OWNER,
+					VirtualCard.class,
+					new Param(VirtualCard.PARAM_OWNER_ID, user.getId())
+			);
+
+			if (ListUtil.isEmpty(cards)) {
+				return null;
+			}
+
+			IWTimestamp now = IWTimestamp.RightNow();
+			int month = now.getMonth();
+			int year = now.getYear();
+			boolean validIfNoExpireDate = getSettings().getBoolean("virtual_card.vc_valid_without_date", true);
+			List<VirtualCard> results = new ArrayList<>();
+			for (VirtualCard card: cards) {
+				Boolean deleted = card.getDeleted();
+				if (deleted != null && deleted) {
+					getLogger().warning(card + " for " + user + " is deleted");
+					continue;
+				}
+
+				Boolean enabled = card.getEnabled();
+				if (enabled == null || !enabled) {
+					getLogger().warning(card + " for " + user + " is disabled");
+					continue;
+				}
+
+				boolean expired = false;
+				Integer expireYear = card.getExpYear();
+				if (expireYear == null) {
+					if (validIfNoExpireDate) {
+						results.add(card);
+					} else {
+						getLogger().warning(card + " for " + user + " - unknown expire year");
+					}
+					continue;
+				}
+				if (expireYear.toString().length() == 2) {
+					expireYear = expireYear + 2000;
+				}
+				expired = expireYear < year;
+				if (expired) {
+					getLogger().warning(card + " for " + user + " has expired (year: " + expireYear + ")");
+					continue;
+				}
+
+				Integer expireMonth = card.getExpMonth();
+				if (expireMonth == null) {
+					if (validIfNoExpireDate) {
+						results.add(card);
+					} else {
+						getLogger().warning(card + " for " + user + " - unknown expire month");
+					}
+					continue;
+				}
+				expired = expireYear == year && expireMonth < month;
+				if (expired) {
+					if (validIfNoExpireDate) {
+						results.add(card);
+					} else {
+						getLogger().warning(card + " for " + user + " has expired");
+					}
+					continue;
+				}
+
+				results.add(card);
+			}
+			return results;
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting virtual cards for " + user, e);
+		}
+		return null;
+	}
+
+	private UserDAO getUserDAO() {
+		if (userDAO == null) {
+			ELUtil.getInstance().autowire(this);
+		}
+		return userDAO;
+	}
+
+
+	private CreditCardClient getCreditCardClient(IWApplicationContext iwac) {
+		CreditCardClient creditCardClient = null;
+
+		try {
+			String paymentCCInfoId = getSettings().getProperty(CreditCardConstants.APP_PROPERTY_CC_PAYMENT_INFO_ID, CreditCardConstants.DEFAULT_CC_PAYMENT_INFO_ID);
+			if (!StringUtil.isEmpty(paymentCCInfoId)) {
+				CreditCardInformationHome ccInfoHome = (CreditCardInformationHome) IDOLookup.getHome(com.idega.block.trade.data.CreditCardInformation.class);
+				com.idega.block.trade.data.CreditCardInformation ccInfo = ccInfoHome.findByPrimaryKey(paymentCCInfoId);
+				if (ccInfo != null) {
+					String merchantId = ccInfo.getMerchantPKString();
+					String merhcantType = ccInfo.getType();
+					if (!StringUtil.isEmpty(merchantId) && !StringUtil.isEmpty(merhcantType)) {
+						try {
+							CreditCardMerchant merchant = getCreditCardMerchant(merchantId, merhcantType);
+							creditCardClient = getCreditCardClient(merchant);
+						} catch (Exception e) {
+							getLogger().log(Level.WARNING, "Credit card client was not found by supplier.", e);
+						}
+					}
+				}
+			}
+		} catch (Exception eCCI) {
+			getLogger().log(Level.WARNING, "Credit card client was nnot found by credit card info id", eCCI);
+		}
+
+		if (creditCardClient != null) {
+			return creditCardClient;
+		} else {
+			try {
+				String productSupplierId = getSettings().getProperty(CreditCardConstants.APP_PROPERTY_CC_SUPPLIER_ID, CreditCardConstants.DEFAULT_CC_SUPPLIER_ID);
+				if (!StringUtil.isEmpty(productSupplierId)) {
+					Supplier suppTemp = ((SupplierHome) IDOLookup.getHomeLegacy(Supplier.class)).findByPrimaryKeyLegacy(Integer.valueOf(productSupplierId));
+					if (suppTemp != null) {
+						creditCardClient = getCreditCardBusiness(iwac).getCreditCardClient(suppTemp, new IWTimestamp());
+					}
+				}
+			} catch (Exception e) {
+				getLogger().log(Level.WARNING, "Credit card client was not found by supplier.", e);
+			}
+		}
+
+		return creditCardClient;
+	}
+
+	protected com.idega.block.creditcard.business.CreditCardBusiness getCreditCardBusiness(IWApplicationContext iwac) {
+		try {
+			return IBOLookup.getServiceInstance(iwac == null ? IWMainApplication.getDefaultIWApplicationContext() : iwac, com.idega.block.creditcard.business.CreditCardBusiness.class);
+		}
+		catch (IBOLookupException e) {
+			throw new IBORuntimeException(e);
+		}
+	}
+
+	public void setMetaData(CreditCardClient ccClient, String authEntryUniqueId) {
+		if (StringUtil.isEmpty(authEntryUniqueId)) {
+			getLogger().warning("Auth. entry unique ID not provided. Credit card client " + ccClient);
+			return;
+		}
+		if (ccClient == null) {
+			getLogger().warning("Credit card client not provided. Auth. entry UUID: " + authEntryUniqueId);
+			return;
+		}
+
+		Object merchantId = null;
+		try {
+			CreditCardMerchant ccMerchant = ccClient.getCreditCardMerchant();
+			if (ccMerchant == null) {
+				getLogger().warning("Credit card merchant is not known fo credit card client " + ccClient + ". Auth. entry UUID: " + authEntryUniqueId);
+				return;
+			}
+
+			CreditCardAuthorizationEntry entry = getValitorAuthorisationEntryDAO().findByAuthorizationCode(authEntryUniqueId, null);
+
+			merchantId = ccMerchant.getId();
+
+			if (entry == null) {
+				getLogger().warning("Credit card authorization entry not found with authorization entry UUID: " + authEntryUniqueId);
+				return;
+			} else {
+				getLogger().info("Adding the meta data with merchantId: " + merchantId + " to the authorization entry: " + entry);
+			}
+
+			entry.setMetaData(CreditCardConstants.CREDIT_CARD_MERCHANT_ID, String.valueOf(merchantId));
+			entry.store();
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error setting meta data (merchant ID: " + merchantId + ") for auth. entry with unique ID " +
+					authEntryUniqueId + ". Credit card client " + ccClient, e);
+		}
+	}
+
+	private ValitorAuthorisationEntry storeValitorAuthorizationEntry(
+			String paymentUniqueId,
+			VirtualCard virtualCard,
+			Double fullAmountToPay,
+			com.idega.user.data.bean.User user,
+			String currency,
+			ValitorPayException valitorPayException,
+			CreditCardClient creditCardClient
+	) {
+		try {
+			if (
+					creditCardClient == null
+					|| creditCardClient.getCreditCardMerchant() == null
+					|| !CreditCardMerchant.MERCHANT_TYPE_VALITOR.equals(creditCardClient.getCreditCardMerchant().getType())
+			) {
+				getLogger().warning("This is not a Valitor merchant. Can not create the Valitor authorization entry.");
+				return null;
+			}
+
+			ValitorAuthorisationEntry auth = new ValitorAuthorisationEntry();
+
+			auth.setAmount(fullAmountToPay);
+			auth.setCardNumber(virtualCard.getToken());
+			auth.setSuccess(Boolean.FALSE);
+			auth.setCurrency(currency);
+			IWTimestamp timestamp = new IWTimestamp();
+			auth.setDate(timestamp.getDate());
+			auth.setTimestamp(timestamp.getTimestamp());
+			auth.setUniqueId(paymentUniqueId);		//	Authorization entry must be resolved by unique id. Merchant reference id is saved as unique id only
+			auth.setErrorNumber(valitorPayException != null ? valitorPayException.getErrorNumber() : CoreConstants.EMPTY);
+			auth.setErrorText(valitorPayException != null ? valitorPayException.getErrorMessage() : CoreConstants.EMPTY);
+			auth.setMerchant(creditCardClient.getCreditCardMerchant());
+			getValitorAuthorisationEntryDAO().store(auth);
+			return auth.getId() == null ? null : auth;
+		} catch (Exception e) {
+			String error = "Could not store the ValitorAuthorisationEntry after the ValitorPay failed transaction with virtual card. "
+					+ " Virtual card: " + virtualCard
+					+ ". paymentUniqueId: " + paymentUniqueId
+					+ ". fullAmountToPay: " + fullAmountToPay
+					+ ". user: " + user;
+			getLogger().log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
+		} finally {
+			CoreUtil.clearAllCaches();
+		}
+		return null;
+	}
+
+	@Override
+	public CreditCardAuthorizationEntry getByReference(String reference) {
+		if (StringUtil.isEmpty(reference)) {
+			return null;
+		}
+
+		try {
+			WebApplicationContext webAppContext = WebApplicationContextUtils.getWebApplicationContext(getApplication().getServletContext());
+			@SuppressWarnings("rawtypes")
+			Map<String, AuthorisationEntriesDAO> daos = webAppContext.getBeansOfType(AuthorisationEntriesDAO.class);
+			if (MapUtil.isEmpty(daos)) {
+				return null;
+			}
+
+			for (AuthorisationEntriesDAO<?> dao: daos.values()) {
+				CreditCardAuthorizationEntry entry = dao.findByReference(reference);
+				if (entry != null) {
+					return entry;
+				}
+			}
+
+			return null;
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting card auth. entry by reference " + reference, e);
+		}
+
 		return null;
 	}
 

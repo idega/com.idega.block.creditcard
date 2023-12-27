@@ -35,6 +35,7 @@ import com.idega.data.IDOEntityDefinition;
 import com.idega.data.IDOStoreException;
 import com.idega.data.bean.Metadata;
 import com.idega.util.DBUtil;
+import com.idega.util.StringUtil;
 
 @Entity
 @Table(name = "CC_KORTTHJ_AUTH_ENTRIES")
@@ -54,7 +55,12 @@ import com.idega.util.DBUtil;
 				+ KortathjonustanAuthorisationEntry.AUTHORIZATION_TYPE_REFUND + " and bae."
 				+ KortathjonustanAuthorisationEntry.dateProp + " >= :" + KortathjonustanAuthorisationEntry.dateFromProp
 				+ " and " + KortathjonustanAuthorisationEntry.dateProp + " <=:"
-				+ KortathjonustanAuthorisationEntry.dateToProp) })
+				+ KortathjonustanAuthorisationEntry.dateToProp),
+		@NamedQuery(
+				name = KortathjonustanAuthorisationEntry.GET_BY_REFRENCE,
+				query = "from KortathjonustanAuthorisationEntry kae where kae." + CreditCardAuthorizationEntry.COLUMN_REFERENCE + " = :" + CreditCardAuthorizationEntry.COLUMN_REFERENCE
+		)
+})
 public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public static final String TABLE_NAME = "CC_KORTTHJ_AUTH_ENTRIES";
@@ -63,6 +69,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 	public static final String GET_BY_AUTH_CODE = "KortathjonustanAuthorisationEntry.GET_BY_AUTH_CODE";
 	public static final String GET_BY_DATES = "KortathjonustanAuthorisationEntry.GET_BY_DATES";
 	public static final String GET_REFUNDS_BY_DATES = "KortathjonustanAuthorisationEntry.GET_REFUNDS_BY_DATES";
+	public static final String GET_BY_REFRENCE = "KortathjonustanAuthorisationEntry.getByReference";
 
 	public static final String idProp = "id";
 	public static final String parentProp = "parent";
@@ -124,7 +131,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 	@JoinTable(name = TABLE_NAME + "_" + Metadata.ENTITY_NAME, joinColumns = { @JoinColumn(name = TABLE_NAME + "_ID") }, inverseJoinColumns = { @JoinColumn(name = Metadata.COLUMN_METADATA_ID) })
 	private Set<Metadata> metadata;
 
-	@Column(name = "reference")
+	@Column(name = COLUMN_REFERENCE)
 	private String reference;
 
 	@Column(name = COLUMN_TIMESTAMP)
@@ -556,6 +563,11 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 	}
 
 	@Override
+	public CreditCardMerchant getMerchant() {
+		return null;
+	}
+
+	@Override
 	public boolean isRefund() {
 		return refund == null ? false : refund;
 	}
@@ -563,6 +575,11 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 	@Override
 	public void setRefund(boolean refund) {
 		this.refund = refund;
+	}
+
+	@Override
+	public boolean isSuccess() {
+		return !StringUtil.isEmpty(getAuthCode());
 	}
 
 }

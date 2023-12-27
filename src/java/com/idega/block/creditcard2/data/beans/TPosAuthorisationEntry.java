@@ -35,6 +35,7 @@ import com.idega.data.IDOStoreException;
 import com.idega.data.bean.Metadata;
 import com.idega.util.DBUtil;
 import com.idega.util.IWTimestamp;
+import com.idega.util.StringUtil;
 
 @Entity
 @Table(name = TPosAuthorisationEntry.ENTITY_NAME)
@@ -50,7 +51,12 @@ import com.idega.util.IWTimestamp;
 				+ TPosAuthorisationEntry.dateProp + " <=:" + TPosAuthorisationEntry.dateToProp),
 		@NamedQuery(name = TPosAuthorisationEntry.GET_REFUNDS_BY_DATES, query = "from TPosAuthorisationEntry bae where bae.authCode = 'T5' and bae."
 				+ TPosAuthorisationEntry.dateProp + " >= :" + TPosAuthorisationEntry.dateFromProp + " and "
-				+ TPosAuthorisationEntry.dateProp + " <=:" + TPosAuthorisationEntry.dateToProp) })
+				+ TPosAuthorisationEntry.dateProp + " <=:" + TPosAuthorisationEntry.dateToProp),
+		@NamedQuery(
+				name = TPosAuthorisationEntry.GET_BY_REFRENCE,
+				query = "from TPosAuthorisationEntry tpae where tpae." + CreditCardAuthorizationEntry.COLUMN_REFERENCE + " = :" + CreditCardAuthorizationEntry.COLUMN_REFERENCE
+		)
+})
 public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 
 	public static final String GET_BY_ID = "TPosAuthorisationEntry.GET_BY_ID";
@@ -58,6 +64,7 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 	public static final String GET_BY_AUTH_CODE = "TPosAuthorisationEntry.GET_BY_AUTH_CODE";
 	public static final String GET_BY_DATES = "TPosAuthorisationEntry.GET_BY_DATES";
 	public static final String GET_REFUNDS_BY_DATES = "TPosAuthorisationEntry.GET_REFUNDS_BY_DATES";
+	public static final String GET_BY_REFRENCE = "TPosAuthorisationEntry.getByReference";
 
 	public static final String idProp = "id";
 	public static final String parentProp = "parentId";
@@ -183,7 +190,7 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@JoinTable(name = ENTITY_NAME + "_" + Metadata.ENTITY_NAME, joinColumns = { @JoinColumn(name = ENTITY_NAME + "_id") }, inverseJoinColumns = { @JoinColumn(name = Metadata.COLUMN_METADATA_ID) })
 	private Set<Metadata> metadata;
 
-	@Column(name = "reference")
+	@Column(name = COLUMN_REFERENCE)
 	private String reference;
 
 	public final static String ENTITY_NAME = "tpos_auth_entries";
@@ -817,6 +824,11 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 	}
 
 	@Override
+	public CreditCardMerchant getMerchant() {
+		return null;
+	}
+
+	@Override
 	public boolean isRefund() {
 		return refund == null ? false : refund;
 	}
@@ -824,6 +836,11 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Override
 	public void setRefund(boolean refund) {
 		this.refund = refund;
+	}
+
+	@Override
+	public boolean isSuccess() {
+		return !StringUtil.isEmpty(getAuthCode());
 	}
 
 }

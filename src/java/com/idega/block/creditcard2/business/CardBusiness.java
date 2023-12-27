@@ -1,6 +1,9 @@
 package com.idega.block.creditcard2.business;
 
+import java.sql.Timestamp;
+
 import com.idega.block.creditcard.business.CreditCardClient;
+import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.block.creditcard2.data.beans.VirtualCard;
 import com.idega.block.trade.stockroom.data.Supplier;
 import com.idega.user.data.bean.User;
@@ -49,4 +52,13 @@ public interface CardBusiness {
 			Integer expireMonth,
 			Boolean enabled
 	);
+
+	public VirtualCard getVirtualCardByOwner(Integer userId);
+
+	public void doMakeSubscriptionPayments();
+
+	public boolean isValidForForSubscriptionPayment(Timestamp lastPaymentDate);
+
+	public CreditCardAuthorizationEntry getByReference(String reference);
+
 }

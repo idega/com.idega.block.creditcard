@@ -65,6 +65,15 @@ public class CreditCardUtil {
 		return length <= 4 ? creditCardNumber : "****-****-****-".concat(creditCardNumber.substring(length - 4));
 	}
 
+	public static String getLast4(String number) {
+		if (StringUtil.isEmpty(number)) {
+			return number;
+		}
+
+		int length = number.length();
+		return length <= 4 ? number : number.substring(length - 4);
+	}
+
 	public static final String getMaskedSecurityCode(String securityCode) {
 		if (StringUtil.isEmpty(securityCode)) {
 			return null;

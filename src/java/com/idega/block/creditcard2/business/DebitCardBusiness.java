@@ -64,11 +64,6 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 
 	public final static String IW_BUNDLE_IDENTIFIER = "com.idega.block.creditcard";
 
-	private final static String PROPERTY_KORTATHJONUSTAN_HOST_NAME = "kortathjonustan_host_name";
-	private final static String PROPERTY_KORTATHJONUSTAN_HOST_PORT = "kortathjonustan_host_port";
-	private final static String PROPERTY_KORTATHJONUSTAN_KEYSTORE = "kortathjonustan_keystore";
-	private final static String PROPERTY_KORTATHJONUSTAN_KEYSTORE_PASS = "kortathjonustan_keystore_pass";
-
 	public final static int CLIENT_TYPE_VALITOR = 1;
 
 	public static final String BEAN_NAME = "DebitCardBusiness";
@@ -676,6 +671,40 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 		} catch (Exception e) {
 			getLogger().log(Level.WARNING, "Error creating new virtual card with identifier/uniqueId: " + cardUniqueId + ", card token: " + token, e);
 		}
+		return null;
+	}
+
+
+	@Override
+	public VirtualCard getVirtualCardByOwner(Integer userId) {
+		if (userId == null) {
+			getLogger().warning("User id is not provided");
+			return null;
+		}
+
+		try {
+			return debitCardInformationDAO.getSingleResult(VirtualCard.QUERY_FIND_BY_OWNER, VirtualCard.class, new Param(VirtualCard.COLUMN_OWNER, userId));
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting virtual card by user id " + userId, e);
+		}
+
+		return null;
+	}
+
+	@Override
+	public void doMakeSubscriptionPayments() {
+		getLogger().warning("Not implemented");
+	}
+
+	@Override
+	public boolean isValidForForSubscriptionPayment(Timestamp lastPaymentDate) {
+		getLogger().warning("Not implemented");
+		return false;
+	}
+
+	@Override
+	public CreditCardAuthorizationEntry getByReference(String reference) {
+		getLogger().warning("Not implemented");
 		return null;
 	}
 

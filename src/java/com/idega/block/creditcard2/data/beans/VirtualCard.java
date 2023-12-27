@@ -55,6 +55,11 @@ import com.idega.util.StringUtil;
 			query = "select vc from VirtualCard vc where vc.owner.userID = :" + VirtualCard.PARAM_OWNER_ID
 				+ " and vc.groupId = :" + VirtualCard.PARAM_GROUP_ID
 				+ " and (vc.deleted is null OR vc.deleted = 'N' OR vc.deleted = '0') and vc.token is not null order by vc.created desc"
+	),
+	@NamedQuery(
+			name = VirtualCard.QUERY_FIND_ACTIVE_BY_OWNER,
+			query = "select vc from VirtualCard vc where vc.owner.userID = :" + VirtualCard.PARAM_OWNER_ID
+			+ " and (vc.deleted is null OR vc.deleted = 'N' OR vc.deleted = '0') and vc.token is not null order by vc.created desc"
 	)
 })
 public class VirtualCard implements Serializable {

@@ -39,7 +39,7 @@ import com.idega.block.creditcard.model.SaleOption;
 import com.idega.block.creditcard.model.ValitorPayCardVerificationData;
 import com.idega.block.creditcard.model.ValitorPayCardVerificationResponseData;
 import com.idega.block.creditcard.model.ValitorPayPaymentData;
-import com.idega.block.creditcard.model.ValitorPayPushFundsData;
+import com.idega.block.creditcard.model.ValitorPayRefundWithCorrelationIdData;
 import com.idega.block.creditcard.model.ValitorPayResponseData;
 import com.idega.block.creditcard.model.ValitorPayVirtualCardAdditionalData;
 import com.idega.block.creditcard.model.ValitorPayVirtualCardData;
@@ -503,7 +503,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			if (response != null) {
 				valitorPayResponseData = getValitorPayResponseData(response);
 			}
-			LOGGER.info("After calling ValitorPay (" + valitorPayWithVirtualCardWebServiceURL + "). Response data: " + valitorPayResponseData.toString());
+			LOGGER.info("After calling ValitorPay (" + valitorPayWithVirtualCardWebServiceURL + "). Response data: " + (valitorPayResponseData != null ? valitorPayResponseData.toString() : "null"));
 
 			//Handle ValitorPay response
 			if (response == null || response.getStatus() != Status.OK.getStatusCode()) {
@@ -700,7 +700,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			stream = response == null ? null : response.getEntityInputStream();
 			reader = stream == null ? null : new InputStreamReader(stream);
 			if (reader != null) {
-				valitorPayResponseData = CreditCardConstants.GSON.fromJson(reader, ValitorPayResponseData.class);
+				valitorPayResponseData = CoreConstants.GSON.fromJson(reader, ValitorPayResponseData.class);
 			}
 		} catch (Throwable e) {
 			String error = "Error reading from response " + response + ". Message: " + e.getMessage();
@@ -1599,6 +1599,10 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		}
 	}
 
+	/**
+	 * Do refund
+	 * @param extraField - REQUIRED - Valitor authorisation entry id from the DB table VALITOR_AUTHORISATION_ENTRIES
+	 */
 	@Override
 	public HostedCheckoutPageResponse getHostedCheckoutPage(HostedCheckoutPageRequest request) throws CreditCardAuthorizationException {
 		throw new CreditCardAuthorizationException("Not implemented");
@@ -1622,28 +1626,20 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 		try {
 
-			//**** Checking the data *****//
-			details = "Card number: " + CreditCardUtil.getMaskedCreditCardNumber(cardnumber)
-				+ ", expires (MM/YY): " + monthExpires + CoreConstants.SLASH + yearExpires
-				+ ", CVC: " + CreditCardUtil.getMaskedSecurityCode(ccVerifyNumber)
-				+ ", amount: " + amount
-				+ ", currency: " + currency
-				+ ", extra field: " + extraField;;
+			//**** Check the data *****//
+
+			details = "Extra field (Valitor authorisation entry id from the DB table VALITOR_AUTHORISATION_ENTRIES): " + extraField;
 			if (
-					StringUtil.isEmpty(cardnumber)
-					|| StringUtil.isEmpty(currency)
-					|| amount < 0
+					StringUtil.isEmpty(extraField)
 			) {
-				String error = "ERROR: Some of the mandatory data is not provided. " + details;
+				String error = "ERROR: Some of the mandatory data is not provided. extraField (Valitor authorisation entry id from the DB table VALITOR_AUTHORISATION_ENTRIES) is required. " + details;
 				LOGGER.warning(error);
 				ValitorPayException ex = new ValitorPayException(error, "DATA_NOT_PROVIDED");
 				CoreUtil.sendExceptionNotification(error, ex);
 				throw ex;
 			}
 
-			if (!StringUtil.isEmpty(monthExpires) && monthExpires.length() == 1) {
-				monthExpires = String.valueOf(0).concat(monthExpires);
-			}
+			//**** Get settings and properties *****//
 
 			IWMainApplicationSettings settings = getSettings();
 			if (settings == null) {
@@ -1656,31 +1652,48 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 			CreditCardMerchant ccMerchant = getCreditCardMerchant();
 
-			String webServiceURL = getValitorPushFundsWebServiceURL(settings);
+			String webServiceURL = getValitorRefundWithCorrelationIdWebServiceURL(settings);
 			String valitorPayApiVersion = getValitorPayApiVersion(settings);
 			String valitorPayApiKey = ccMerchant.getSharedSecret();
 
-			String paymentUUID = UUID.randomUUID().toString();
-			IWTimestamp now = IWTimestamp.RightNow();
-			String auditNumber = CoreConstants.EMPTY
-					+ now.getMinute()
-					+ now.getMilliSecond();
 
-			//Create the ValitorPay refund data object
-			ValitorPayPushFundsData valitorPayPushFundsData = getValitorPayRefundData(
-					settings,
-					cardnumber,
-					monthExpires,
-					yearExpires,
-					ccVerifyNumber,
-					amount,
-					currency,
-					extraField,
-					paymentUUID,
-					auditNumber,
-					now
+			//**** Prepare the data for refund *****//
+
+			//Get the Valitor authorisation entry
+			ValitorAuthorisationEntry valitorAuthorisationEntry = null;
+			try {
+				//Get by ID
+				valitorAuthorisationEntry = StringHandler.isNumeric(extraField) ? getAuthDAO().findById(Integer.valueOf(extraField)) : null;
+			} catch (Exception eId) {
+				LOGGER.log(Level.WARNING, "Error getting valitor auth. entry by ID " + extraField, eId);
+			}
+			if (valitorAuthorisationEntry == null) {
+				try {
+					//Get by unique id or auth code
+					CreditCardAuthorizationEntry entry = getAuthDAO().findByAuthorizationCode(extraField, null);
+					if (entry instanceof ValitorAuthorisationEntry) {
+						valitorAuthorisationEntry = (ValitorAuthorisationEntry) entry;
+					}
+				} catch (Exception eC) {
+					LOGGER.log(Level.WARNING, "Error getting auth. entry by auth. code " + extraField, eC);
+				}
+			}
+			if (valitorAuthorisationEntry == null) {
+				String error = "ERROR: ValitorAuthorisationEntry could not be found by id, unique id or authorisation code: " + extraField;
+				ValitorPayException ex = handleValitorPayErrorResponse(response, valitorPayResponseData, null, "PAYMENT_DATA", error);
+				LOGGER.warning(error);
+				CoreUtil.sendExceptionNotification(error, ex);
+				throw ex;
+			}
+
+			//Prepare the payment refund data object
+			String paymentUUID = UUID.randomUUID().toString();
+
+			ValitorPayRefundWithCorrelationIdData valitorRefundWithCorrelationIdData = getValitorRefundWithCorrelationIdData(
+					valitorAuthorisationEntry,
+					paymentUUID
 			);
-			if (valitorPayPushFundsData == null) {
+			if (valitorRefundWithCorrelationIdData == null) {
 				String error = "ERROR: Can not construct ValitorPay refund data. " + details;
 				LOGGER.warning(error);
 				ValitorPayException ex = new ValitorPayException(error, "PAYMENT_DATA");
@@ -1688,21 +1701,12 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				throw ex;
 			}
 
-			//*** Call ValitorPay web service ****//
-			String postJSON = getJSON(valitorPayPushFundsData);
+			//*** Call ValitorRefundWithCorrelationId web service ****//
+			String postJSON = getJSON(valitorRefundWithCorrelationIdData);
 			String postJSONForLogging = getJSON(
-					getValitorPayRefundData(
-							settings,
-							CreditCardUtil.getMaskedCreditCardNumber(cardnumber),
-							monthExpires,
-							yearExpires,
-							CreditCardUtil.getMaskedSecurityCode(ccVerifyNumber),
-							amount,
-							currency,
-							extraField,
-							paymentUUID,
-							auditNumber,
-							now
+					getValitorRefundWithCorrelationIdData(
+							valitorAuthorisationEntry,
+							paymentUUID
 					)
 			);
 			LOGGER.info("Calling ValitorPay (" + webServiceURL + ") with data: " + postJSONForLogging);
@@ -1736,7 +1740,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				throw ex;
 			}
 
-			//OK response
+			//*** OK response ***
 			if (
 					valitorPayResponseData != null &&
 					valitorPayResponseData.getIsSuccess() != null &&
@@ -1745,13 +1749,14 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				//*** Create a new Valitor authorisation entry ****
 				ValitorAuthorisationEntry auth = new ValitorAuthorisationEntry();
 				auth.setAuthCode(valitorPayResponseData.getResponseCode());
-				auth.setAmount(amount);
-				auth.setCardNumber(cardnumber);
-				auth.setCurrency(currency);
+				auth.setAmount(valitorAuthorisationEntry.getAmount());
+				auth.setCurrency(valitorAuthorisationEntry.getCurrency());
 				auth.setUniqueId(valitorPayResponseData.getCorrelationID());
 				auth.setReference(paymentUUID);
-				auth.setCardNumber(CreditCardUtil.getMaskedCreditCardNumber(cardnumber));
-				auth.setParent( (ValitorAuthorisationEntry) parentDataPK );
+				auth.setCardNumber(valitorAuthorisationEntry.getCardNumber());
+				if (parentDataPK instanceof ValitorAuthorisationEntry) {
+					auth.setParent((ValitorAuthorisationEntry) parentDataPK);
+				}
 				auth.setMerchant(merchant);
 				auth.setRefund(Boolean.TRUE);
 				getAuthDAO().store(auth);
@@ -1785,52 +1790,75 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		}
 	}
 
-	private String getValitorPushFundsWebServiceURL(IWMainApplicationSettings settings) {
+	private String getValitorRefundWithCorrelationIdWebServiceURL(IWMainApplicationSettings settings) {
 		String webServiceURL = settings.getProperty(
 				"valitorpay.url.push_funds",
-				getDefaultValitorPayURL(settings, "PAYMENT") + "/PushFunds"
+				getDefaultValitorPayURL(settings, "PAYMENT") + "/RefundWithCorrelationId"
 		);
 		return webServiceURL;
 	}
 
-	private ValitorPayPushFundsData getValitorPayRefundData(
-			IWMainApplicationSettings settings,
-			String cardNumber,
-			String monthExpires,
-			String yearExpires,
-			String ccVerifyNumber,
-			double amount,
-			String currency,
-			String extraField,
-			String paymentUUID,
-			String auditNumber,
-			IWTimestamp now
+	private ValitorPayRefundWithCorrelationIdData getValitorRefundWithCorrelationIdData(
+			ValitorAuthorisationEntry valitorAuthorisationEntry,
+			String uniqueTransactionId
 	) {
-		ValitorPayPushFundsData valitorPayPushFundsData = null;
+		ValitorPayRefundWithCorrelationIdData valitorPayRefundWithCorrelationIdData = null;
 
 		try {
-			//According the ValitorPay, amount should be provided in minor currency unit:
-			//EXPLANATION: The total amount of the payment specified in a minor currency unit. This means that GBP is quoted in pence, USD in cents, DKK in öre, ISK in aurar etc.
-			Integer amountInt = CreditCardUtil.getAmountWithExponents(amount, "2");
 
-			valitorPayPushFundsData = new ValitorPayPushFundsData(
-					amountInt,
-					currency,
-					cardNumber,
-					monthExpires,
-					yearExpires,
-					ccVerifyNumber,
-					Integer.valueOf(auditNumber),
-					paymentUUID,
-					null, //agreementNumber
-					null, //terminalId
-					(now.getDateString("yyyy-MM-dd") + "T" + now.getDateString("HH:mm:ss"))
+			if (
+					valitorAuthorisationEntry == null
+			) {
+				return null;
+			}
+
+			//Prepare the data
+			if (StringUtil.isEmpty(uniqueTransactionId)) {
+				uniqueTransactionId = UUID.randomUUID().toString();
+			}
+
+			String originalTransactionDate = null;
+			if (valitorAuthorisationEntry.getDate() != null) {
+				IWTimestamp transactionDateIWT = new IWTimestamp(valitorAuthorisationEntry.getDate());
+				if (transactionDateIWT != null) {
+					originalTransactionDate = transactionDateIWT.getDateString("yyyy-MM-dd");
+					originalTransactionDate += "T";
+					originalTransactionDate += transactionDateIWT.getDateString("HH:mm:ss");
+				}
+			}
+
+			String originalCorrelationId = CoreConstants.EMPTY;
+			if (!StringUtil.isEmpty(valitorAuthorisationEntry.getServerResponse())) {
+				ValitorPayResponseData valitorPayResponseData = null;
+				try {
+					valitorPayResponseData = CoreConstants.GSON.fromJson(valitorAuthorisationEntry.getServerResponse(), ValitorPayResponseData.class);
+				} catch (Exception e) {
+					LOGGER.log(Level.WARNING, "Could not convert valitor authorisation entry server response from JSON to object. Server response: " + valitorAuthorisationEntry.getServerResponse(), e);
+				}
+				if (
+						valitorPayResponseData != null
+						&& !StringUtil.isEmpty(valitorPayResponseData.getCorrelationID())
+				) {
+					originalCorrelationId = valitorPayResponseData.getCorrelationID();
+				}
+			}
+
+			if (StringUtil.isEmpty(originalCorrelationId)) {
+				return null;
+			}
+
+			//Create the data object
+			valitorPayRefundWithCorrelationIdData = new ValitorPayRefundWithCorrelationIdData(
+					originalCorrelationId,
+					originalTransactionDate,
+					uniqueTransactionId,
+					null
 			);
 		} catch (Exception e) {
-			LOGGER.log(Level.WARNING, "Could not construct the ValitorPayPushFundsData object.", e);
+			LOGGER.log(Level.WARNING, "Could not construct the ValitorPayRefundWithCorrelationIdData object.", e);
 		}
 
-		return valitorPayPushFundsData;
+		return valitorPayRefundWithCorrelationIdData;
 	}
 
 }

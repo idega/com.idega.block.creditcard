@@ -38,4 +38,9 @@ public interface CreditCardConstants {
 
 	public static final Gson GSON = new Gson();
 
+	public static final String APP_PROPERTY_CC_PAYMENT_INFO_ID = "CC_PAYMENT_INFO_ID";
+	public static final String DEFAULT_CC_PAYMENT_INFO_ID = "1";
+	public static final String APP_PROPERTY_CC_SUPPLIER_ID = "CC_SUPPLIER_ID";
+	public static final String DEFAULT_CC_SUPPLIER_ID = "1";
+
 }

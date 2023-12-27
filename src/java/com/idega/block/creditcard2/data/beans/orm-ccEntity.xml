@@ -4,11 +4,11 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_1_0.xsd"
     version="1.0">
 
-	<entity class="com.idega.block.creditcard2.data.beans.ValitorMerchant" />    
+	<entity class="com.idega.block.creditcard2.data.beans.ValitorMerchant" />
 	<entity class="com.idega.block.creditcard2.data.beans.ValitorAuthorisationEntry" />
-	<entity class="com.idega.block.creditcard2.data.beans.ValitorDebitMerchant" />    
+	<entity class="com.idega.block.creditcard2.data.beans.ValitorDebitMerchant" />
 	<entity class="com.idega.block.creditcard2.data.beans.ValitorDebitAuthorisationEntry" />
-	<entity class="com.idega.block.creditcard2.data.beans.BorgunMerchant" />    
+	<entity class="com.idega.block.creditcard2.data.beans.BorgunMerchant" />
 	<entity class="com.idega.block.creditcard2.data.beans.BorgunAuthorisationEntry" />
 	<entity class="com.idega.block.creditcard2.data.beans.BorgunSavedCard" />
 	<entity class="com.idega.block.creditcard2.data.beans.DummyAuthorisationEntry" />
@@ -18,7 +18,9 @@
 	<entity class="com.idega.block.creditcard2.data.beans.TPosAuthorisationEntry" />
 	<entity class="com.idega.block.creditcard2.data.beans.TPosMerchant" />
 	<entity class="com.idega.block.creditcard2.data.beans.VirtualCard" />
-	<entity class="com.idega.block.creditcard2.data.beans.RapydMerchant" />    
+	<entity class="com.idega.block.creditcard2.data.beans.RapydMerchant" />
 	<entity class="com.idega.block.creditcard2.data.beans.RapydAuthorisationEntry" />
-        
+	<entity class="com.idega.block.creditcard2.data.beans.Subscription" />
+	<entity class="com.idega.block.creditcard2.data.beans.SubscriptionPayment" />
+
 </entity-mappings>
