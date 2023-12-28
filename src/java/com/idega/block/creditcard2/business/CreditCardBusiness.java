@@ -1138,9 +1138,9 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		return true;
 	}
 
-	private boolean isValidForForSubscriptionPayment(Subscription subscription) {
+	private boolean isValidForSubscriptionPayment(Subscription subscription) {
 		try {
-			if (isValidForForSubscriptionPayment(subscription == null ? null : subscription.getLastPaymentDate())) {
+			if (isValidForSubscriptionPayment(subscription == null ? null : subscription.getLastPaymentDate())) {
 				getLogger().info("Valid for a new subscription payment. Subscription: " + subscription);
 				return true;
 			}
@@ -1153,7 +1153,7 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 	}
 
 	@Override
-	public boolean isValidForForSubscriptionPayment(Timestamp lastPaymentDate) {
+	public boolean isValidForSubscriptionPayment(Timestamp lastPaymentDate) {
 		boolean validForSubscriptionPayment = false;
 		IWTimestamp nowIWT = new IWTimestamp();
 		nowIWT.setHour(0);

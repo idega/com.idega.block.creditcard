@@ -57,7 +57,7 @@ public interface CardBusiness {
 
 	public void doMakeSubscriptionPayments();
 
-	public boolean isValidForForSubscriptionPayment(Timestamp lastPaymentDate);
+	public boolean isValidForSubscriptionPayment(Timestamp lastPaymentDate);
 
 	public CreditCardAuthorizationEntry getByReference(String reference);
 

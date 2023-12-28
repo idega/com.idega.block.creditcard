@@ -697,7 +697,7 @@ public class DebitCardBusiness extends DefaultSpringBean implements CardBusiness
 	}
 
 	@Override
-	public boolean isValidForForSubscriptionPayment(Timestamp lastPaymentDate) {
+	public boolean isValidForSubscriptionPayment(Timestamp lastPaymentDate) {
 		getLogger().warning("Not implemented");
 		return false;
 	}
