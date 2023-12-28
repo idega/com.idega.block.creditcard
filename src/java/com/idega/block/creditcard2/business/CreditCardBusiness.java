@@ -1009,143 +1009,192 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		return null;
 	}
 
+	private CreditCardClient getCreditCardClient(Subscription subscription) throws Exception {
+		Integer merchantId = subscription == null ? null : subscription.getMerchantId();
+		if (merchantId == null) {
+			return getCreditCardClient(IWMainApplication.getDefaultIWApplicationContext());
+		}
+
+		CreditCardMerchant merchant = getCreditCardMerchant(merchantId);
+		CreditCardClient client = getCreditCardClient(merchant);
+		if (client == null) {
+			client = getCreditCardClient(IWMainApplication.getDefaultIWApplicationContext());
+		}
+		return client;
+	}
+
 	@Override
 	public void doMakeSubscriptionPayments() {
+		List<Subscription> subscriptions = null;
 		try {
-
 			//**** GET ACTIVE SUBSCRIPTIONS ****
-			List<Subscription> subscriptions = getSubscriptionDAO().getAllActive();
+			subscriptions = getSubscriptionDAO().getAllActive();
+			if (ListUtil.isEmpty(subscriptions)) {
+				getLogger().info("There are no active subscriptions");
+				return;
+			}
 
-			if (!ListUtil.isEmpty(subscriptions)) {
-
-				CreditCardClient creditCardClient = getCreditCardClient(IWMainApplication.getDefaultIWApplicationContext());
-
-				if (creditCardClient == null) {
-					getLogger().warning("Could not find the credit card client. Will not execute automatic subscription payments.");
+			Map<String, Boolean> payments = new HashMap<>();
+			for (Subscription subscription: subscriptions) {
+				Integer subscriptionOwnerId = subscription == null ? null : subscription.getUserId();
+				if (subscription == null || subscriptionOwnerId == null) {
+					getLogger().warning("Either subscription (" + subscription + ") or owner ID (" + subscriptionOwnerId + ") of subscription are unknown");
+					continue;
 				}
 
-				for (Subscription subscription : subscriptions) {
+				//**** Check, if valid for subscription payment *****
+				boolean validForPayment = isValidForSubscriptionPayment(subscription);
+				if (!validForPayment) {
+					getLogger().warning("Not yet valid for next payment: " + subscription);
+					continue;
+				}
 
-					if (subscription == null || subscription.getUserId() == null) {
+				try {
+					boolean successfulPayment = false;
+
+					User user = getUserDAO().getUser(subscriptionOwnerId);
+					if (user == null) {
+						getLogger().warning("Did not find user for subscription (" + subscription + ") owner's ID " + subscriptionOwnerId);
 						continue;
 					}
 
-					//**** Check, if valid for subscription payment *****
-					boolean validForPayment = isValidForForSubscriptionPayment(subscription);
-
-					if (validForPayment) {
-						try {
-							boolean successfulPayment = false;
-
-							User user = getUserDAO().getUser(subscription.getUserId());
-							if (user == null) {
-								continue;
-							}
-
-							//Can retry to pay 3 times per month
-							if (canRetryToPay(subscription) == false) {
-								continue;
-							}
-
-							//**** Get virtual cards for user *****
-							List<VirtualCard> virtualCardsForUser = getValidVirtualCardsForUser(user);
-
-							if (ListUtil.isEmpty(virtualCardsForUser)) {
-								continue;
-							}
-
-							//**** If virtual card exist, make the payment *****
-							for (Iterator<VirtualCard> iter = virtualCardsForUser.iterator(); (!successfulPayment && iter.hasNext());) {
-								VirtualCard vc = iter.next();
-								String token = vc == null ? null : vc.getToken();
-								if (StringUtil.isEmpty(token)) {
-									getLogger().warning("Token unknown for virtual card: " + vc + " and user: " + user);
-									continue;
-								}
-
-								String paymentUniqueId = UUID.randomUUID().toString();
-
-								AuthEntryData data = null;
-								try {
-									data = creditCardClient.doSaleWithCardToken(
-											vc.getToken(),
-											subscription.getUniqueId(),
-											subscription.getAmount(),
-											CurrencyHolder.ICELANDIC_KRONA,
-											vc.getToken(),
-											paymentUniqueId
-									);
-								} catch (ValitorPayException eV) {
-									getLogger().log(Level.WARNING, "Error executing automatic subscription payment. Subscription: " + subscription + " for " + user + " using " + vc, eV);
-									//Create the authorization entry about failed transaction
-									storeValitorAuthorizationEntry(
-											paymentUniqueId,
-											vc,
-											subscription.getAmount(),
-											user,
-											CurrencyHolder.ICELANDIC_KRONA,
-											eV,
-											creditCardClient
-									);
-
-								} catch (Throwable t) {
-									getLogger().log(Level.WARNING, "Error executing automatic subscription payment. Subscription: " + subscription + " for " + user + " using " + vc, t);
-								}
-
-								String authCode = data == null ? null : data.getAuthCode();
-								if (StringUtil.isEmpty(authCode)) {
-									getLogger().warning("Auth. code unknown for subscription: " + subscription
-											+ ", virtual card: " + vc + ". Can not execute automatic subscription payment for " + user);
-									continue;
-								}
-
-								successfulPayment = true;
-								getLogger().info("Successful payment with virtual card: " + vc + " for user: " + user +
-										". Auth. code " + authCode + " (unique ID: " + data.getUniqueId() + ").");
-
-								getSubscriptionDAO().doCreateSubscriptionPayment(user.getId(), subscription.getId(), authCode);
-
-								String authEntryUniqueId = data.getUniqueId();
-								setMetaData(creditCardClient, authEntryUniqueId);
-							}
-
-							//**** Update the subscription after the successful payment *****
-							if (successfulPayment) {
-								getLogger().info("Successful automatic subscription payment for subscription: " + subscription);
-								subscription.setLastPaymentDate(IWTimestamp.getTimestampRightNow());
-								getSubscriptionDAO().createUpdateSubscription(subscription);
-
-								//*** Fire the PaymentBySubscriptionEvent ***
-								ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription, Boolean.TRUE, null));
-
-							} else {
-								getLogger().info("Failed to make automatic subscription payment for subscription: " + subscription);
-
-								//Update the subscription
-								IWTimestamp now = IWTimestamp.RightNow();
-								subscription.setLastUnsuccessfulPaymentDate(now.getTimestamp());
-								Integer failedPaymentsPerMonth = subscription.getFailedPaymentsPerMonth() != null ? subscription.getFailedPaymentsPerMonth() : 0;
-								failedPaymentsPerMonth++;
-								subscription.setFailedPaymentsPerMonth(failedPaymentsPerMonth);
-								Integer failedPayments = subscription.getFailedPayments() != null ? subscription.getFailedPayments() : 0;
-								failedPayments++;
-								subscription.setFailedPayments(failedPayments);
-								getSubscriptionDAO().createUpdateSubscription(subscription);
-
-								//*** Fire the PaymentBySubscriptionEvent ***
-								ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription, Boolean.FALSE, "Failed to make automatic subscription payment for subscription."));
-							}
-						} catch (Exception eSubP) {
-							getLogger().log(Level.WARNING, "Failed to make automatic subscription payment for subscription: " + subscription, eSubP);
-
-							//*** Fire the PaymentBySubscriptionEvent ***
-							ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription, Boolean.FALSE, "Failed to make automatic subscription payment for subscription. " + eSubP.getLocalizedMessage()));
-						}
+					//Can retry to pay 3 times per month
+					if (canRetryToPay(subscription) == false) {
+						getLogger().warning("Can not re-try anymore payment for subscription " + subscription);
+						continue;
 					}
+
+					Integer userId = user.getId();
+					String personalId = user.getPersonalID();
+					Integer merhcantId = subscription.getMerchantId();
+					String key = (StringUtil.isEmpty(personalId) ? userId.toString() : personalId)
+								.concat(CoreConstants.UNDER)
+								.concat(merhcantId == null ? CoreConstants.EMPTY : merhcantId.toString());
+					Boolean alreadyPaid = payments.get(key);
+					if (alreadyPaid != null && alreadyPaid) {
+						getLogger().info("It was already paid by " + user + " (personal ID: " + personalId + ", ID: " + userId + "). Skipping subscription " + subscription);
+						continue;
+					}
+
+					//**** Get virtual cards for user *****
+					List<VirtualCard> virtualCardsForUser = getValidVirtualCardsForUser(user);
+					if (ListUtil.isEmpty(virtualCardsForUser)) {
+						getLogger().warning("There are no virtual cards for " + user + ". Can not pay according to subscription " + subscription);
+						continue;
+					}
+
+					CreditCardClient creditCardClient = getCreditCardClient(subscription);
+					if (creditCardClient == null) {
+						getLogger().warning("Could not find the credit card client. Will not make automatic payment for subscription " + subscription);
+						continue;
+					}
+
+					//**** If virtual card exist, make the payment *****
+					for (Iterator<VirtualCard> iter = virtualCardsForUser.iterator(); (!successfulPayment && iter.hasNext());) {
+						VirtualCard vc = iter.next();
+						String token = vc == null ? null : vc.getToken();
+						if (StringUtil.isEmpty(token)) {
+							getLogger().warning("Token unknown for virtual card: " + vc + " and user: " + user + ". Subscription: " + subscription);
+							continue;
+						}
+
+						String paymentUniqueId = UUID.randomUUID().toString();
+
+						AuthEntryData data = null;
+						try {
+							data = creditCardClient.doSaleWithCardToken(
+									vc.getToken(),
+									subscription.getUniqueId(),
+									subscription.getAmount(),
+									CurrencyHolder.ICELANDIC_KRONA,
+									vc.getToken(),
+									paymentUniqueId
+							);
+						} catch (ValitorPayException eV) {
+							String error = "Error executing payment for subscription: " + subscription + " by " + user + " using virtual card " + vc;
+							getLogger().log(Level.WARNING, error, eV);
+							CoreUtil.sendExceptionNotification(error, eV);
+
+							//Create the authorization entry about failed transaction
+							storeValitorAuthorizationEntry(
+									paymentUniqueId,
+									vc,
+									subscription.getAmount(),
+									user,
+									CurrencyHolder.ICELANDIC_KRONA,
+									eV,
+									creditCardClient
+							);
+						} catch (Throwable t) {
+							String error = "Error making payment for subscription: " + subscription + " by " + user + " using virtual card " + vc;
+							getLogger().log(Level.WARNING, error, t);
+							CoreUtil.sendExceptionNotification(error, t);
+						}
+
+						String authCode = data == null ? null : data.getAuthCode();
+						if (StringUtil.isEmpty(authCode)) {
+							getLogger().warning("Auth. code unknown for payment by subscription: " + subscription + ", virtual card: " + vc +
+									". Can not execute automatic subscription payment for " + user);
+							continue;
+						}
+
+						successfulPayment = true;
+						getLogger().info("Successful payment with virtual card: " + vc + " by user: " + user + " for subscription " + subscription + ". Auth. code " + authCode +
+								" (unique ID: " + data.getUniqueId() + ").");
+						payments.put(key, Boolean.TRUE);
+
+						getSubscriptionDAO().doCreateSubscriptionPayment(userId, subscription.getId(), authCode);
+
+						String authEntryUniqueId = data.getUniqueId();
+						setMetaData(creditCardClient, authEntryUniqueId);
+					}
+
+					//**** Update the subscription after the successful payment *****
+					if (successfulPayment) {
+						getLogger().info("Successful automatic subscription payment for subscription: " + subscription);
+						subscription.setLastPaymentDate(IWTimestamp.getTimestampRightNow());
+						getSubscriptionDAO().createUpdateSubscription(subscription);
+
+						//*** Fire the PaymentBySubscriptionEvent ***
+						ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription, Boolean.TRUE, null));
+
+					} else {
+						getLogger().info("Failed to make automatic subscription payment for subscription: " + subscription);
+
+						//Update the subscription
+						IWTimestamp now = IWTimestamp.RightNow();
+						subscription.setLastUnsuccessfulPaymentDate(now.getTimestamp());
+						Integer failedPaymentsPerMonth = subscription.getFailedPaymentsPerMonth() != null ? subscription.getFailedPaymentsPerMonth() : 0;
+						failedPaymentsPerMonth++;
+						subscription.setFailedPaymentsPerMonth(failedPaymentsPerMonth);
+						Integer failedPayments = subscription.getFailedPayments() != null ? subscription.getFailedPayments() : 0;
+						failedPayments++;
+						subscription.setFailedPayments(failedPayments);
+						getSubscriptionDAO().createUpdateSubscription(subscription);
+
+						//*** Fire the PaymentBySubscriptionEvent ***
+						ELUtil.getInstance().publishEvent(new PaymentBySubscriptionEvent(this, subscription, Boolean.FALSE, "Failed to make automatic subscription payment for subscription."));
+					}
+				} catch (Exception eSubP) {
+					String error = "Failed to make automatic payment for subscription: " + subscription;
+					getLogger().log(Level.WARNING, error, eSubP);
+					CoreUtil.sendExceptionNotification(error, eSubP);
+
+					//*** Fire the PaymentBySubscriptionEvent ***
+					ELUtil.getInstance().publishEvent(
+							new PaymentBySubscriptionEvent(
+									this,
+									subscription,
+									Boolean.FALSE,
+									"Failed to make automatic subscription payment for subscription. " + eSubP.getLocalizedMessage()
+							)
+					);
 				}
 			}
 		} catch (Exception e) {
-			getLogger().log(Level.WARNING, "Could not execute automatic subscription payments.", e);
+			String error = "Could not execute automatic subscription payments for " + subscriptions;
+			getLogger().log(Level.WARNING, error, e);
+			CoreUtil.sendExceptionNotification(error, e);
 		}
 	}
 
