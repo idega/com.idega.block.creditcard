@@ -3,6 +3,7 @@ package com.idega.block.creditcard2.business;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -226,6 +227,41 @@ public class CreditCardBusiness extends DefaultSpringBean implements CardBusines
 		default:
 			return getDummyAuthorisationEntryDAO();
 		}
+	}
+
+	private CreditCardMerchant getCreditCardMerchant(Integer merchantId) {
+		if (merchantId == null) {
+			return null;
+		}
+
+		try {
+			WebApplicationContext webAppContext = WebApplicationContextUtils.getWebApplicationContext(IWMainApplication.getDefaultIWMainApplication().getServletContext());
+			@SuppressWarnings("rawtypes")
+			Map<String, MerchantDAO> daos = webAppContext.getBeansOfType(MerchantDAO.class);
+			if (MapUtil.isEmpty(daos)) {
+				return null;
+			}
+
+			CreditCardMerchant merchant = null;
+			for (
+					@SuppressWarnings("rawtypes")
+					Iterator<MerchantDAO> iter = daos.values().iterator();
+					(merchant == null && iter.hasNext());
+			) {
+				MerchantDAO<?> dao = iter.next();
+				try {
+					merchant = dao.findById(merchantId);
+				} catch (Exception e) {}
+			}
+			if (merchant != null) {
+				getLogger().info("Found merchant " + merchant.getClass().getName() + " (type: " + merchant.getType() + ") by ID " + merchantId);
+			}
+			return merchant;
+		} catch (Exception e) {
+			getLogger().log(Level.WARNING, "Error getting merchant by ID " + merchantId, e);
+		}
+
+		return null;
 	}
 
 	public MerchantDAO<?> getCreditCardMerchantDAO(CreditCardInformation ccInfo) {
