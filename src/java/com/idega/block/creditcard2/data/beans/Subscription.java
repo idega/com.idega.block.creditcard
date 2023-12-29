@@ -380,7 +380,8 @@ public class Subscription implements Serializable, UniqueIDCapable, MetaDataCapa
 
 	@Override
 	public String toString() {
-		return getAmount() + " ISK subscription by " + getUserId() + " created " + getCreated() + ". Enabled: " + getEnabled() + ". Last payment's date: " + getLastPaymentDate();
+		return "Subscription (ID: " + getId() + ") by " + getUserId() + " for " + getAmount() + " ISK created " + getCreated() + ". Enabled: " + getEnabled() +
+				". Last payment's date: " + getLastPaymentDate();
 	}
 
 }
