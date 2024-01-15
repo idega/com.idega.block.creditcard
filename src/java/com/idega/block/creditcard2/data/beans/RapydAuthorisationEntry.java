@@ -276,7 +276,7 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 	}
 
 	@OneToOne
-	@JoinColumn(name = "merchant", nullable = false)
+	@JoinColumn(name = CreditCardAuthorizationEntry.COLUMN_MERCHANT, nullable = false)
 	private RapydMerchant merchant;
 
 	@Override

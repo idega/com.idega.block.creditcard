@@ -203,7 +203,7 @@ public class BorgunAuthorisationEntry implements CreditCardAuthorizationEntry {
 	}
 
 	@OneToOne
-	@JoinColumn(name = "merchant", nullable = false)
+	@JoinColumn(name = CreditCardAuthorizationEntry.COLUMN_MERCHANT, nullable = false)
 	private BorgunMerchant merchant;
 
 	@Column(name = "UNIQUE_ID")

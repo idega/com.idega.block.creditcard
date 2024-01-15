@@ -260,7 +260,7 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	}
 
 	@OneToOne
-	@JoinColumn(name = "merchant", nullable = false)
+	@JoinColumn(name = CreditCardAuthorizationEntry.COLUMN_MERCHANT, nullable = false)
 	private ValitorMerchant merchant;
 
 	@Override

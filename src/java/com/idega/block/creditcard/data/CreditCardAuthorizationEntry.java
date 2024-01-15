@@ -22,7 +22,8 @@ public interface CreditCardAuthorizationEntry extends IDOEntity, UniqueIDCapable
 								COLUMN_CARD_TOKEN = "card_token",
 								COLUMN_TRANSACTION_ID = "transaction_id",
 								COLUMN_REFUND = "refund",
-								COLUMN_REFERENCE = "reference";
+								COLUMN_REFERENCE = "reference",
+								COLUMN_MERCHANT = "merchant";
 
 	public static float amountMultiplier = 100;
 
