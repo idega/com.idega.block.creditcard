@@ -4,8 +4,9 @@ import java.sql.Date;
 import java.util.List;
 
 import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
+import com.idega.core.persistence.GenericDao;
 
-public interface AuthorisationEntriesDAO<T> {
+public interface AuthorisationEntriesDAO<T> extends GenericDao {
 
 	public CreditCardAuthorizationEntry getChild(T entry);
 
