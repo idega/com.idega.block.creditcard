@@ -124,7 +124,7 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "amount")
 	private Double amount;
 
-	@Column(name = "auth_code")
+	@Column(name = CreditCardAuthorizationEntry.COLUMN_AUTHORIZATION_CODE)
 	private String authCode;
 
 	@Column(name = "brand_name")

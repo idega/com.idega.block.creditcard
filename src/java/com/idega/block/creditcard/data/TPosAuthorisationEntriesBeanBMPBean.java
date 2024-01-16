@@ -41,7 +41,7 @@ public class TPosAuthorisationEntriesBeanBMPBean extends GenericEntity implement
 private final static String ENTITY_NAME = "tpos_auth_entries";
   private final static String AUTHORISATION_AMOUNT = "auth_amount";
   private final static String AUTHORISATION_CURRENCY = "auth_currency";
-  private final static String AUTHORISATION_CODE = "auth_code";
+  private final static String AUTHORISATION_CODE = CreditCardAuthorizationEntry.COLUMN_AUTHORIZATION_CODE;
   private final static String AUTHORISATION_ID_RSP = "auth_id_rsp";
   private final static String AUTHORISATION_PATH_REASON_CODE = "auth_path_res_code";
   private final static String BATCH_NUMBER = "batch_nr";

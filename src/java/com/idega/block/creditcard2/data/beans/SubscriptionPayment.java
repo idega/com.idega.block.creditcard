@@ -19,6 +19,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.idega.block.creditcard.data.CreditCardAuthorizationEntry;
 import com.idega.core.idgenerator.business.UUIDGenerator;
 import com.idega.util.StringUtil;
 
@@ -47,7 +48,7 @@ public class SubscriptionPayment implements Serializable {
 						COLUMN_UNIQUE_ID = "unique_id",
 						COLUMN_USER_ID = "user_id",
 						COLUMN_SUBSCRIPTION_ID = "subscription_id",
-						COLUMN_AUTH_CODE = "auth_code";
+						COLUMN_AUTH_CODE = CreditCardAuthorizationEntry.COLUMN_AUTHORIZATION_CODE;
 
 	public static final String	QUERY_GET_ALL_BY_USER_ID = "SubscriptionPayment.getAllByUserId",
 								PARAM_USER_ID = "userId";

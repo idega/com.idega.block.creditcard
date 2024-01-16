@@ -128,9 +128,9 @@ public class RapydAuthorisationEntry implements CreditCardAuthorizationEntry {
 						AUTHORIZATION_TYPE_PARTIAL_REVERSAL = "4",
 						AUTHORIZATION_TYPE_PRE_AUTHORIZE = "5",
 
-						COLUMN_AUTH_CODE = "auth_code",
+						COLUMN_AUTH_CODE = CreditCardAuthorizationEntry.COLUMN_AUTHORIZATION_CODE,
 						COLUMN_UNIQUE_ID = "UNIQUE_ID",
-						COLUMN_REFERENCE = "reference";
+						COLUMN_REFERENCE = CreditCardAuthorizationEntry.COLUMN_REFERENCE;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

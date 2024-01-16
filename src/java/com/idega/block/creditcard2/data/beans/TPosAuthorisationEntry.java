@@ -84,7 +84,7 @@ public class TPosAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "auth_currency")
 	private String currency;
 
-	@Column(name = "auth_code")
+	@Column(name = CreditCardAuthorizationEntry.COLUMN_AUTHORIZATION_CODE)
 	private String authCode;
 
 	@Column(name = "auth_id_rsp")

@@ -28,7 +28,7 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 	private static final String TABLE_NAME = "CC_DUMMY_AUTH_ENTRIES";
 
 	private static final String COLUMN_AMOUNT = "AMOUNT";
-	private static final String COLUMN_AUTHORIZATION_CODE = "AUTH_CODE";
+	private static final String COLUMN_AUTHORIZATION_CODE = CreditCardAuthorizationEntry.COLUMN_AUTHORIZATION_CODE;
 	private static final String COLUMN_BRAND_NAME = "BRAND_NAME";
 	private static final String COLUMN_CARD_EXPIRES = "CARD_EXPIRES";
 	private static final String COLUMN_CARD_NUMBER = "CARD_NUMBER";
@@ -51,7 +51,7 @@ public class DummyAuthorisationEntriesBMPBean extends GenericEntity implements D
 	public void initializeAttributes() {
 		addAttribute(getIDColumnName());
 		addAttribute(COLUMN_AMOUNT, "amount", true, true, Double.class);
-		addAttribute(COLUMN_AUTHORIZATION_CODE, "auth_code", true, true, String.class);
+		addAttribute(COLUMN_AUTHORIZATION_CODE, CreditCardAuthorizationEntry.COLUMN_AUTHORIZATION_CODE, true, true, String.class);
 		addAttribute(COLUMN_BRAND_NAME, "brand_name", true, true, String.class);
 		addAttribute(COLUMN_CARD_EXPIRES, "card expire date", true, true, String.class);
 		addAttribute(COLUMN_CARD_NUMBER, "card number", true, true, String.class);

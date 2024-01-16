@@ -90,7 +90,7 @@ public class KortathjonustanAuthorisationEntry implements CreditCardAuthorizatio
 	@Column(name = "AMOUNT")
 	private Double amount;
 
-	@Column(name = "AUTH_CODE")
+	@Column(name = CreditCardAuthorizationEntry.COLUMN_AUTHORIZATION_CODE)
 	private String authCode;
 
 	@Column(name = "BRAND_NAME")
