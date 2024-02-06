@@ -159,7 +159,7 @@ public class ValitorAuthorisationEntryDAO extends GenericDaoImpl implements Auth
 		return null;
 	}
 
-	public List<Long> getIdsOfSuccfullPaymentsToMarchant(Integer merchantId, Date date) {
+	public List<Long> getIdsOfSuccessfulPaymentsToMerchant(Integer merchantId, Date date) {
 		if (merchantId == null || date == null) {
 			return null;
 		}
