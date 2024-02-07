@@ -61,6 +61,12 @@ import com.idega.util.URIUtil;
 import com.idega.util.expression.ELUtil;
 import com.sun.jersey.api.client.ClientResponse;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
+import com.idega.idegaweb.IWMainApplication;
+import com.idega.idegaweb.IWMainApplicationSettings;
+
+
 public class RapydCreditCardClient implements CreditCardClient {
 
 	private static final Logger LOGGER = Logger.getLogger(RapydCreditCardClient.class.getName());
@@ -72,6 +78,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 	private String url;
 
 	public RapydCreditCardClient(CreditCardMerchant merchant) {
+		setSecureMerchantData(merchant);
 		this.merchant = merchant;
 
 		if (merchant instanceof RapydMerchant && CreditCardMerchant.MERCHANT_TYPE_RAPYD.equals(merchant.getType())) {
@@ -103,6 +110,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 
 	@Override
 	public CreditCardMerchant getCreditCardMerchant() {
+		setSecureMerchantData(merchant);
 		return merchant;
 	}
 
@@ -753,6 +761,62 @@ public class RapydCreditCardClient implements CreditCardClient {
 			CoreUtil.sendExceptionNotification(error, e);
 
 			throw new RapydException(e, error, result);
+		}
+	}
+
+	private IWMainApplicationSettings getSettings() {
+		IWMainApplication application = IWMainApplication.getDefaultIWMainApplication();
+		if (application != null) {
+			return application.getSettings();
+		}
+
+		return null;
+	}
+
+	private void setSecureMerchantData(CreditCardMerchant merchant) {
+		try {
+
+			if (merchant == null || merchant.getId() == null) {
+				throw new Exception("Merchant not found.");
+			}
+
+			//*** Init DOTENV config ***
+			Dotenv dotenv = Dotenv.configure()
+			        .directory(getSettings().getProperty(CreditCardConstants.APP_PROP_PATH_TO_CC_DOTENV_FILE, CreditCardConstants.PATH_TO_CC_DOTENV_FILE))
+			        .ignoreIfMalformed()
+			        .ignoreIfMissing()
+			        .load();
+			//Dotenv dotenv = Dotenv.configure().load();
+
+			//*** Get secure data for specific merchant from .env file ***
+			//Properties stored in .env file:
+			//		<MERCHANT_ID>=<LOGIN@PASSWORD@SHARED_SECRET>
+			String merchantSecureData = dotenv.get(String.valueOf(merchant.getId()));
+			if (StringUtil.isEmpty(merchantSecureData)) {
+				throw new Exception("Merchant secure data is not found in .env file.");
+			}
+
+			//*** Processing and adding to the merchant secure data fetched from .env file ***
+			String[] arrOfMerchantProps = merchantSecureData.split(CoreConstants.AT);
+
+			//LOGIN / USER - the same MERCHANT ID
+			if (!StringUtil.isEmpty(arrOfMerchantProps[0])) {
+				LOGGER.info("Found banking merchant login from DOTENV file for the merchant with id: " + merchant.getId() + ". Secure data length: " + arrOfMerchantProps[0].length());
+				merchant.setUser(arrOfMerchantProps[0]);
+			}
+			//PASSWORD
+			if (!StringUtil.isEmpty(arrOfMerchantProps[1])) {
+				LOGGER.info("Found banking merchant password from DOTENV file for the merchant with id: " + merchant.getId() + ". Secure data length: " + arrOfMerchantProps[1].length());
+				merchant.setPassword(arrOfMerchantProps[1]);
+			}
+			//SHARED SECRET
+			if (!StringUtil.isEmpty(arrOfMerchantProps[2])) {
+				LOGGER.info("Found banking merchant shared secret from DOTENV file for the merchant with id: " + merchant.getId() + ". Secure data length: " + arrOfMerchantProps[2].length());
+				merchant.setSharedSecret(arrOfMerchantProps[2]);
+			}
+
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Could not set the secure banking merchant data from DOTENV for merchant: " + merchant, e);
 		}
 	}
 
