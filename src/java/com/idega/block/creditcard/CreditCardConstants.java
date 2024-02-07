@@ -27,4 +27,8 @@ public interface CreditCardConstants {
 	public static final String APP_PROPERTY_CC_SUPPLIER_ID = "CC_SUPPLIER_ID";
 	public static final String DEFAULT_CC_SUPPLIER_ID = "1";
 
+	public static final String PATH_TO_CC_DOTENV_FILE = "../dotenv_cc_merchant";
+
+	public static final String APP_PROP_PATH_TO_CC_DOTENV_FILE = "PATH_TO_CC_DOTENV_FILE";
+
 }
