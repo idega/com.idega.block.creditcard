@@ -1845,22 +1845,7 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				}
 			}
 
-			String originalCorrelationId = CoreConstants.EMPTY;
-			if (!StringUtil.isEmpty(valitorAuthorisationEntry.getServerResponse())) {
-				ValitorPayResponseData valitorPayResponseData = null;
-				try {
-					valitorPayResponseData = CoreConstants.GSON.fromJson(valitorAuthorisationEntry.getServerResponse(), ValitorPayResponseData.class);
-				} catch (Exception e) {
-					LOGGER.log(Level.WARNING, "Could not convert valitor authorisation entry server response from JSON to object. Server response: " + valitorAuthorisationEntry.getServerResponse(), e);
-				}
-				if (
-						valitorPayResponseData != null
-						&& !StringUtil.isEmpty(valitorPayResponseData.getCorrelationID())
-				) {
-					originalCorrelationId = valitorPayResponseData.getCorrelationID();
-				}
-			}
-
+			String originalCorrelationId = getCorrelationId(valitorAuthorisationEntry.getServerResponse());
 			if (StringUtil.isEmpty(originalCorrelationId)) {
 				return null;
 			}
@@ -1877,6 +1862,55 @@ public class ValitorCreditCardClient implements CreditCardClient {
 		}
 
 		return valitorPayRefundWithCorrelationIdData;
+	}
+
+	private String getCorrelationId(String serverResponse) {
+		if (StringUtil.isEmpty(serverResponse)) {
+			LOGGER.warning("Server's response (JSON) is not provided");
+			return null;
+		}
+
+		ValitorPayResponseData valitorPayResponseData = null;
+		try {
+			valitorPayResponseData = CoreConstants.GSON.fromJson(serverResponse, ValitorPayResponseData.class);
+		} catch (Throwable t) {}
+		if (
+				valitorPayResponseData != null &&
+				!StringUtil.isEmpty(valitorPayResponseData.getCorrelationID())
+		) {
+			return valitorPayResponseData.getCorrelationID();
+		}
+
+		String correlationId = null;
+		String startPhrase = "\"correlationID\":\"";
+		int start = serverResponse.indexOf(startPhrase);
+		if (start > 0) {
+			start = start + startPhrase.length();
+			String endPhrase = CoreConstants.QOUTE_MARK;
+
+			int i = 0;
+			int step = i + 1;
+			StringBuilder id = new StringBuilder();
+			while (
+					start + i < serverResponse.length() &&
+					!endPhrase.equals(serverResponse.substring(start + i, start + step))
+			) {
+				String part = serverResponse.substring(start + i, start + step);
+				if (!StringUtil.isEmpty(part)) {
+					id.append(part);
+				}
+
+				i++;
+				step = i + 1;
+			}
+			correlationId = id.toString();
+		}
+
+		if (StringUtil.isEmpty(correlationId)) {
+			LOGGER.warning("Could not convert valitor authorisation entry server's response from JSON to object. Server's response: " + serverResponse);
+		}
+
+		return correlationId;
 	}
 
 }
