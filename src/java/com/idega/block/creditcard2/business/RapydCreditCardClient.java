@@ -772,7 +772,8 @@ public class RapydCreditCardClient implements CreditCardClient {
 		String dir = null;
 		try {
 			if (merchant == null || merchant.getId() == null) {
-				throw new Exception("Merchant not found.");
+				LOGGER.warning("Merchant not provided!");
+				return;
 			}
 
 			//*** Init DOTENV config ***
@@ -788,13 +789,15 @@ public class RapydCreditCardClient implements CreditCardClient {
 			//		<MERCHANT_ID>=<LOGIN@PASSWORD@SHARED_SECRET>
 			String merchantSecureData = dotenv.get(String.valueOf(merchant.getId()));
 			if (StringUtil.isEmpty(merchantSecureData)) {
-				throw new Exception("Merchant's (" + merchant + ") secure data is not found in .env file.");
+				LOGGER.warning("Merchant's (" + merchant + ") secure data is not found in .env file.");
+				return;
 			}
 
 			//*** Processing and adding to the merchant secure data fetched from .env file ***
 			String[] arrOfMerchantProps = merchantSecureData.split(CoreConstants.AT);
 			if (ArrayUtil.isEmpty(arrOfMerchantProps) || arrOfMerchantProps.length < 3) {
-				throw new Exception("There is no data or data is icomplete at " + dir + " for merchant " + merchant);
+				LOGGER.warning("There is no data or data is icomplete at " + dir + " for merchant " + merchant);
+				return;
 			}
 
 			//LOGIN / USER - the same MERCHANT ID
