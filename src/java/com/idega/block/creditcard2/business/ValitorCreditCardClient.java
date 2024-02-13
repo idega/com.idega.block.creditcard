@@ -1063,11 +1063,11 @@ public class ValitorCreditCardClient implements CreditCardClient {
 
 		//Creating MerchantWebhookUrl
 		String serverURL = getServerUrl(settings);
-		String merchantWebhookWebServiceUrl = CoreConstants.EMPTY;
+		String merchantWebhookWebServiceUrl = "dashboard/payment/callback/hook";
 		if (!StringUtil.isEmpty(verificationType) && verificationType.equalsIgnoreCase(com.idega.block.creditcard.business.CreditCardBusiness.CARD_VERIFICATION_TYPE_VIRTUAL_CARD)) {
-			merchantWebhookWebServiceUrl = settings.getProperty("valitorpay.mwu.virt_card", "portal/c4c/payment/callback/hook/virtual");
+			merchantWebhookWebServiceUrl = settings.getProperty("valitorpay.mwu.virt_card", merchantWebhookWebServiceUrl + "/virtual");
 		} else {
-			merchantWebhookWebServiceUrl = settings.getProperty("valitorpay.mwu.card", "portal/c4c/payment/callback/hook");
+			merchantWebhookWebServiceUrl = settings.getProperty("valitorpay.mwu.card", merchantWebhookWebServiceUrl);
 		}
 		String authenticationURL = serverURL;
 		if (authenticationURL.endsWith(CoreConstants.SLASH)) {
