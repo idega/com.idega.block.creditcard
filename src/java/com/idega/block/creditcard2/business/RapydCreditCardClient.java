@@ -796,7 +796,7 @@ public class RapydCreditCardClient implements CreditCardClient {
 			//*** Processing and adding to the merchant secure data fetched from .env file ***
 			String[] arrOfMerchantProps = merchantSecureData.split(CoreConstants.AT);
 			if (ArrayUtil.isEmpty(arrOfMerchantProps) || arrOfMerchantProps.length < 3) {
-				LOGGER.warning("There is no data or data is icomplete at " + dir + " for merchant " + merchant);
+				LOGGER.warning("There is no data or data is incomplete at " + dir + " for merchant " + merchant);
 				return;
 			}
 
