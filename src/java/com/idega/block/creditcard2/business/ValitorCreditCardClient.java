@@ -751,7 +751,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 			auth.setCurrency(payment.getCurrency());
 			String serverResponse = getJSON(response);
-			serverResponse = serverResponse.length() > 255 ? serverResponse.substring(0, 255) : serverResponse;
 			auth.setServerResponse(serverResponse);
 			auth.setAuthCode(response.getAuthorizationCode());
 			IWTimestamp timestamp = new IWTimestamp();
@@ -1117,7 +1116,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 			}
 			auth.setCurrency(verificationData.getCurrency());
 			String serverResponse = getJSON(response);
-			serverResponse = serverResponse.length() > 255 ? serverResponse.substring(0, 255) : serverResponse;
 			auth.setServerResponse(serverResponse);
 			auth.setAuthCode(response.getAuthorizationCode());
 			IWTimestamp timestamp = new IWTimestamp();
@@ -1775,7 +1773,6 @@ public class ValitorCreditCardClient implements CreditCardClient {
 				auth.setTimestamp(timestamp.getTimestamp());
 				auth.setSuccess(Boolean.TRUE);
 				String serverResponse = getJSON(valitorPayResponseData);
-				serverResponse = serverResponse.length() > 255 ? serverResponse.substring(0, 255) : serverResponse;
 				auth.setServerResponse(serverResponse);
 
 				auth.setMerchant(merchant);

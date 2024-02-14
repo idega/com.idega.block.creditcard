@@ -86,6 +86,8 @@ import com.idega.util.StringUtil;
 })
 public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 
+	private static final int MAX_SERVER_RESPONSE_LENGTH = 1000;
+
 	public static final String TABLE_NAME = "VALITOR_AUTHORISATION_ENTRIES";
 
 	public static final String GET_BY_ID = "ValitorAuthorisationEntry.getByID";
@@ -151,7 +153,7 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	@Column(name = "transaction_type")
 	private String transactionType;
 
-	@Column(name = "server_response", length = 1000)
+	@Column(name = "server_response", length = MAX_SERVER_RESPONSE_LENGTH)
 	private String serverResponse;
 
 	@Column(name = "rrn")
@@ -380,6 +382,9 @@ public class ValitorAuthorisationEntry implements CreditCardAuthorizationEntry {
 	}
 
 	public void setServerResponse(String serverResponse) {
+		if (!StringUtil.isEmpty(serverResponse) && serverResponse.length() > MAX_SERVER_RESPONSE_LENGTH) {
+			serverResponse = serverResponse.substring(0, MAX_SERVER_RESPONSE_LENGTH);
+		}
 		this.serverResponse = serverResponse;
 	}
 
