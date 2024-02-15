@@ -1441,7 +1441,12 @@ public class ValitorCreditCardClient implements CreditCardClient {
 	}
 
 	private String getErrorResponseMessage(ClientResponse response) throws Exception {
-		String message = response == null ? null : StringHandler.getContentFromInputStream(response.getEntityInputStream());
+		String message = null;
+		try {
+			message = response == null ? null : StringHandler.getContentFromInputStream(response.getEntityInputStream());
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, "Could not get error message from response.", e);
+		}
 		return "Response message from ValitorPay: ".concat(StringUtil.isEmpty(message) ? "none" : message).concat(". ");
 	}
 
