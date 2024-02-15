@@ -4,7 +4,7 @@ import com.idega.block.creditcard.service.FinanceService;
 
 public interface CreditCardGateway extends FinanceService {
 
-	public static final String	PATH = "/finance",
+	public static final String	PATH = "/card/finance",
 
 								HOOK = "/hook",
 								SUCCESS = HOOK + "/success",

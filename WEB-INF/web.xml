@@ -41,11 +41,11 @@
 	
 	<servlet-mapping>
 		<servlet-name>Credit Card Servlet</servlet-name>
-		<url-pattern>/finance/*</url-pattern>
+		<url-pattern>/card/finance/*</url-pattern>
 	</servlet-mapping>
 	<filter-mapping>
 		<filter-name>Credit Card Filter</filter-name>
-		<url-pattern>/finance/*</url-pattern>
+		<url-pattern>/card/finance/*</url-pattern>
 	</filter-mapping>
 	
 </web-app>
